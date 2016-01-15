@@ -75,18 +75,20 @@ module Pzl.Sites.Core.ObjectHandlers {
  
             var clientContext = SP.ClientContext.get_current();
             var lists = clientContext.get_web().get_lists();
-            var createdLists : Array<SP.List> = [];
+            var listInstances : Array<SP.List> = [];
             
             clientContext.load(lists);
             clientContext.executeQueryAsync(
                 () => {      
                     objects.forEach(function(obj, index) {
-                        var objExists = jQuery.grep(lists.get_data(), (list) => {
+                        var existingObj : any = jQuery.grep(lists.get_data(), (list) => {
                             return list.get_title() == obj.Title;
-                        }).length > 0;                     
+                        })[0];                     
                         
-                        if(objExists) {                            
-                            Core.Log.Information("Lists", `A list, survey, discussion board, or document library with the specified title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`)                            
+                        if(existingObj) {                            
+                            Core.Log.Information("Lists", `A list, survey, discussion board, or document library with the specified title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`);
+                            listInstances.push(existingObj);  
+                            clientContext.load(listInstances[index]);
                         } else {
                             Core.Log.Information("Lists", `Creating list with Title '${obj.Title}' and Url '${obj.Url}'.`)
                             var objCreationInformation = new SP.ListCreationInformation();            
@@ -95,8 +97,8 @@ module Pzl.Sites.Core.ObjectHandlers {
                             if(obj.TemplateType) { objCreationInformation.set_templateType(obj.TemplateType); }
                             if(obj.Title) { objCreationInformation.set_title(obj.Title); }
                             if(obj.Url) { objCreationInformation.set_url(obj.Url); }
-                            createdLists.push(lists.add(objCreationInformation));
-                            clientContext.load(createdLists[index]);
+                            listInstances.push(lists.add(objCreationInformation));
+                            clientContext.load(listInstances[index]);
                         }
                     });
                     
@@ -114,7 +116,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                                     promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
                                 }
                                 if(obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
-                                    promises.push(Extensions.ApplyContentTypeBindings(clientContext, createdLists[index], obj.ContentTypeBindings));
+                                    promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances[index], obj.ContentTypeBindings));
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(() => {        

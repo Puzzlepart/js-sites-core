@@ -17,7 +17,7 @@ module Pzl.Sites.Core {
         }
         Error(objectHandler: string, msg : string) {
             if(this.loggerEnabled && this.debug) {
-                console.error(`${new Date()} || ${objectHandler} || ${msg}`);
+                console.log(`${new Date()} || ${objectHandler} || ${msg}`);
             }
         }
     } 

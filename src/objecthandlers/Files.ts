@@ -142,31 +142,29 @@ module Pzl.Sites.Core.ObjectHandlers {
             var def = jQuery.Deferred();            
  
             var clientContext = SP.ClientContext.get_current();
-            window.setTimeout(() => {
-                Core.Log.Information("Files", `Starting provisioning of objects`);      
+            Core.Log.Information("Files", `Starting provisioning of objects`);      
 
+            var promises = [];
+            objects.forEach(function(obj) {        
+                Extensions.AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
+            });            
+            
+            jQuery.when.apply(jQuery, promises).done(() => {
+                Core.Log.Information("Files", `Provisioning of objects ended`);
+                Core.Log.Information("Files Web Parts", `Starting provisioning of objects`);   
+                
                 var promises = [];
-                objects.forEach(function(obj) {        
-                    Extensions.AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
-                });            
+                objects.forEach((obj) => {
+                    if(obj.WebParts && obj.WebParts.length > 0) {
+                        promises.push(Extensions.AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
+                    }
+                });
                 
                 jQuery.when.apply(jQuery, promises).done(() => {
-                    Core.Log.Information("Files", `Provisioning of objects ended`);
-                    Core.Log.Information("Files Web Parts", `Starting provisioning of objects`);   
-                    
-                    var promises = [];
-                    objects.forEach((obj) => {
-                        if(obj.WebParts && obj.WebParts.length > 0) {
-                            promises.push(Extensions.AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
-                        }
-                    });
-                    
-                    jQuery.when.apply(jQuery, promises).done(() => {
-                        Core.Log.Information("Files Web Parts", `Provisioning of objects ended`);   
-                        def.resolve();
-                    });                      
-                });
-            }, 5000);
+                    Core.Log.Information("Files Web Parts", `Provisioning of objects ended`);   
+                    def.resolve();
+                });                      
+            });
             
             
             return def.promise();

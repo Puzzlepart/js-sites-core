@@ -51,12 +51,27 @@ var Pzl;
                         return def.promise();
                     }
                     Extensions.CreateFolders = CreateFolders;
+                    function ApplyContentTypeBindings(clientContext, list, contentTypeBindings) {
+                        var def = jQuery.Deferred();
+                        var webCts = clientContext.get_web().get_contentTypes();
+                        var listCts = list.get_contentTypes();
+                        Core.Log.Information("Lists", "Enabled content types for list '" + list.get_title() + "'");
+                        list.set_contentTypesEnabled(true);
+                        list.update();
+                        clientContext.load(webCts);
+                        clientContext.load(listCts);
+                        clientContext.executeQueryAsync(function () {
+                            def.resolve();
+                        }, function (sender, args) {
+                            console.log(sender, args);
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    }
+                    Extensions.ApplyContentTypeBindings = ApplyContentTypeBindings;
                     function CreateViews() {
                     }
                     Extensions.CreateViews = CreateViews;
-                    function ApplyContentTypeBindings() {
-                    }
-                    Extensions.ApplyContentTypeBindings = ApplyContentTypeBindings;
                 })(Extensions || (Extensions = {}));
                 var Lists = (function () {
                     function Lists() {
@@ -66,9 +81,10 @@ var Pzl;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var lists = clientContext.get_web().get_lists();
+                        var createdLists = [];
                         clientContext.load(lists);
                         clientContext.executeQueryAsync(function () {
-                            objects.forEach(function (obj) {
+                            objects.forEach(function (obj, index) {
                                 var objExists = jQuery.grep(lists.get_data(), function (list) {
                                     return list.get_title() == obj.Title;
                                 }).length > 0;
@@ -93,7 +109,8 @@ var Pzl;
                                     if (obj.Url) {
                                         objCreationInformation.set_url(obj.Url);
                                     }
-                                    clientContext.load(lists.add(objCreationInformation));
+                                    createdLists.push(lists.add(objCreationInformation));
+                                    clientContext.load(createdLists[index]);
                                 }
                             });
                             if (!clientContext.get_hasPendingRequest()) {
@@ -103,9 +120,12 @@ var Pzl;
                             }
                             clientContext.executeQueryAsync(function () {
                                 var promises = [];
-                                objects.forEach(function (obj) {
+                                objects.forEach(function (obj, index) {
                                     if (obj.Folders && obj.Folders.length > 0) {
                                         promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
+                                    }
+                                    if (obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
+                                        promises.push(Extensions.ApplyContentTypeBindings(clientContext, createdLists[index], obj.ContentTypeBindings));
                                     }
                                 });
                                 jQuery.when.apply(jQuery, promises).done(function () {
@@ -346,27 +366,25 @@ var Pzl;
                     Files.prototype.ProvisionObjects = function (objects) {
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
-                        window.setTimeout(function () {
-                            Core.Log.Information("Files", "Starting provisioning of objects");
+                        Core.Log.Information("Files", "Starting provisioning of objects");
+                        var promises = [];
+                        objects.forEach(function (obj) {
+                            Extensions.AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
+                        });
+                        jQuery.when.apply(jQuery, promises).done(function () {
+                            Core.Log.Information("Files", "Provisioning of objects ended");
+                            Core.Log.Information("Files Web Parts", "Starting provisioning of objects");
                             var promises = [];
                             objects.forEach(function (obj) {
-                                Extensions.AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
+                                if (obj.WebParts && obj.WebParts.length > 0) {
+                                    promises.push(Extensions.AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
+                                }
                             });
                             jQuery.when.apply(jQuery, promises).done(function () {
-                                Core.Log.Information("Files", "Provisioning of objects ended");
-                                Core.Log.Information("Files Web Parts", "Starting provisioning of objects");
-                                var promises = [];
-                                objects.forEach(function (obj) {
-                                    if (obj.WebParts && obj.WebParts.length > 0) {
-                                        promises.push(Extensions.AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
-                                    }
-                                });
-                                jQuery.when.apply(jQuery, promises).done(function () {
-                                    Core.Log.Information("Files Web Parts", "Provisioning of objects ended");
-                                    def.resolve();
-                                });
+                                Core.Log.Information("Files Web Parts", "Provisioning of objects ended");
+                                def.resolve();
                             });
-                        }, 5000);
+                        });
                         return def.promise();
                     };
                     return Files;
@@ -633,46 +651,44 @@ var Pzl;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
-                        window.setTimeout(function () {
-                            Core.Log.Information("LocalNavigation", "Starting provisioning of objects");
-                            var navigation = web.get_navigation();
-                            var quickLaunchNodeCollection = navigation.get_quickLaunch();
-                            clientContext.load(quickLaunchNodeCollection);
+                        Core.Log.Information("LocalNavigation", "Starting provisioning of objects");
+                        var navigation = web.get_navigation();
+                        var quickLaunchNodeCollection = navigation.get_quickLaunch();
+                        clientContext.load(quickLaunchNodeCollection);
+                        clientContext.executeQueryAsync(function () {
+                            Core.Log.Information("LocalNavigation", "Removing existing navigation nodes");
+                            var temporaryQuickLaunch = [];
+                            var index = quickLaunchNodeCollection.get_count() - 1;
+                            while (index >= 0) {
+                                var oldNode = quickLaunchNodeCollection.itemAt(index);
+                                temporaryQuickLaunch.push(oldNode);
+                                oldNode.deleteObject();
+                                index--;
+                            }
                             clientContext.executeQueryAsync(function () {
-                                Core.Log.Information("LocalNavigation", "Removing existing navigation nodes");
-                                var temporaryQuickLaunch = [];
-                                var index = quickLaunchNodeCollection.get_count() - 1;
-                                while (index >= 0) {
-                                    var oldNode = quickLaunchNodeCollection.itemAt(index);
-                                    temporaryQuickLaunch.push(oldNode);
-                                    oldNode.deleteObject();
-                                    index--;
-                                }
-                                clientContext.executeQueryAsync(function () {
-                                    objects.forEach(function (obj) {
-                                        Core.Log.Information("LocalNavigation", "Adding navigation node with Url '" + obj.Url + "' and Title '" + obj.Title + "'");
-                                        var existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
-                                        var newNode = new SP.NavigationNodeCreationInformation();
-                                        newNode.set_title(obj.Title);
-                                        newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(obj.Url));
-                                        newNode.set_asLastNode(true);
-                                        quickLaunchNodeCollection.add(newNode);
-                                    });
-                                    clientContext.executeQueryAsync(function () {
-                                        Core.Log.Information("LocalNavigation", "Provisioning of objects ended");
-                                        def.resolve();
-                                    }, function (sender, args) {
-                                        Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
-                                        Core.Log.Error("LocalNavigation", "" + args.get_message());
-                                        def.resolve(sender, args);
-                                    });
+                                objects.forEach(function (obj) {
+                                    Core.Log.Information("LocalNavigation", "Adding navigation node with Url '" + obj.Url + "' and Title '" + obj.Title + "'");
+                                    var existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
+                                    var newNode = new SP.NavigationNodeCreationInformation();
+                                    newNode.set_title(obj.Title);
+                                    newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(obj.Url));
+                                    newNode.set_asLastNode(true);
+                                    quickLaunchNodeCollection.add(newNode);
                                 });
-                            }, function (sender, args) {
-                                Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
-                                Core.Log.Error("LocalNavigation", "" + args.get_message());
-                                def.resolve(sender, args);
+                                clientContext.executeQueryAsync(function () {
+                                    Core.Log.Information("LocalNavigation", "Provisioning of objects ended");
+                                    def.resolve();
+                                }, function (sender, args) {
+                                    Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
+                                    Core.Log.Error("LocalNavigation", "" + args.get_message());
+                                    def.resolve(sender, args);
+                                });
                             });
-                        }, 5000);
+                        }, function (sender, args) {
+                            Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
+                            Core.Log.Error("LocalNavigation", "" + args.get_message());
+                            def.resolve(sender, args);
+                        });
                         return def.promise();
                     };
                     return LocalNavigation;
@@ -702,7 +718,7 @@ var Pzl;
                 };
                 Logger.prototype.Error = function (objectHandler, msg) {
                     if (this.loggerEnabled && this.debug) {
-                        console.error(new Date() + " || " + objectHandler + " || " + msg);
+                        console.log(new Date() + " || " + objectHandler + " || " + msg);
                     }
                 };
                 return Logger;

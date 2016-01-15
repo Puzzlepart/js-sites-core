@@ -34,10 +34,29 @@ module Pzl.Sites.Core.ObjectHandlers {
             
             return def.promise();
         }
-        export function CreateViews() {
+        export function ApplyContentTypeBindings(clientContext : SP.ClientContext, list: SP.List, contentTypeBindings : Array<Schema.IContentTypeBinding>) {
+            var def = jQuery.Deferred();    
+            var webCts = clientContext.get_web().get_contentTypes();
+            var listCts = list.get_contentTypes();
             
+            Core.Log.Information("Lists", `Enabled content types for list '${list.get_title()}'`)
+            list.set_contentTypesEnabled(true);
+            list.update();
+                        
+            clientContext.load(webCts);
+            clientContext.load(listCts);
+            clientContext.executeQueryAsync(
+                () => {      
+                    def.resolve();   
+                },
+                (sender, args) => { 
+                    console.log(sender, args);
+                    def.resolve(sender, args);   
+                });         
+            
+            return def.promise();
         }
-        export function ApplyContentTypeBindings() {
+        export function CreateViews() {
             
         }
     }
@@ -50,11 +69,12 @@ module Pzl.Sites.Core.ObjectHandlers {
  
             var clientContext = SP.ClientContext.get_current();
             var lists = clientContext.get_web().get_lists();
+            var createdLists : Array<SP.List> = [];
             
             clientContext.load(lists);
             clientContext.executeQueryAsync(
                 () => {      
-                    objects.forEach(function(obj) {
+                    objects.forEach(function(obj, index) {
                         var objExists = jQuery.grep(lists.get_data(), (list) => {
                             return list.get_title() == obj.Title;
                         }).length > 0;                     
@@ -69,7 +89,8 @@ module Pzl.Sites.Core.ObjectHandlers {
                             if(obj.TemplateType) { objCreationInformation.set_templateType(obj.TemplateType); }
                             if(obj.Title) { objCreationInformation.set_title(obj.Title); }
                             if(obj.Url) { objCreationInformation.set_url(obj.Url); }
-                            clientContext.load(lists.add(objCreationInformation));
+                            createdLists.push(lists.add(objCreationInformation));
+                            clientContext.load(createdLists[index]);
                         }
                     });
                     
@@ -82,9 +103,12 @@ module Pzl.Sites.Core.ObjectHandlers {
                     clientContext.executeQueryAsync(
                         () => {      
                             var promises = [];
-                            objects.forEach(function(obj) {
+                            objects.forEach(function(obj, index) {
                                 if(obj.Folders && obj.Folders.length > 0) {
                                     promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
+                                }
+                                if(obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
+                                    promises.push(Extensions.ApplyContentTypeBindings(clientContext, createdLists[index], obj.ContentTypeBindings));
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(() => {        

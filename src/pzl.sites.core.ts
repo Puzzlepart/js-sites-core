@@ -69,7 +69,7 @@ module Pzl.Sites.Core {
             var i = promises.length - 1;
             promises.push(queueItems[step].execute(promises[i]));
             step++;
-        }
+        };
         
         jQuery.when.apply(jQuery, promises).done(() => {
             def.resolve();

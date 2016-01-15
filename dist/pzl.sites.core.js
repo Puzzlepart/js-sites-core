@@ -774,6 +774,7 @@ var Pzl;
                     promises.push(queueItems[step].execute(promises[i]));
                     step++;
                 }
+                ;
                 jQuery.when.apply(jQuery, promises).done(function () {
                     def.resolve();
                 });

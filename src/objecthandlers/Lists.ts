@@ -36,7 +36,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
         export function ApplyContentTypeBindings(clientContext : SP.ClientContext, list: SP.List, contentTypeBindings : Array<Schema.IContentTypeBinding>) {
             var def = jQuery.Deferred();    
-            var webCts = clientContext.get_web().get_contentTypes();
+            var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
             var listCts = list.get_contentTypes();
             
             Core.Log.Information("Lists", `Enabled content types for list '${list.get_title()}'`)
@@ -47,6 +47,12 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.load(listCts);
             clientContext.executeQueryAsync(
                 () => {      
+                    contentTypeBindings.forEach(ctb => {
+                        Core.Log.Information("Lists", `Adding content type '${ctb.ContentTypeId}' to list '${list.get_title()}'`)
+                        listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
+                        
+                    });
+                    list.update();
                     def.resolve();   
                 },
                 (sender, args) => { 

@@ -7,3 +7,6 @@ jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.
     })
 });
 ```
+
+# Schema
+Documentation pending.

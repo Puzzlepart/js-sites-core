@@ -64,9 +64,12 @@ module Pzl.Sites.Core {
         promises[0].resolve();
         promises[0].promise();
         
-        queueItems.forEach((queueItem, index) => {
-            promises.push(queueItem.execute(promises[index-1]));
-        })
+        var step = 1;
+        while (queueItems[step] != undefined) {
+            var i = promises.length - 1;
+            promises.push(queueItems[step].execute(promises[i]));
+            step++;
+        }
         
         jQuery.when.apply(jQuery, promises).done(() => {
             def.resolve();

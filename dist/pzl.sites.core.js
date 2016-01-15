@@ -53,7 +53,7 @@ var Pzl;
                     Extensions.CreateFolders = CreateFolders;
                     function ApplyContentTypeBindings(clientContext, list, contentTypeBindings) {
                         var def = jQuery.Deferred();
-                        var webCts = clientContext.get_web().get_contentTypes();
+                        var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
                         var listCts = list.get_contentTypes();
                         Core.Log.Information("Lists", "Enabled content types for list '" + list.get_title() + "'");
                         list.set_contentTypesEnabled(true);
@@ -61,6 +61,11 @@ var Pzl;
                         clientContext.load(webCts);
                         clientContext.load(listCts);
                         clientContext.executeQueryAsync(function () {
+                            contentTypeBindings.forEach(function (ctb) {
+                                Core.Log.Information("Lists", "Adding content type '" + ctb.ContentTypeId + "' to list '" + list.get_title() + "'");
+                                listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
+                            });
+                            list.update();
                             def.resolve();
                         }, function (sender, args) {
                             console.log(sender, args);

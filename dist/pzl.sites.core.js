@@ -366,6 +366,30 @@ var Pzl;
                         return def.promise();
                     }
                     Extensions.AddWebPartsToWebPartPage = AddWebPartsToWebPartPage;
+                    function ApplyFileProperties(dest, fileProperties) {
+                        var def = jQuery.Deferred();
+                        var clientContext = SP.ClientContext.get_current();
+                        var web = clientContext.get_web();
+                        var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + dest;
+                        var file = web.getFileByServerRelativeUrl(fileServerRelativeUrl);
+                        var listItemAllFields = file.get_listItemAllFields();
+                        Core.Log.Information("Files Properties", "Setting properties for file with URL '" + dest + "'");
+                        for (var key in fileProperties) {
+                            Core.Log.Information("Files Properties", "Setting property '" + key + "' = '" + fileProperties[key] + "' for file with URL '" + dest + "'");
+                            listItemAllFields.set_item(key, fileProperties[key]);
+                        }
+                        listItemAllFields.update();
+                        clientContext.executeQueryAsync(function () {
+                            Core.Log.Information("Files Properties", "Provisioning of objects ended");
+                            def.resolve();
+                        }, function (sender, args) {
+                            Core.Log.Information("Files Properties", "Provisioning of objects failed for file with Url '" + dest + "'");
+                            Core.Log.Error("Files Properties", "" + args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    }
+                    Extensions.ApplyFileProperties = ApplyFileProperties;
                 })(Extensions || (Extensions = {}));
                 var Files = (function () {
                     function Files() {
@@ -388,8 +412,16 @@ var Pzl;
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(function () {
-                                Core.Log.Information("Files Web Parts", "Provisioning of objects ended");
-                                def.resolve();
+                                Core.Log.Information("Files Properties", "Starting provisioning of objects");
+                                var promises = [];
+                                objects.forEach(function (obj) {
+                                    if (obj.Properties && Object.keys(obj.Properties).length > 0) {
+                                        promises.push(Extensions.ApplyFileProperties(obj.Dest, obj.Properties));
+                                    }
+                                });
+                                jQuery.when.apply(jQuery, promises).done(function () {
+                                    def.resolve();
+                                });
                             });
                         });
                         return def.promise();

@@ -135,6 +135,37 @@ module Pzl.Sites.Core.ObjectHandlers {
             
             return def.promise();
         }
+        export function ApplyFileProperties(dest: string, fileProperties : Object) {
+            var def = jQuery.Deferred();              
+            
+            var clientContext = SP.ClientContext.get_current();
+            var web = clientContext.get_web();
+            var fileServerRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${dest}`;
+            var file = web.getFileByServerRelativeUrl(fileServerRelativeUrl);
+            var listItemAllFields = file.get_listItemAllFields();            
+            
+            Core.Log.Information("Files Properties", `Setting properties for file with URL '${dest}'`);
+            
+            for(var key in fileProperties) {
+                Core.Log.Information("Files Properties", `Setting property '${key}' = '${fileProperties[key]}' for file with URL '${dest}'`);
+                listItemAllFields.set_item(key, fileProperties[key]);
+            }            
+            
+            listItemAllFields.update();
+            clientContext.executeQueryAsync(
+                () => {
+                    Core.Log.Information("Files Properties", `Provisioning of objects ended`);
+                    def.resolve();
+                }, 
+                (sender, args) => {
+                    Core.Log.Information("Files Properties", `Provisioning of objects failed for file with Url '${dest}'`)
+                    Core.Log.Error("Files Properties", `${args.get_message()}`)
+                    def.resolve(sender, args);
+                }
+            );       
+            
+            return def.promise();
+        }
     }
     
     export class Files implements IObjectHandler {
@@ -151,8 +182,8 @@ module Pzl.Sites.Core.ObjectHandlers {
             
             jQuery.when.apply(jQuery, promises).done(() => {
                 Core.Log.Information("Files", `Provisioning of objects ended`);
+                                
                 Core.Log.Information("Files Web Parts", `Starting provisioning of objects`);   
-                
                 var promises = [];
                 objects.forEach((obj) => {
                     if(obj.WebParts && obj.WebParts.length > 0) {
@@ -161,8 +192,17 @@ module Pzl.Sites.Core.ObjectHandlers {
                 });
                 
                 jQuery.when.apply(jQuery, promises).done(() => {
-                    Core.Log.Information("Files Web Parts", `Provisioning of objects ended`);   
-                    def.resolve();
+                    Core.Log.Information("Files Properties", `Starting provisioning of objects`);   
+                    var promises = [];
+                    objects.forEach((obj) => {
+                        if(obj.Properties && Object.keys(obj.Properties).length > 0) {
+                            promises.push(Extensions.ApplyFileProperties(obj.Dest, obj.Properties));
+                        }
+                    });
+                    
+                    jQuery.when.apply(jQuery, promises).done(() => {
+                        def.resolve();
+                    });   
                 });                      
             });
             

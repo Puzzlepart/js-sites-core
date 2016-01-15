@@ -3,6 +3,7 @@ module Pzl.Sites.Core.Schema {
         Overwrite: Boolean;
         Dest: string;
         Src: string;
+        Properties: Object;
         RemoveExistingWebParts: Boolean;
         WebParts: Array<IWebPart>;
     }

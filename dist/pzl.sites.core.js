@@ -769,7 +769,7 @@ var Pzl;
                 promises[0].resolve();
                 promises[0].promise();
                 queueItems.forEach(function (queueItem, index) {
-                    promises.push(queueItem.execute(Core.ObjectHandlers[promises[index - 1]]));
+                    promises.push(queueItem.execute(promises[index - 1]));
                 });
                 jQuery.when.apply(jQuery, promises).done(function () {
                     def.resolve();

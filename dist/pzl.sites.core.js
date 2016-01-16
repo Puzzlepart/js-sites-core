@@ -776,23 +776,17 @@ var Pzl;
                 Core.Log.Information("Provisioning", "Starting");
                 var queueItems = [];
                 queue.forEach(function (q, index) {
-                    if (Core.ObjectHandlers[q]) {
-                        queueItems.push(new QueueItem(q, index, json[q], new Core.ObjectHandlers[q]().ProvisionObjects));
-                    }
-                    else {
-                        Core.Log.Error("Provisioning", "There's not object handler available for '" + q + "'");
-                        return;
-                    }
+                    queueItems.push(new QueueItem(q, index, json[q], new Core.ObjectHandlers[q]().ProvisionObjects));
                 });
                 var promises = [];
                 promises.push(jQuery.Deferred());
                 promises[0].resolve();
                 promises[0].promise();
-                var step = 1;
-                while (queueItems[step] != undefined) {
+                var index = 1;
+                while (queueItems[index - 1] != undefined) {
                     var i = promises.length - 1;
-                    promises.push(queueItems[step].execute(promises[i]));
-                    step++;
+                    promises.push(queueItems[index - 1].execute(promises[i]));
+                    index++;
                 }
                 ;
                 jQuery.when.apply(jQuery, promises).done(function () {

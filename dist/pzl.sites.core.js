@@ -1,5 +1,8 @@
+/// <reference path="IRoleDefinition.ts" />
+/// <reference path="IRoleAssignment.ts" />
 /// <reference path="IContentTypeBinding.ts" />
 /// <reference path="IFolder.ts" />
+/// <reference path="ISecurity.ts" />
 /// <reference path="IWebPart.ts" />
 /// <reference path="IListInstance.ts" />
 /// <reference path="IFile.ts" />
@@ -94,12 +97,60 @@ var Pzl;
                             list.update();
                             def.resolve();
                         }, function (sender, args) {
-                            console.log(sender, args);
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     }
                     Extensions.ApplyContentTypeBindings = ApplyContentTypeBindings;
+                    function ApplyListSecurity(clientContext, list, security) {
+                        var def = jQuery.Deferred();
+                        Core.Log.Information("Lists Security", "Setting security for list '" + list.get_title() + "'");
+                        if (security.BreakRoleInheritance) {
+                            list.breakRoleInheritance(security.CopyRoleAssignments, security.ClearSubscopes);
+                        }
+                        list.update();
+                        var web = clientContext.get_web();
+                        var allProperties = web.get_allProperties();
+                        var siteGroups = web.get_siteGroups();
+                        var roleDefinitions = web.get_roleDefinitions();
+                        var roleAssignments = list.get_roleAssignments();
+                        clientContext.load(allProperties);
+                        clientContext.load(roleDefinitions);
+                        clientContext.executeQueryAsync(function () {
+                            security.RoleAssignments.forEach(function (ra) {
+                                var roleDef = null;
+                                if (typeof ra.RoleDefinition == "number") {
+                                    roleDef = roleDefinitions.getById(ra.RoleDefinition);
+                                }
+                                else {
+                                    roleDef = roleDefinitions.getByName(ra.RoleDefinition);
+                                }
+                                var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                                roleBindings.add(roleDef);
+                                var principal = null;
+                                console.log(ra.Principal);
+                                if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
+                                    var token = ra.Principal.substring(1, ra.Principal.length - 1);
+                                    var groupId = allProperties.get_fieldValues()[("vti_" + token)];
+                                    principal = siteGroups.getById(groupId);
+                                }
+                                else {
+                                    principal = siteGroups.getByName(principal);
+                                }
+                                roleAssignments.add(principal, roleBindings);
+                            });
+                            list.update();
+                            clientContext.executeQueryAsync(function () {
+                                def.resolve();
+                            }, function (sender, args) {
+                                def.resolve(sender, args);
+                            });
+                        }, function (sender, args) {
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    }
+                    Extensions.ApplyListSecurity = ApplyListSecurity;
                     function CreateViews() {
                     }
                     Extensions.CreateViews = CreateViews;
@@ -162,6 +213,9 @@ var Pzl;
                                     }
                                     if (obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
                                         promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances[index], obj.ContentTypeBindings));
+                                    }
+                                    if (obj.Security) {
+                                        promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
                                     }
                                 });
                                 jQuery.when.apply(jQuery, promises).done(function () {

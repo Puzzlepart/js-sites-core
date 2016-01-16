@@ -1,5 +1,6 @@
 /// <reference path="IContentTypeBinding.ts" />
 /// <reference path="IFolder.ts" />
+/// <reference path="ISecurity.ts" />
 
 module Pzl.Sites.Core.Schema {
     export interface IListInstance {
@@ -15,5 +16,6 @@ module Pzl.Sites.Core.Schema {
         DraftVersionVisibility: number;
         ContentTypeBindings: Array<IContentTypeBinding>;
         Folders: Array<IFolder>;
+        Security: ISecurity;
     }
 }

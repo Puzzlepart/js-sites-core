@@ -56,10 +56,62 @@ module Pzl.Sites.Core.ObjectHandlers {
                     def.resolve();   
                 },
                 (sender, args) => { 
-                    console.log(sender, args);
                     def.resolve(sender, args);   
                 });         
             
+            return def.promise();
+        }
+        export function ApplyListSecurity(clientContext : SP.ClientContext, list: SP.List, security : Schema.ISecurity) {
+            var def = jQuery.Deferred();    
+            
+            Core.Log.Information("Lists Security", `Setting security for list '${list.get_title()}'`)
+            if(security.BreakRoleInheritance) {
+                list.breakRoleInheritance(security.CopyRoleAssignments, security.ClearSubscopes);
+            }
+            list.update();
+            
+            var web = clientContext.get_web();
+            var allProperties = web.get_allProperties();
+            var siteGroups = web.get_siteGroups();
+            var roleDefinitions = web.get_roleDefinitions();
+            var roleAssignments = list.get_roleAssignments();
+            
+            clientContext.load(allProperties);
+            clientContext.load(roleDefinitions);
+            clientContext.executeQueryAsync(
+                () => {     
+                    security.RoleAssignments.forEach(ra => {
+                        var roleDef = null;
+                        if(typeof ra.RoleDefinition == "number") {
+                            roleDef = roleDefinitions.getById(ra.RoleDefinition);
+                        } else {
+                            roleDef = roleDefinitions.getByName(ra.RoleDefinition);
+                        }
+                        var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                        roleBindings.add(roleDef);
+                        var principal = null;
+                        console.log(ra.Principal);
+                        if(ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
+                            var token = ra.Principal.substring(1, ra.Principal.length -1);
+                            var groupId = allProperties.get_fieldValues()[`vti_${token}`];
+                            principal = siteGroups.getById(groupId);
+                        } else {
+                            principal = siteGroups.getByName(principal);
+                        }
+                        roleAssignments.add(principal, roleBindings);
+                    });
+                    list.update();
+                    clientContext.executeQueryAsync(
+                        () => {     
+                            def.resolve();
+                        },
+                        (sender, args) => {               
+                            def.resolve(sender, args);  
+                        }); 
+                },
+                (sender, args) => {                      
+                    def.resolve(sender, args);  
+                }); 
             return def.promise();
         }
         export function CreateViews() {
@@ -120,6 +172,9 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 }
                                 if(obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
                                     promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances[index], obj.ContentTypeBindings));
+                                }
+                                if(obj.Security) {
+                                    promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(() => {        

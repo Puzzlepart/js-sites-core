@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\INavigationNode.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -22,7 +22,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class LocalNavigation extends ObjectHandlerBase {
+    export class LocalNavigation extends Model.ObjectHandlerBase {
         constructor() {
             super("LocalNavigation")
         }

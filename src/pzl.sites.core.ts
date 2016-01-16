@@ -7,6 +7,7 @@
 /// <reference path="objecthandlers/CustomActions.ts" />
 /// <reference path="objecthandlers/LocalNavigation.ts" />
 /// <reference path="utilities/Logger.ts" />
+/// <reference path="model/TemplateQueueItem.ts" />
 
 module Pzl.Sites.Core {
     export var Log: Logger;
@@ -17,32 +18,6 @@ module Pzl.Sites.Core {
         setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, height, width);
     }
     
-    
-    class QueueItem {
-        name :string;
-        index: number;
-        json: any;
-        callback: Function;
-        execute(dependentPromise?) {
-            if(!dependentPromise) {
-                return this.callback(this.json);
-            }
-            var def = jQuery.Deferred();
-            dependentPromise.done(() => {
-                return this.callback(this.json).done(function () {
-                    def.resolve();
-                });
-            });
-            return def.promise();
-        }
-        
-        constructor(name : string, index : number, json: any, callback : Function) {
-            this.name = name;
-            this.index = index;
-            this.json = json;
-            this.callback = callback;
-        }
-    }
     function getSetupQueue(json) {
         return Object.keys(json);
     }
@@ -51,11 +26,11 @@ module Pzl.Sites.Core {
         
         Log.Information("Provisioning", `Starting`);
         
-        var queueItems : Array<QueueItem> = [];
+        var queueItems : Array<Model.TemplateQueueItem> = [];
         queue.forEach((q, index) => {
-            queueItems.push(new QueueItem(q, index, json[q], new ObjectHandlers[q]().ProvisionObjects));
-        })
-        
+            if(!ObjectHandlers[q]) return;
+            queueItems.push(new Model.TemplateQueueItem(q, index, json[q], json["Parameters"], new ObjectHandlers[q]().ProvisionObjects));
+        });        
         
         var promises = [];
         promises.push(jQuery.Deferred());

@@ -1,10 +1,10 @@
 module Pzl.Sites.Core.Schema {
     export interface IFile {
-        Overwrite: Boolean;
+        Overwrite: boolean;
         Dest: string;
         Src: string;
         Properties: Object;
-        RemoveExistingWebParts: Boolean;
+        RemoveExistingWebParts: boolean;
         WebParts: Array<IWebPart>;
     }
 }

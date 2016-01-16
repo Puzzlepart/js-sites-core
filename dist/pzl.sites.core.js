@@ -19,22 +19,22 @@ var Pzl;
     (function (Sites) {
         var Core;
         (function (Core) {
-            var ObjectHandlers;
-            (function (ObjectHandlers) {
+            var Model;
+            (function (Model) {
                 var ObjectHandlerBase = (function () {
                     function ObjectHandlerBase(name) {
                         this.name = name;
                     }
-                    ObjectHandlerBase.prototype.ProvisionObjects = function (objects) { };
+                    ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
                     return ObjectHandlerBase;
                 })();
-                ObjectHandlers.ObjectHandlerBase = ObjectHandlerBase;
-            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
+                Model.ObjectHandlerBase = ObjectHandlerBase;
+            })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IListInstance.ts" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -219,7 +219,7 @@ var Pzl;
                                 });
                                 jQuery.when.apply(jQuery, promises).done(function () {
                                     clientContext.executeQueryAsync(function () {
-                                        Core.Log.Information(_this, "Provisioning of objects ended");
+                                        Core.Log.Information(_this.name, "Provisioning of objects ended");
                                         def.resolve();
                                     });
                                 });
@@ -236,14 +236,14 @@ var Pzl;
                         return def.promise();
                     };
                     return Lists;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IComposedLook.ts" />
 var Pzl;
 (function (Pzl) {
@@ -296,14 +296,14 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IFile.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -492,14 +492,14 @@ var Pzl;
                         return def.promise();
                     };
                     return Files;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IPage.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -607,14 +607,14 @@ var Pzl;
                         return def.promise();
                     };
                     return Pages;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ICustomAction.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -714,14 +714,14 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\INavigationNode.ts" />
 var Pzl;
 (function (Pzl) {
@@ -803,7 +803,7 @@ var Pzl;
                         return def.promise();
                     };
                     return LocalNavigation;
-                })(ObjectHandlers.ObjectHandlerBase);
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.LocalNavigation = LocalNavigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -838,6 +838,43 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var Model;
+            (function (Model) {
+                var TemplateQueueItem = (function () {
+                    function TemplateQueueItem(name, index, objects, parameters, callback) {
+                        this.name = name;
+                        this.index = index;
+                        this.objects = objects;
+                        this.parameters = parameters;
+                        this.callback = callback;
+                    }
+                    TemplateQueueItem.prototype.execute = function (dependentPromise) {
+                        var _this = this;
+                        if (!dependentPromise) {
+                            return this.callback(this.objects, this.parameters);
+                        }
+                        var def = jQuery.Deferred();
+                        dependentPromise.done(function () {
+                            return _this.callback(_this.objects, _this.parameters).done(function () {
+                                def.resolve();
+                            });
+                        });
+                        return def.promise();
+                    };
+                    return TemplateQueueItem;
+                })();
+                Model.TemplateQueueItem = TemplateQueueItem;
+            })(Model = Core.Model || (Core.Model = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
 /// <reference path="..\typings\tsd.d.ts" />
 /// <reference path="schema/ISiteSchema.ts" />
 /// <reference path="objecthandlers/Lists.ts" />
@@ -847,6 +884,7 @@ var Pzl;
 /// <reference path="objecthandlers/CustomActions.ts" />
 /// <reference path="objecthandlers/LocalNavigation.ts" />
 /// <reference path="utilities/Logger.ts" />
+/// <reference path="model/TemplateQueueItem.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -857,28 +895,6 @@ var Pzl;
             function ShowWaitMessage(header, content, height, width) {
                 setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, height, width);
             }
-            var QueueItem = (function () {
-                function QueueItem(name, index, json, callback) {
-                    this.name = name;
-                    this.index = index;
-                    this.json = json;
-                    this.callback = callback;
-                }
-                QueueItem.prototype.execute = function (dependentPromise) {
-                    var _this = this;
-                    if (!dependentPromise) {
-                        return this.callback(this.json);
-                    }
-                    var def = jQuery.Deferred();
-                    dependentPromise.done(function () {
-                        return _this.callback(_this.json).done(function () {
-                            def.resolve();
-                        });
-                    });
-                    return def.promise();
-                };
-                return QueueItem;
-            })();
             function getSetupQueue(json) {
                 return Object.keys(json);
             }
@@ -887,7 +903,9 @@ var Pzl;
                 Core.Log.Information("Provisioning", "Starting");
                 var queueItems = [];
                 queue.forEach(function (q, index) {
-                    queueItems.push(new QueueItem(q, index, json[q], new Core.ObjectHandlers[q]().ProvisionObjects));
+                    if (!Core.ObjectHandlers[q])
+                        return;
+                    queueItems.push(new Core.Model.TemplateQueueItem(q, index, json[q], json["Parameters"], new Core.ObjectHandlers[q]().ProvisionObjects));
                 });
                 var promises = [];
                 promises.push(jQuery.Deferred());

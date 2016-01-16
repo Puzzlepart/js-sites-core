@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IComposedLook.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {    
@@ -12,7 +12,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class ComposedLook extends ObjectHandlerBase {
+    export class ComposedLook extends Model.ObjectHandlerBase {
         constructor() {
             super("ComposedLook")
         }

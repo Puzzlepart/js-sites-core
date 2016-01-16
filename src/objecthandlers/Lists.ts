@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IListInstance.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -118,13 +118,12 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class Lists extends ObjectHandlerBase {
+    export class Lists extends Model.ObjectHandlerBase {
         constructor() {
             super("Lists")
         }
         ProvisionObjects(objects : Array<Schema.IListInstance>) {
             Core.Log.Information(this.name, `Starting provisioning of objects`);
-            
             var def = jQuery.Deferred();            
  
             var clientContext = SP.ClientContext.get_current();
@@ -179,7 +178,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                             jQuery.when.apply(jQuery, promises).done(() => {        
                                     clientContext.executeQueryAsync(
                                         () => {   
-                                            Core.Log.Information(this, `Provisioning of objects ended`);
+                                            Core.Log.Information(this.name, `Provisioning of objects ended`);
                                             def.resolve();
                                         });
                             });

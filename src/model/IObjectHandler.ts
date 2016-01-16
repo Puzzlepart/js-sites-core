@@ -1,4 +1,4 @@
-module Pzl.Sites.Core.ObjectHandlers {
+module Pzl.Sites.Core.Model {
     export interface IObjectHandler {
         ProvisionObjects(objects);
     }

@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IFile.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 
@@ -167,7 +167,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class Files extends ObjectHandlerBase {
+    export class Files extends Model.ObjectHandlerBase {
        constructor() {
             super("Files")
       }

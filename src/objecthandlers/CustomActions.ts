@@ -1,10 +1,10 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ICustomAction.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
-    export class CustomActions extends ObjectHandlerBase {
+    export class CustomActions extends Model.ObjectHandlerBase {
         constructor() {
             super("CustomActions")
         }

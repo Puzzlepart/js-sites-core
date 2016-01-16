@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\INavigationNode.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -22,19 +22,22 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class LocalNavigation implements IObjectHandler {
+    export class LocalNavigation extends ObjectHandlerBase {
+        constructor() {
+            super("LocalNavigation")
+        }
         ProvisionObjects(objects : Array<Schema.INavigationNode>) {
             var def = jQuery.Deferred();       
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();     
             
-            Core.Log.Information("LocalNavigation", `Starting provisioning of objects`); 
+            Core.Log.Information(this.name, `Starting provisioning of objects`); 
             const navigation = web.get_navigation();
             var quickLaunchNodeCollection = navigation.get_quickLaunch();
             clientContext.load(quickLaunchNodeCollection);
             clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information("LocalNavigation", `Removing existing navigation nodes`);
+                    Core.Log.Information(this.name, `Removing existing navigation nodes`);
                     var temporaryQuickLaunch: Array<SP.NavigationNode> = [];
                     var index = quickLaunchNodeCollection.get_count() - 1;
                     while (index >= 0) {
@@ -45,7 +48,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     }
                     clientContext.executeQueryAsync(() => {
                             objects.forEach((obj) => {
-                                Core.Log.Information("LocalNavigation", `Adding navigation node with Url '${obj.Url}' and Title '${obj.Title}'`);
+                                Core.Log.Information(this.name, `Adding navigation node with Url '${obj.Url}' and Title '${obj.Title}'`);
                                 const existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                                 const newNode = new SP.NavigationNodeCreationInformation();
                                 newNode.set_title(obj.Title);
@@ -54,18 +57,18 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 quickLaunchNodeCollection.add(newNode);
                             });
                             clientContext.executeQueryAsync(() => {
-                                Core.Log.Information("LocalNavigation", `Provisioning of objects ended`);
+                                Core.Log.Information(this.name, `Provisioning of objects ended`);
                                 def.resolve();
                             }, (sender, args) => {
-                                Core.Log.Information("LocalNavigation", `Provisioning of objects failed`)
-                                Core.Log.Error("LocalNavigation", `${args.get_message()}`)
+                                Core.Log.Information(this.name, `Provisioning of objects failed`)
+                                Core.Log.Error(this.name, `${args.get_message()}`)
                                 def.resolve(sender, args);
                             });           
                     });
                 }, 
                 (sender, args) => {
-                    Core.Log.Information("LocalNavigation", `Provisioning of objects failed`)
-                    Core.Log.Error("LocalNavigation", `${args.get_message()}`)
+                    Core.Log.Information(this.name, `Provisioning of objects failed`)
+                    Core.Log.Error(this.name, `${args.get_message()}`)
                     def.resolve(sender, args);
                 });
         

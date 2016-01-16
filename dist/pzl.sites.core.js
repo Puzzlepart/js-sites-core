@@ -9,9 +9,35 @@
 /// <reference path="IContentType.ts" />
 /// <reference path="INavigationNode.ts" />
 /// <reference path="ICustomAction.ts" />
-/// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="IObjectHandler.ts" />
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var ObjectHandlers;
+            (function (ObjectHandlers) {
+                var ObjectHandlerBase = (function () {
+                    function ObjectHandlerBase(name) {
+                        this.name = name;
+                    }
+                    ObjectHandlerBase.prototype.ProvisionObjects = function (objects) { };
+                    return ObjectHandlerBase;
+                })();
+                ObjectHandlers.ObjectHandlerBase = ObjectHandlerBase;
+            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IListInstance.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -55,14 +81,14 @@ var Pzl;
                         var def = jQuery.Deferred();
                         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
                         var listCts = list.get_contentTypes();
-                        Core.Log.Information("Lists", "Enabled content types for list '" + list.get_title() + "'");
+                        Core.Log.Information("Lists Content Types", "Enabled content types for list '" + list.get_title() + "'");
                         list.set_contentTypesEnabled(true);
                         list.update();
                         clientContext.load(webCts);
                         clientContext.load(listCts);
                         clientContext.executeQueryAsync(function () {
                             contentTypeBindings.forEach(function (ctb) {
-                                Core.Log.Information("Lists", "Adding content type '" + ctb.ContentTypeId + "' to list '" + list.get_title() + "'");
+                                Core.Log.Information("Lists Content Types", "Adding content type '" + ctb.ContentTypeId + "' to list '" + list.get_title() + "'");
                                 listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                             });
                             list.update();
@@ -78,11 +104,14 @@ var Pzl;
                     }
                     Extensions.CreateViews = CreateViews;
                 })(Extensions || (Extensions = {}));
-                var Lists = (function () {
+                var Lists = (function (_super) {
+                    __extends(Lists, _super);
                     function Lists() {
+                        _super.call(this, "Lists");
                     }
                     Lists.prototype.ProvisionObjects = function (objects) {
-                        Core.Log.Information("Lists", "Starting provisioning of objects");
+                        var _this = this;
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var lists = clientContext.get_web().get_lists();
@@ -94,12 +123,12 @@ var Pzl;
                                     return list.get_title() == obj.Title;
                                 })[0];
                                 if (existingObj) {
-                                    Core.Log.Information("Lists", "A list, survey, discussion board, or document library with the specified title '" + obj.Title + "' already exists in this Web site at Url '" + obj.Url + "'.");
+                                    Core.Log.Information(_this.name, "A list, survey, discussion board, or document library with the specified title '" + obj.Title + "' already exists in this Web site at Url '" + obj.Url + "'.");
                                     listInstances.push(existingObj);
                                     clientContext.load(listInstances[index]);
                                 }
                                 else {
-                                    Core.Log.Information("Lists", "Creating list with Title '" + obj.Title + "' and Url '" + obj.Url + "'.");
+                                    Core.Log.Information(_this.name, "Creating list with Title '" + obj.Title + "' and Url '" + obj.Url + "'.");
                                     var objCreationInformation = new SP.ListCreationInformation();
                                     if (obj.Description) {
                                         objCreationInformation.set_description(obj.Description);
@@ -121,7 +150,7 @@ var Pzl;
                                 }
                             });
                             if (!clientContext.get_hasPendingRequest()) {
-                                Core.Log.Information("Lists", "Provisioning of objects ended");
+                                Core.Log.Information(_this.name, "Provisioning of objects ended");
                                 def.resolve();
                                 return def.promise();
                             }
@@ -137,109 +166,31 @@ var Pzl;
                                 });
                                 jQuery.when.apply(jQuery, promises).done(function () {
                                     clientContext.executeQueryAsync(function () {
-                                        Core.Log.Information("Lists", "Provisioning of objects ended");
+                                        Core.Log.Information(_this, "Provisioning of objects ended");
                                         def.resolve();
                                     });
                                 });
                             }, function (sender, args) {
-                                Core.Log.Information("Lists", "Provisioning of objects failed");
-                                Core.Log.Error("Lists", "" + args.get_message());
+                                Core.Log.Information(_this.name, "Provisioning of objects failed");
+                                Core.Log.Error(_this.name, "" + args.get_message());
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
-                            Core.Log.Information("Lists", "Provisioning of objects failed");
-                            Core.Log.Error("Lists", "" + args.get_message());
+                            Core.Log.Information(_this.name, "Provisioning of objects failed");
+                            Core.Log.Error(_this.name, "" + args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
                     return Lists;
-                })();
+                })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="IObjectHandler.ts" />
-var Pzl;
-(function (Pzl) {
-    var Sites;
-    (function (Sites) {
-        var Core;
-        (function (Core) {
-            var ObjectHandlers;
-            (function (ObjectHandlers) {
-                var SiteFields = (function () {
-                    function SiteFields() {
-                    }
-                    SiteFields.prototype.ProvisionObjects = function (json) {
-                        var def = jQuery.Deferred();
-                        Core.Log.Information("SiteFields", "Starting provisioning of objects");
-                        Core.Log.Information("SiteFields", "Provisioning of objects ended");
-                        def.resolve();
-                        return def.promise();
-                    };
-                    return SiteFields;
-                })();
-                ObjectHandlers.SiteFields = SiteFields;
-            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
-        })(Core = Sites.Core || (Sites.Core = {}));
-    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
-})(Pzl || (Pzl = {}));
-/// <reference path="IObjectHandler.ts" />
-var Pzl;
-(function (Pzl) {
-    var Sites;
-    (function (Sites) {
-        var Core;
-        (function (Core) {
-            var ObjectHandlers;
-            (function (ObjectHandlers) {
-                var ContentTypes = (function () {
-                    function ContentTypes() {
-                    }
-                    ContentTypes.prototype.ProvisionObjects = function (json) {
-                        var def = jQuery.Deferred();
-                        Core.Log.Information("ContentTypes", "Starting provisioning of objects");
-                        Core.Log.Information("ContentTypes", "Provisioning of objects ended");
-                        def.resolve();
-                        return def.promise();
-                    };
-                    return ContentTypes;
-                })();
-                ObjectHandlers.ContentTypes = ContentTypes;
-            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
-        })(Core = Sites.Core || (Sites.Core = {}));
-    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
-})(Pzl || (Pzl = {}));
-/// <reference path="IObjectHandler.ts" />
-var Pzl;
-(function (Pzl) {
-    var Sites;
-    (function (Sites) {
-        var Core;
-        (function (Core) {
-            var ObjectHandlers;
-            (function (ObjectHandlers) {
-                var Features = (function () {
-                    function Features() {
-                    }
-                    Features.prototype.ProvisionObjects = function (json) {
-                        var def = jQuery.Deferred();
-                        Core.Log.Information("Features", "Starting provisioning of objects");
-                        Core.Log.Information("Features", "Provisioning of objects ended");
-                        def.resolve();
-                        return def.promise();
-                    };
-                    return Features;
-                })();
-                ObjectHandlers.Features = Features;
-            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
-        })(Core = Sites.Core || (Sites.Core = {}));
-    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
-})(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IFile.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -391,20 +342,22 @@ var Pzl;
                     }
                     Extensions.ApplyFileProperties = ApplyFileProperties;
                 })(Extensions || (Extensions = {}));
-                var Files = (function () {
+                var Files = (function (_super) {
+                    __extends(Files, _super);
                     function Files() {
+                        _super.call(this, "Files");
                     }
                     Files.prototype.ProvisionObjects = function (objects) {
+                        var _this = this;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
-                        Core.Log.Information("Files", "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
                         var promises = [];
                         objects.forEach(function (obj) {
                             Extensions.AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
                         });
                         jQuery.when.apply(jQuery, promises).done(function () {
-                            Core.Log.Information("Files", "Provisioning of objects ended");
-                            Core.Log.Information("Files Web Parts", "Starting provisioning of objects");
+                            Core.Log.Information(_this.name, "Provisioning of objects ended");
                             var promises = [];
                             objects.forEach(function (obj) {
                                 if (obj.WebParts && obj.WebParts.length > 0) {
@@ -412,7 +365,6 @@ var Pzl;
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(function () {
-                                Core.Log.Information("Files Properties", "Starting provisioning of objects");
                                 var promises = [];
                                 objects.forEach(function (obj) {
                                     if (obj.Properties && Object.keys(obj.Properties).length > 0) {
@@ -427,14 +379,14 @@ var Pzl;
                         return def.promise();
                     };
                     return Files;
-                })();
+                })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IPage.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -513,20 +465,22 @@ var Pzl;
                     }
                     Extensions.AddWebPartsToWikiPage = AddWebPartsToWikiPage;
                 })(Extensions || (Extensions = {}));
-                var Pages = (function () {
+                var Pages = (function (_super) {
+                    __extends(Pages, _super);
                     function Pages() {
+                        _super.call(this, "Pages");
                     }
                     Pages.prototype.ProvisionObjects = function (objects) {
+                        var _this = this;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
-                        Core.Log.Information("Pages", "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
                         var promises = [];
                         objects.forEach(function (obj) {
                             Extensions.AddWikiPageByUrl(obj.Url);
                         });
                         jQuery.when.apply(jQuery, promises).done(function () {
-                            Core.Log.Information("Pages", "Provisioning of objects ended");
-                            Core.Log.Information("Pages Web Parts", "Starting provisioning of objects");
+                            Core.Log.Information(_this.name, "Provisioning of objects ended");
                             var promises = [];
                             objects.forEach(function (obj) {
                                 if (obj.WebParts && obj.WebParts.length > 0) {
@@ -534,21 +488,20 @@ var Pzl;
                                 }
                             });
                             jQuery.when.apply(jQuery, promises).done(function () {
-                                Core.Log.Information("Pages Web Parts", "Provisioning of objects ended");
                                 def.resolve();
                             });
                         });
                         return def.promise();
                     };
                     return Pages;
-                })();
+                })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ICustomAction.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
@@ -559,12 +512,15 @@ var Pzl;
         (function (Core) {
             var ObjectHandlers;
             (function (ObjectHandlers) {
-                var CustomActions = (function () {
+                var CustomActions = (function (_super) {
+                    __extends(CustomActions, _super);
                     function CustomActions() {
+                        _super.call(this, "CustomActions");
                     }
                     CustomActions.prototype.ProvisionObjects = function (objects) {
+                        var _this = this;
                         var def = jQuery.Deferred();
-                        Core.Log.Information("CustomActions", "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
                         var clientContext = SP.ClientContext.get_current();
                         var userCustomActions = clientContext.get_web().get_userCustomActions();
                         clientContext.load(userCustomActions);
@@ -574,10 +530,10 @@ var Pzl;
                                     return userCustomAction.get_title() == obj.Title;
                                 }).length > 0;
                                 if (objExists) {
-                                    Core.Log.Information("CustomActions", "A custom action with Title '" + obj.Title + "' already exists in this Web site at Url '" + obj.Url + "'.");
+                                    Core.Log.Information(_this.name, "A custom action with Title '" + obj.Title + "' already exists in this Web site at Url '" + obj.Url + "'.");
                                 }
                                 else {
-                                    Core.Log.Information("CustomActions", "Creating custom action with Title '" + obj.Title + "'");
+                                    Core.Log.Information(_this.name, "Creating custom action with Title '" + obj.Title + "'");
                                     var objCreationInformation = userCustomActions.add();
                                     if (obj.Description) {
                                         objCreationInformation.set_description(obj.Description);
@@ -625,34 +581,34 @@ var Pzl;
                                 }
                             });
                             if (!clientContext.get_hasPendingRequest()) {
-                                Core.Log.Information("CustomActions", "Provisioning of objects ended");
+                                Core.Log.Information(_this.name, "Provisioning of objects ended");
                                 def.resolve();
                                 return def.promise();
                             }
                             clientContext.executeQueryAsync(function () {
-                                Core.Log.Information("CustomActions", "Provisioning of objects ended");
+                                Core.Log.Information(_this.name, "Provisioning of objects ended");
                                 def.resolve();
                             }, function (sender, args) {
-                                Core.Log.Information("CustomActions", "Provisioning of objects failed");
-                                Core.Log.Error("CustomActions", "" + args.get_message());
+                                Core.Log.Information(_this.name, "Provisioning of objects failed");
+                                Core.Log.Error(_this.name, "" + args.get_message());
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
-                            Core.Log.Information("CustomActions", "Provisioning of objects failed");
-                            Core.Log.Error("CustomActions", "" + args.get_message());
+                            Core.Log.Information(_this.name, "Provisioning of objects failed");
+                            Core.Log.Error(_this.name, "" + args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
                     return CustomActions;
-                })();
+                })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\INavigationNode.ts" />
 var Pzl;
 (function (Pzl) {
@@ -683,19 +639,22 @@ var Pzl;
                     }
                     Helpers.GetNodeFromQuickLaunchByTitle = GetNodeFromQuickLaunchByTitle;
                 })(Helpers || (Helpers = {}));
-                var LocalNavigation = (function () {
+                var LocalNavigation = (function (_super) {
+                    __extends(LocalNavigation, _super);
                     function LocalNavigation() {
+                        _super.call(this, "LocalNavigation");
                     }
                     LocalNavigation.prototype.ProvisionObjects = function (objects) {
+                        var _this = this;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
-                        Core.Log.Information("LocalNavigation", "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
                         var navigation = web.get_navigation();
                         var quickLaunchNodeCollection = navigation.get_quickLaunch();
                         clientContext.load(quickLaunchNodeCollection);
                         clientContext.executeQueryAsync(function () {
-                            Core.Log.Information("LocalNavigation", "Removing existing navigation nodes");
+                            Core.Log.Information(_this.name, "Removing existing navigation nodes");
                             var temporaryQuickLaunch = [];
                             var index = quickLaunchNodeCollection.get_count() - 1;
                             while (index >= 0) {
@@ -706,7 +665,7 @@ var Pzl;
                             }
                             clientContext.executeQueryAsync(function () {
                                 objects.forEach(function (obj) {
-                                    Core.Log.Information("LocalNavigation", "Adding navigation node with Url '" + obj.Url + "' and Title '" + obj.Title + "'");
+                                    Core.Log.Information(_this.name, "Adding navigation node with Url '" + obj.Url + "' and Title '" + obj.Title + "'");
                                     var existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                                     var newNode = new SP.NavigationNodeCreationInformation();
                                     newNode.set_title(obj.Title);
@@ -715,23 +674,23 @@ var Pzl;
                                     quickLaunchNodeCollection.add(newNode);
                                 });
                                 clientContext.executeQueryAsync(function () {
-                                    Core.Log.Information("LocalNavigation", "Provisioning of objects ended");
+                                    Core.Log.Information(_this.name, "Provisioning of objects ended");
                                     def.resolve();
                                 }, function (sender, args) {
-                                    Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
-                                    Core.Log.Error("LocalNavigation", "" + args.get_message());
+                                    Core.Log.Information(_this.name, "Provisioning of objects failed");
+                                    Core.Log.Error(_this.name, "" + args.get_message());
                                     def.resolve(sender, args);
                                 });
                             });
                         }, function (sender, args) {
-                            Core.Log.Information("LocalNavigation", "Provisioning of objects failed");
-                            Core.Log.Error("LocalNavigation", "" + args.get_message());
+                            Core.Log.Information(_this.name, "Provisioning of objects failed");
+                            Core.Log.Error(_this.name, "" + args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
                     return LocalNavigation;
-                })();
+                })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.LocalNavigation = LocalNavigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -817,7 +776,13 @@ var Pzl;
                 Core.Log.Information("Provisioning", "Starting");
                 var queueItems = [];
                 queue.forEach(function (q, index) {
-                    queueItems.push(new QueueItem(q, index, json[q], new Core.ObjectHandlers[q]().ProvisionObjects));
+                    if (Core.ObjectHandlers[q]) {
+                        queueItems.push(new QueueItem(q, index, json[q], new Core.ObjectHandlers[q]().ProvisionObjects));
+                    }
+                    else {
+                        Core.Log.Error("Provisioning", "There's not object handler available for '" + q + "'");
+                        return;
+                    }
                 });
                 var promises = [];
                 promises.push(jQuery.Deferred());

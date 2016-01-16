@@ -55,7 +55,12 @@ module Pzl.Sites.Core {
         
         var queueItems : Array<QueueItem> = [];
         queue.forEach((q, index) => {
-            queueItems.push(new QueueItem(q, index, json[q], new ObjectHandlers[q]().ProvisionObjects));
+            if(ObjectHandlers[q]) {
+                queueItems.push(new QueueItem(q, index, json[q], new ObjectHandlers[q]().ProvisionObjects));
+            } else {                
+                Log.Error("Provisioning", `There's not object handler available for '${q}'`);
+                return;
+            }
         })
         
         

@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IFile.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 
@@ -136,8 +136,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             return def.promise();
         }
         export function ApplyFileProperties(dest: string, fileProperties : Object) {
-            var def = jQuery.Deferred();              
-            
+            var def = jQuery.Deferred();      
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();
             var fileServerRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${dest}`;
@@ -168,12 +167,15 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class Files implements IObjectHandler {
+    export class Files extends ObjectHandlerBase {
+       constructor() {
+            super("Files")
+      }
       ProvisionObjects(objects : Array<Schema.IFile>) {
             var def = jQuery.Deferred();            
  
             var clientContext = SP.ClientContext.get_current();
-            Core.Log.Information("Files", `Starting provisioning of objects`);      
+            Core.Log.Information(this.name, `Starting provisioning of objects`);      
 
             var promises = [];
             objects.forEach(function(obj) {        
@@ -181,9 +183,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             });            
             
             jQuery.when.apply(jQuery, promises).done(() => {
-                Core.Log.Information("Files", `Provisioning of objects ended`);
-                                
-                Core.Log.Information("Files Web Parts", `Starting provisioning of objects`);   
+                Core.Log.Information(this.name, `Provisioning of objects ended`);
                 var promises = [];
                 objects.forEach((obj) => {
                     if(obj.WebParts && obj.WebParts.length > 0) {
@@ -192,7 +192,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                 });
                 
                 jQuery.when.apply(jQuery, promises).done(() => {
-                    Core.Log.Information("Files Properties", `Starting provisioning of objects`);   
                     var promises = [];
                     objects.forEach((obj) => {
                         if(obj.Properties && Object.keys(obj.Properties).length > 0) {

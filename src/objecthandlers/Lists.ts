@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IListInstance.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -39,7 +39,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
             var listCts = list.get_contentTypes();
             
-            Core.Log.Information("Lists", `Enabled content types for list '${list.get_title()}'`)
+            Core.Log.Information("Lists Content Types", `Enabled content types for list '${list.get_title()}'`)
             list.set_contentTypesEnabled(true);
             list.update();
                         
@@ -48,7 +48,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.executeQueryAsync(
                 () => {      
                     contentTypeBindings.forEach(ctb => {
-                        Core.Log.Information("Lists", `Adding content type '${ctb.ContentTypeId}' to list '${list.get_title()}'`)
+                        Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${list.get_title()}'`)
                         listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                         
                     });
@@ -67,9 +67,12 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class Lists implements IObjectHandler {
+    export class Lists extends ObjectHandlerBase {
+        constructor() {
+            super("Lists")
+        }
         ProvisionObjects(objects : Array<Schema.IListInstance>) {
-            Core.Log.Information("Lists", `Starting provisioning of objects`);
+            Core.Log.Information(this.name, `Starting provisioning of objects`);
             
             var def = jQuery.Deferred();            
  
@@ -80,17 +83,17 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.load(lists);
             clientContext.executeQueryAsync(
                 () => {      
-                    objects.forEach(function(obj, index) {
+                    objects.forEach((obj, index) => {
                         var existingObj : any = jQuery.grep(lists.get_data(), (list) => {
                             return list.get_title() == obj.Title;
                         })[0];                     
                         
                         if(existingObj) {                            
-                            Core.Log.Information("Lists", `A list, survey, discussion board, or document library with the specified title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`);
+                            Core.Log.Information(this.name, `A list, survey, discussion board, or document library with the specified title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`);
                             listInstances.push(existingObj);  
                             clientContext.load(listInstances[index]);
                         } else {
-                            Core.Log.Information("Lists", `Creating list with Title '${obj.Title}' and Url '${obj.Url}'.`)
+                            Core.Log.Information(this.name, `Creating list with Title '${obj.Title}' and Url '${obj.Url}'.`)
                             var objCreationInformation = new SP.ListCreationInformation();            
                             if(obj.Description) { objCreationInformation.set_description(obj.Description); }
                             if(obj.OnQuickLaunch) { objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); }
@@ -103,7 +106,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                     
                     if(!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information("Lists", `Provisioning of objects ended`);
+                        Core.Log.Information(this.name, `Provisioning of objects ended`);
                         def.resolve();                        
                         return def.promise();
                     }
@@ -122,20 +125,20 @@ module Pzl.Sites.Core.ObjectHandlers {
                             jQuery.when.apply(jQuery, promises).done(() => {        
                                     clientContext.executeQueryAsync(
                                         () => {   
-                                            Core.Log.Information("Lists", `Provisioning of objects ended`);
+                                            Core.Log.Information(this, `Provisioning of objects ended`);
                                             def.resolve();
                                         });
                             });
                         }, 
                         (sender, args) => {
-                            Core.Log.Information("Lists", `Provisioning of objects failed`)
-                            Core.Log.Error("Lists", `${args.get_message()}`)
+                            Core.Log.Information(this.name, `Provisioning of objects failed`)
+                            Core.Log.Error(this.name, `${args.get_message()}`)
                             def.resolve(sender, args);
                         });
                 }, 
                 (sender, args) => {
-                    Core.Log.Information("Lists", `Provisioning of objects failed`)
-                    Core.Log.Error("Lists", `${args.get_message()}`)
+                    Core.Log.Information(this.name, `Provisioning of objects failed`)
+                    Core.Log.Error(this.name, `${args.get_message()}`)
                     def.resolve(sender, args);
                 });      
                 

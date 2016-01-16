@@ -3,6 +3,9 @@
 module Pzl.Sites.Core.ObjectHandlers {
     export class ObjectHandlerBase implements IObjectHandler {
         name: string;
-        ProvisionObjects(obj) {}
+        constructor(name : string) {
+            this.name = name;
+        }
+        ProvisionObjects(objects) {}
     }
 }

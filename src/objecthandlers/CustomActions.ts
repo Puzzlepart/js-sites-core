@@ -1,14 +1,17 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ICustomAction.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
-    export class CustomActions implements IObjectHandler {
+    export class CustomActions extends ObjectHandlerBase {
+        constructor() {
+            super("CustomActions")
+        }
         ProvisionObjects(objects : Array<Schema.ICustomAction>) {
             var def = jQuery.Deferred();
             
-            Core.Log.Information("CustomActions", `Starting provisioning of objects`);                        
+            Core.Log.Information(this.name, `Starting provisioning of objects`);                        
  
             var clientContext = SP.ClientContext.get_current();
             var userCustomActions = clientContext.get_web().get_userCustomActions();
@@ -16,15 +19,15 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.load(userCustomActions);
             clientContext.executeQueryAsync(
                 () => {
-                    objects.forEach(function(obj) {
+                    objects.forEach((obj) => {
                         var objExists = jQuery.grep(userCustomActions.get_data(), (userCustomAction) => {
                             return userCustomAction.get_title() == obj.Title;
                         }).length > 0;                        
                         
                         if(objExists) {                            
-                            Core.Log.Information("CustomActions", `A custom action with Title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`)                            
+                            Core.Log.Information(this.name, `A custom action with Title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`)                            
                         } else {
-                            Core.Log.Information("CustomActions", `Creating custom action with Title '${obj.Title}'`)
+                            Core.Log.Information(this.name, `Creating custom action with Title '${obj.Title}'`)
                             var objCreationInformation = userCustomActions.add();       
                             if(obj.Description) { objCreationInformation.set_description(obj.Description); }
                             if(obj.CommandUIExtension) { objCreationInformation.set_commandUIExtension(obj.CommandUIExtension); }
@@ -45,25 +48,25 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                     
                     if(!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information("CustomActions", `Provisioning of objects ended`);
+                        Core.Log.Information(this.name, `Provisioning of objects ended`);
                         def.resolve();                        
                         return def.promise();
                     }
                     
                     clientContext.executeQueryAsync(
                         () => {
-                            Core.Log.Information("CustomActions", `Provisioning of objects ended`);
+                            Core.Log.Information(this.name, `Provisioning of objects ended`);
                             def.resolve();
                         }, 
                         (sender, args) => {
-                            Core.Log.Information("CustomActions", `Provisioning of objects failed`)
-                            Core.Log.Error("CustomActions", `${args.get_message()}`)
+                            Core.Log.Information(this.name, `Provisioning of objects failed`)
+                            Core.Log.Error(this.name, `${args.get_message()}`)
                             def.resolve(sender, args);
                         });
                 }, 
                 (sender, args) => {
-                    Core.Log.Information("CustomActions", `Provisioning of objects failed`)
-                    Core.Log.Error("CustomActions", `${args.get_message()}`)
+                    Core.Log.Information(this.name, `Provisioning of objects failed`)
+                    Core.Log.Error(this.name, `${args.get_message()}`)
                     def.resolve(sender, args);
                 });      
                 

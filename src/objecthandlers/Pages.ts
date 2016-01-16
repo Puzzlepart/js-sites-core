@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="IObjectHandler.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IPage.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
 
@@ -83,13 +83,16 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
     }
     
-    export class Pages implements IObjectHandler {
+    export class Pages extends ObjectHandlerBase {
+        constructor() {
+            super("Pages")
+        }
         ProvisionObjects(objects : Array<Schema.IPage>) {
             var def = jQuery.Deferred();            
  
             var clientContext = SP.ClientContext.get_current();
             
-            Core.Log.Information("Pages", `Starting provisioning of objects`);      
+            Core.Log.Information(this.name, `Starting provisioning of objects`);      
 
             var promises = [];
             objects.forEach(function(obj) {        
@@ -97,8 +100,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             });            
             
             jQuery.when.apply(jQuery, promises).done(() => {
-                Core.Log.Information("Pages", `Provisioning of objects ended`);
-                Core.Log.Information("Pages Web Parts", `Starting provisioning of objects`);   
+                Core.Log.Information(this.name, `Provisioning of objects ended`);
                 
                 var promises = [];
                 objects.forEach((obj) => {
@@ -108,7 +110,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                 });
                 
                 jQuery.when.apply(jQuery, promises).done(() => {
-                    Core.Log.Information("Pages Web Parts", `Provisioning of objects ended`);   
                     def.resolve();
                 });                      
             });

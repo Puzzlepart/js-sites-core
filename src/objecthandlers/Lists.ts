@@ -90,7 +90,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                         var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
                         roleBindings.add(roleDef);
                         var principal = null;
-                        console.log(ra.Principal);
                         if(ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
                             var token = ra.Principal.substring(1, ra.Principal.length -1);
                             var groupId = allProperties.get_fieldValues()[`vti_${token}`];

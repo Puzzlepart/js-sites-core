@@ -128,7 +128,6 @@ var Pzl;
                                 var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
                                 roleBindings.add(roleDef);
                                 var principal = null;
-                                console.log(ra.Principal);
                                 if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
                                     var token = ra.Principal.substring(1, ra.Principal.length - 1);
                                     var groupId = allProperties.get_fieldValues()[("vti_" + token)];
@@ -239,6 +238,66 @@ var Pzl;
                     return Lists;
                 })(ObjectHandlers.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
+            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="ObjectHandlerBase.ts" />
+/// <reference path="..\schema\IComposedLook.ts" />
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var ObjectHandlers;
+            (function (ObjectHandlers) {
+                var Helpers;
+                (function (Helpers) {
+                    function GetUrlWithoutTokens(url) {
+                        return url.replace("{Site}", _spPageContextInfo.webAbsoluteUrl)
+                            .replace("{SiteCollection}", _spPageContextInfo.siteAbsoluteUrl)
+                            .replace("{SiteCollectionRelativeUrl}", _spPageContextInfo.siteServerRelativeUrl)
+                            .replace("{ThemeGallery}", _spPageContextInfo.siteServerRelativeUrl + "/_catalogs/theme/15");
+                    }
+                    Helpers.GetUrlWithoutTokens = GetUrlWithoutTokens;
+                })(Helpers || (Helpers = {}));
+                var ComposedLook = (function (_super) {
+                    __extends(ComposedLook, _super);
+                    function ComposedLook() {
+                        _super.call(this, "ComposedLook");
+                    }
+                    ComposedLook.prototype.ProvisionObjects = function (object) {
+                        var _this = this;
+                        Core.Log.Information(this.name, "Starting provisioning of objects");
+                        var def = jQuery.Deferred();
+                        var clientContext = SP.ClientContext.get_current();
+                        var web = clientContext.get_web();
+                        var colorPaletteUrl = object.ColorPaletteUrl ? Helpers.GetUrlWithoutTokens(object.ColorPaletteUrl) : "";
+                        var fontSchemeUrl = object.FontSchemeUrl ? Helpers.GetUrlWithoutTokens(object.FontSchemeUrl) : "";
+                        var backgroundImageUrl = object.BackgroundImageUrl ? Helpers.GetUrlWithoutTokens(object.BackgroundImageUrl) : null;
+                        web.applyTheme(colorPaletteUrl, fontSchemeUrl, backgroundImageUrl, true);
+                        if (object.MasterUrl) {
+                            web.set_masterUrl(object.MasterUrl);
+                        }
+                        if (object.CustomMasterUrl) {
+                            web.set_customMasterUrl(object.CustomMasterUrl);
+                        }
+                        ;
+                        web.update();
+                        clientContext.executeQueryAsync(function () {
+                            Core.Log.Information(_this.name, "Provisioning of objects ended");
+                            def.resolve();
+                        }, function (sender, args) {
+                            console.log(sender, args);
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    return ComposedLook;
+                })(ObjectHandlers.ObjectHandlerBase);
+                ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
@@ -782,9 +841,7 @@ var Pzl;
 /// <reference path="..\typings\tsd.d.ts" />
 /// <reference path="schema/ISiteSchema.ts" />
 /// <reference path="objecthandlers/Lists.ts" />
-/// <reference path="objecthandlers/SiteFields.ts" />
-/// <reference path="objecthandlers/ContentTypes.ts" />
-/// <reference path="objecthandlers/Features.ts" />
+/// <reference path="objecthandlers/ComposedLook.ts" />
 /// <reference path="objecthandlers/Files.ts" />
 /// <reference path="objecthandlers/Pages.ts" />
 /// <reference path="objecthandlers/CustomActions.ts" />

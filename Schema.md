@@ -43,6 +43,7 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 An Object of key value pairs
 
 
+
 ###Files
 ```json
      "Files": []
@@ -52,6 +53,8 @@ Attibute|Type|Description
 --------|----|-----------
 Files|Array<[File](#file)>|The File entries of the Files, optional collection of elements
 
+
+
 ###Pages
 ```json
      "Pages": []
@@ -60,6 +63,7 @@ Files|Array<[File](#file)>|The File entries of the Files, optional collection of
 Attibute|Type|Description
 --------|----|-----------
 Pages|Array<[Page](#page)>|The Page entries of the Pages, optional collection of elements
+
 
 
 ###Lists
@@ -73,6 +77,8 @@ Element|Type|Description
 -------|----|-----------
 ListInstance|[ListInstance](#listinstance)|
 
+
+
 ###CustomActions
 ```json
      "CustomActions": []
@@ -83,6 +89,7 @@ Attibute|Type|Description
 CustomActions|Array<[CustomAction](#customaction)>|The CustomAction entries of the CustomActions, optional collection of elements
 
 
+
 ###LocalNavigation
 ```json
      "LocalNavigation": []
@@ -91,6 +98,8 @@ CustomActions|Array<[CustomAction](#customaction)>|The CustomAction entries of t
 Attibute|Type|Description
 --------|----|-----------
 NavigationNodes|Array<[NavigationNode](#navigationnode)>|The NavigationNodes entries of the LocalNavigation, optional collection of elements
+
+
 
 ###ComposedLook
 ```json
@@ -107,6 +116,9 @@ Attibute|Type|Description
 ColorPaletteUrl|string|The ColorPaletteUrl of the Composed Look, required attribute
 FontSchemeUrl|string|The FontSchemeUrl of the Composed Look, optional attribute
 BackgroundImageUrl|string|The BackgroundImageUrl of the Composed Look, optional attribute
+
+
+
 
 ###ListInstance
 Defines a ListInstance element
@@ -134,8 +146,36 @@ Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optio
 
 
 ###ContentTypeBinding
+Defines a ContentTypeBinding element
+
+```json
+    {
+      "ContentTypeId": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+ContentTypeId|string|The ContentTypeId of the ContentTypeBinding, required attribute
+
 
 ###Folder
+Defines a Folder element
+
+```json
+    {
+        "Name": "Agenda",
+        "DefaultValues": {}
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Name|string|The Name of the Folder, required attribute
+DefaultValues|Key/Value Pair|The DefaultValues of the Folder, required attribute
+
 
 ###NavigationNode
 Defines a NavigationNode element
@@ -152,3 +192,41 @@ Attibute|Type|Description
 --------|----|-----------
 Title|string|The Title of the NavigationNode, required attribute
 Url|string|The Url of the NavigationNode, required attribute
+
+###CustomAction
+Defines a NavigationNode element
+
+```json
+    {
+        "CommandUIExtension": "",
+        "Description": "",
+        "Group": "",
+        "ImageUrl": "",
+        "Location": "",
+        "Name": "",
+        "RegistrationId": "",
+        "RegistrationType": "",
+        "ScriptBlock": "",
+        "ScriptSrc": "",
+        "Sequence": 0,
+        "Title": "",
+        "Url": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+CommandUIExtension|string|The CommandUIExtension of the CustomAction, optional attribute
+Description|string|The Description of the CustomAction, optional attribute
+Group|string|The Group of the CustomAction, optional attribute
+ImageUrl|string|The ImageUrl of the CustomAction, optional attribute
+Location|string|The Location of the CustomAction, optional attribute
+Name|string|The Name of the CustomAction, optional attribute
+RegistrationId|string|The RegistrationId of the CustomAction, optional attribute
+RegistrationType|string|The RegistrationType of the CustomAction, optional attribute
+ScriptBlock|string|The ScriptBlock of the CustomAction, optional attribute
+ScriptSrc|string|The ScriptSrc of the CustomAction, optional attribute
+Sequence|number|The Sequence of the CustomAction, optional attribute
+Title|string|The Title of the CustomAction, optional attribute
+Url|string|The Url of the CustomAction, optional attribute

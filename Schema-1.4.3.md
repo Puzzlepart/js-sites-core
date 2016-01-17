@@ -37,9 +37,9 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 ###WebSettings
 ```json
-     "WebSettings": [
+     "WebSettings": {
          "WelcomePage": ""
-     ]
+     }
 ```
 
 Attibute|Type|Description

@@ -6,11 +6,14 @@
   "PropertyBagEntries": {
     "_JsSitesCore_Template": "Full_Sample_Template"
   },
+  "WebSettings": {
+      "WelcomePage": "SitePages/Homepage.aspx"
+  },
   "Files": [
     {
-      "Dest": "SitePages/Home.aspx",
+      "Dest": "SitePages/Homepage.aspx",
       "Overwrite": true,
-      "Src": "{resources}/SitePages/Home.txt",
+      "Src": "{resources}/SitePages/Homepage.txt",
       "RemoveExistingWebParts": true,
       "Properties": {
         "ContentTypeId": "0x010109010092214CADC5FC4262A177C632F516412E"

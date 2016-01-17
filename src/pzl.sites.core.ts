@@ -12,6 +12,7 @@
 /// <reference path="model/ILoggingOptions.ts" />
 
 module Pzl.Sites.Core {
+    var startTime = null;
     export var Log: Logger;
     
     var setupWebDialog : SP.UI.ModalDialog;
@@ -26,6 +27,7 @@ module Pzl.Sites.Core {
     function start(json : Schema.SiteSchema, queue : Array<string>) {
         var def = jQuery.Deferred();
         
+        startTime = new Date().getTime();
         Log.Information("Provisioning", `Starting at URL '${_spPageContextInfo.webServerRelativeUrl}'`);
         
         var queueItems : Array<Model.TemplateQueueItem> = [];
@@ -59,7 +61,8 @@ module Pzl.Sites.Core {
         Log = new Logger(loggingOptions);
         var queue = getSetupQueue(template);
         start(template, queue).then(() => {
-            Log.Information("Provisioning", `All done`);
+            var provisioningTime = ((new Date().getTime()) - startTime)/1000;
+            Log.Information("Provisioning", `All done in ${provisioningTime} seconds`);
             Log.SaveToFile().then(() => {
                 setupWebDialog.close(null);
                 def.resolve();

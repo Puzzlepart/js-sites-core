@@ -1000,6 +1000,7 @@ var Pzl;
     (function (Sites) {
         var Core;
         (function (Core) {
+            var startTime = null;
             var setupWebDialog;
             function ShowWaitMessage(header, content, height, width) {
                 setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, height, width);
@@ -1009,6 +1010,7 @@ var Pzl;
             }
             function start(json, queue) {
                 var def = jQuery.Deferred();
+                startTime = new Date().getTime();
                 Core.Log.Information("Provisioning", "Starting at URL '" + _spPageContextInfo.webServerRelativeUrl + "'");
                 var queueItems = [];
                 queue.forEach(function (q, index) {
@@ -1038,7 +1040,8 @@ var Pzl;
                 Core.Log = new Core.Logger(loggingOptions);
                 var queue = getSetupQueue(template);
                 start(template, queue).then(function () {
-                    Core.Log.Information("Provisioning", "All done");
+                    var provisioningTime = ((new Date().getTime()) - startTime) / 1000;
+                    Core.Log.Information("Provisioning", "All done in " + provisioningTime + " seconds");
                     Core.Log.SaveToFile().then(function () {
                         setupWebDialog.close(null);
                         def.resolve();

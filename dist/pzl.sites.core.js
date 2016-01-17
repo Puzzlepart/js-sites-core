@@ -3,6 +3,7 @@
 /// <reference path="IContentTypeBinding.ts" />
 /// <reference path="IFolder.ts" />
 /// <reference path="ISecurity.ts" />
+/// <reference path="IView.ts" />
 /// <reference path="IContents.ts" />
 /// <reference path="IWebPart.ts" />
 /// <reference path="IWebPart.ts" />
@@ -14,6 +15,7 @@
 /// <reference path="IContentType.ts" />
 /// <reference path="INavigationNode.ts" />
 /// <reference path="ICustomAction.ts" />
+/// <reference path="IComposedLook.ts" />
 /// <reference path="IObjectHandler.ts" />
 var Pzl;
 (function (Pzl) {
@@ -159,7 +161,53 @@ var Pzl;
                         return def.promise();
                     }
                     Extensions.ApplyListSecurity = ApplyListSecurity;
-                    function CreateViews() {
+                    function GetViewFromCollectionByUrl(viewCollection, url) {
+                        var view = jQuery.grep(viewCollection.get_data(), function (v) {
+                            return v.get_serverRelativeUrl() == _spPageContextInfo.siteServerRelativeUrl + "/" + url;
+                        });
+                        return view ? view[0] : null;
+                    }
+                    function CreateViews(clientContext, lists, objects) {
+                        var def = jQuery.Deferred();
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (!obj.Views)
+                                return;
+                            obj.Views.forEach(function (v) {
+                                Core.Log.Information("Lists Views", "Adding view '" + v.Title + "' to list '" + l.get_title() + "'");
+                                var viewCreationInformation = new SP.ViewCreationInformation();
+                                if (v.Title) {
+                                    viewCreationInformation.set_title(v.Title);
+                                }
+                                if (v.PersonalView) {
+                                    viewCreationInformation.set_personalView(v.PersonalView);
+                                }
+                                if (v.Query) {
+                                    viewCreationInformation.set_query(v.Query);
+                                }
+                                if (v.RowLimit) {
+                                    viewCreationInformation.set_rowLimit(v.RowLimit);
+                                }
+                                if (v.SetAsDefaultView) {
+                                    viewCreationInformation.set_setAsDefaultView(v.SetAsDefaultView);
+                                }
+                                if (v.ViewFields) {
+                                    viewCreationInformation.set_viewFields(v.ViewFields);
+                                }
+                                if (v.ViewTypeKind) {
+                                    viewCreationInformation.set_viewTypeKind(SP.ViewType.html);
+                                }
+                                l.get_views().add(viewCreationInformation);
+                                l.update();
+                                clientContext.load(l.get_views());
+                            });
+                        });
+                        clientContext.executeQueryAsync(function () {
+                            def.resolve();
+                        }, function (sender, args) {
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
                     }
                     Extensions.CreateViews = CreateViews;
                 })(Extensions || (Extensions = {}));
@@ -216,6 +264,7 @@ var Pzl;
                             clientContext.executeQueryAsync(function () {
                                 var promises = [];
                                 promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects));
+                                promises.push(Extensions.CreateViews(clientContext, listInstances, objects));
                                 objects.forEach(function (obj, index) {
                                     if (obj.Folders && obj.Folders.length > 0) {
                                         promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));

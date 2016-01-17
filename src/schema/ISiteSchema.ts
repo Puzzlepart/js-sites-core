@@ -6,16 +6,18 @@
 /// <reference path="IContentType.ts" />
 /// <reference path="INavigationNode.ts" />
 /// <reference path="ICustomAction.ts" />
+/// <reference path="IComposedLook.ts" />
 
 module Pzl.Sites.Core.Schema {
     export interface SiteSchema {
-        SiteFields: Array<IField>;
-        ContentTypes: Array<IContentType>;
         Lists: Array<IListInstance>;
         Files: Array<IFile>;
         Pages: Array<IPage>;
         Features: Array<IFeature>;
         LocalNavigation: Array<INavigationNode>;
         CustomActions: Array<ICustomAction>;
+        ComposedLook: IComposedLook;
+        PropertyBagEntries: Object;
+        Parameters: Object;
     }
 }

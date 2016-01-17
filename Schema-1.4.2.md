@@ -136,7 +136,9 @@ Defines a ListInstance element
       "Url": "",
       "TemplateType": 000,
       "Folders": [],
-      "ContentTypeBindings": []
+      "ContentTypeBindings": [],
+      "Views": [],
+      "Security": {}
     }
 ```
 
@@ -149,6 +151,7 @@ TemplateType|number|The TemplateType of the List Instance, required attribute Va
 Url|string|The Url of the List Instance, required attribute
 ContentTypeBindings|Array<[ContentTypeBinding](#contenttypebinding)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
 Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optional collection of elements
+Views|Array<[View](#view)>|The Views entries of the List Instance, optional collection of elements
 Security|[Security](#security)|The Security entrie of the List Instance, optional elemenet
 
 
@@ -359,3 +362,32 @@ Attibute|Token|Description
 --------|----|-----------
 FileUrl|{resources}|URL to the resources path at /Resources/ on site collection
 FileUrl|{webpartgallery}|URL to the web part galleryat /_catalogs/wp on site collection
+
+
+###View
+Defines a View element
+
+```json
+    {
+      "Title": "",
+      "Paged": true,
+      "PersonalView": false,
+      "Query": "",
+      "RowLimit": 10,
+      "SetAsDefaultView": false,
+      "ViewFields": [],
+      "ViewTypeKind": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Title|string|The Title of the View
+Paged|boolean|The Paged of the View
+PersonalView|boolean|The PersonalView of the View
+Query|string|The Query of the View
+RowLimit|number|The RowLimit of the View
+SetAsDefaultView|boolean|The SetAsDefaultView of the View
+ViewFields|Array<string>|The ViewFields of the View
+ViewTypeKind|string|The ViewTypeKind of the View

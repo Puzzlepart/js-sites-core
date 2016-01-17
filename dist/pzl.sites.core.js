@@ -55,32 +55,73 @@ var Pzl;
             (function (ObjectHandlers) {
                 var Extensions;
                 (function (Extensions) {
-                    function CreateFolders(clientContext, listUrl, folders) {
+                    function EnsureLocationBasedMetadataDefaultsReceiver(clientContext, list) {
+                        var receiverName = "LocationBasedMetadataDefaultsReceiver ItemAdded";
+                        var def = jQuery.Deferred();
+                        var eventReceivers = list.get_eventReceivers();
+                        Core.Log.Information("Lists Event Receivers", "Adding eventreceiver '" + receiverName + "' to list '" + list.get_title() + "'");
+                        var eventRecCreationInfo = new SP.EventReceiverDefinitionCreationInformation();
+                        eventRecCreationInfo.set_receiverName(receiverName);
+                        eventRecCreationInfo.set_synchronization(1);
+                        eventRecCreationInfo.set_sequenceNumber(1000);
+                        eventRecCreationInfo.set_receiverAssembly('Microsoft.Office.DocumentManagement, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c');
+                        eventRecCreationInfo.set_receiverClass('Microsoft.Office.DocumentManagement.LocationBasedMetadataDefaultsReceiver');
+                        eventRecCreationInfo.set_eventType(SP.EventReceiverType.itemAdded);
+                        eventReceivers.add(eventRecCreationInfo);
+                        list.update();
+                        clientContext.executeQueryAsync(function () {
+                            def.resolve();
+                        }, function (sender, args) {
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    }
+                    function CreateFolders(clientContext, list, listUrl, folders) {
                         var def = jQuery.Deferred();
                         var listRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + listUrl;
                         var rootFolder = clientContext.get_web().getFolderByServerRelativeUrl(listRelativeUrl);
                         var metadataDefaults = "<MetadataDefaults>";
+                        var setMetadataDefaults = false;
                         folders.forEach(function (f) {
-                            rootFolder.get_folders().add(listRelativeUrl + "/" + f.Name);
+                            var folderUrl = listRelativeUrl + "/" + f.Name;
+                            Core.Log.Information("Lists Folders", "Creating folder '" + folderUrl + "'");
+                            rootFolder.get_folders().add(folderUrl);
                             if (f.DefaultValues) {
+                                Core.Log.Information("Lists Folders", "Setting default metadata for folder '" + folderUrl + "'");
                                 var keys = Object.keys(f.DefaultValues).length;
                                 if (keys > 0) {
                                     metadataDefaults += "<a href='" + listRelativeUrl + "/" + f.Name + "'>";
                                     Object.keys(f.DefaultValues).forEach(function (key) { metadataDefaults += "<DefaultValue FieldName=\"" + key + "\">" + f.DefaultValues[key] + "</DefaultValue>"; });
                                     metadataDefaults += "</a>";
                                 }
+                                setMetadataDefaults = true;
                             }
                         });
                         metadataDefaults += "</MetadataDefaults>";
-                        var metadataDefaultsFileCreateInfo = new SP.FileCreationInformation();
-                        metadataDefaultsFileCreateInfo.set_url(listRelativeUrl + "/Forms/client_LocationBasedDefaults.html");
-                        metadataDefaultsFileCreateInfo.set_content(new SP.Base64EncodedByteArray());
-                        metadataDefaultsFileCreateInfo.set_overwrite(true);
-                        for (var i = 0; i < metadataDefaults.length; i++) {
-                            metadataDefaultsFileCreateInfo.get_content().append(metadataDefaults.charCodeAt(i));
+                        if (setMetadataDefaults) {
+                            var metadataDefaultsFileCreateInfo = new SP.FileCreationInformation();
+                            metadataDefaultsFileCreateInfo.set_url(listRelativeUrl + "/Forms/client_LocationBasedDefaults.html");
+                            metadataDefaultsFileCreateInfo.set_content(new SP.Base64EncodedByteArray());
+                            metadataDefaultsFileCreateInfo.set_overwrite(true);
+                            for (var i = 0; i < metadataDefaults.length; i++) {
+                                metadataDefaultsFileCreateInfo.get_content().append(metadataDefaults.charCodeAt(i));
+                            }
+                            rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
+                            EnsureLocationBasedMetadataDefaultsReceiver(clientContext, list).then(function () {
+                                clientContext.executeQueryAsync(function () {
+                                    def.resolve();
+                                }, function (sender, args) {
+                                    def.resolve(sender, args);
+                                });
+                            });
                         }
-                        rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
-                        def.resolve();
+                        else {
+                            clientContext.executeQueryAsync(function () {
+                                def.resolve();
+                            }, function (sender, args) {
+                                def.resolve(sender, args);
+                            });
+                        }
                         return def.promise();
                     }
                     Extensions.CreateFolders = CreateFolders;
@@ -267,7 +308,7 @@ var Pzl;
                                 promises.push(Extensions.CreateViews(clientContext, listInstances, objects));
                                 objects.forEach(function (obj, index) {
                                     if (obj.Folders && obj.Folders.length > 0) {
-                                        promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
+                                        promises.push(Extensions.CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
                                     }
                                     if (obj.Security) {
                                         promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));

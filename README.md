@@ -17,6 +17,11 @@ jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.
 });
 ```
 
+# Bower
+js-sites-core is available through bower
+```powershell
+    bower install js-sites-core
+```
 
 # Schema
 [Schema 1.4.2](Schema-1.4.2.md)

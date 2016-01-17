@@ -47,7 +47,15 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 
 ###Lists
+The Lists instances of the JS Sites Core Template, optional element
 
+```json
+    "Lists": []
+```
+
+Element|Type|Description
+-------|----|-----------
+ListInstance|[ListInstance](#listinstance)|
 
 ###CustomActions
 
@@ -58,3 +66,40 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 
 ###ComposedLook
+
+
+
+
+###ListInstance
+###ListInstance
+Defines a ListInstance element
+
+```json
+    {
+      "Title": "",
+      "Description": "",
+      "Url": "",
+      "TemplateType": 000,
+      "Folders": [],
+      "ContentTypeBindings": []
+    }
+```
+
+
+Here follow the available child elements for the ListInstance element.
+
+
+Element|Type|Description
+-------|----|-----------
+ContentTypeBindings|[ContentTypeBindings](#contenttypebindings)|The ContentTypeBindings entries of the List Instance, optional collection of elements
+Folders|[Folders](#Folders)|The Folders entries of the List Instance, optional collection of elements
+
+Here follow the available attributes for the ListInstance element.
+
+
+Attibute|Type|Description
+--------|----|-----------
+Title|xsd:string|The Title of the List Instance, required attribute
+Description|xsd:string|The Description of the List Instance, optional attribute
+TemplateType|xsd:int|The TemplateType of the List Instance, required attribute Values available here: https://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.listtemplatetype.aspx
+Url|xsd:string|The Url of the List Instance, required attribute

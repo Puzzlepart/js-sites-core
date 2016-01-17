@@ -145,7 +145,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 
                                 clientContext.executeQueryAsync(
                                     () => {
-                                        Core.Log.Information("Files Web Parts", `Provisioning of objects ended`);
                                         def.resolve();
                                     },
                                     (sender, args) => {
@@ -183,7 +182,6 @@ module Pzl.Sites.Core.ObjectHandlers {
             listItemAllFields.update();
             clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information("Files Properties", `Provisioning of objects ended`);
                     def.resolve();
                 }, 
                 (sender, args) => {

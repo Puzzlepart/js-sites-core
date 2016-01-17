@@ -448,7 +448,6 @@ var Pzl;
                                         limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
                                     });
                                     clientContext.executeQueryAsync(function () {
-                                        Core.Log.Information("Files Web Parts", "Provisioning of objects ended");
                                         def.resolve();
                                     }, function (sender, args) {
                                         Core.Log.Information("Files Web Parts", "Provisioning of objects failed for file with Url '" + fileUrl + "'");
@@ -479,7 +478,6 @@ var Pzl;
                         }
                         listItemAllFields.update();
                         clientContext.executeQueryAsync(function () {
-                            Core.Log.Information("Files Properties", "Provisioning of objects ended");
                             def.resolve();
                         }, function (sender, args) {
                             Core.Log.Information("Files Properties", "Provisioning of objects failed for file with Url '" + dest + "'");

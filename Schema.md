@@ -277,3 +277,55 @@ Attibute|Token|Description
 Principal|{associatevisitorgroup}|The associated visitors group of the web
 Principal|{associatemembergroup}|The associated members group of the web
 Principal|{associateownergroup}|The associated owners group of the web
+
+
+###File
+Defines a File element
+
+```json
+    {
+      "Dest": "",
+      "Overwrite": false,
+      "Src": "",
+      "RemoveExistingWebParts": false,
+      "Properties": [],
+      "WebParts": []
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Dest|string|The Principal of the File, required attribute
+Overwrite|boolean|The Overwrite of the File
+Src|string|The Src of the File, required attribute
+RemoveExistingWebParts|boolean|The RemoveExistingWebParts of the File
+Properties|Key/Value Pair|The Properties of the File
+WebParts|Array<[WebPart](#webpart)>|The WebPart entries of the File, optional collection of elements
+
+Tokens available
+
+Attibute|Token|Description
+--------|----|-----------
+Src|{resources}|URL to the resources path at /Resources on site collection
+
+
+###WebPart
+Defines a WebPart element
+
+```json
+    {
+      "Title": "",
+      "Zone": "",
+      "Order": 0,
+      "Xml": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Title|string|The Title of the WebPart, required attribute
+Zone|string|The Zone of the WebPart, required attribute
+Order|number|The Order of the WebPart, required attribute
+Xml|string|The Xml of the WebPart, required attribute

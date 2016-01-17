@@ -38,7 +38,7 @@ Schema is inspired by https://github.com/OfficeDev/PnP-Provisioning-Schema
 
 Most of the differences are due to the available CSOM attributes and functions.
 
-[Schema 1.4.2](Schema-1.4.2.md)
+[Schema 1.4.3](Schema-1.4.3.md)
 
 # Samples
 [Full Sample](samples/Full-Sample.md)

@@ -900,7 +900,7 @@ var Pzl;
                 Logger.prototype.Information = function (objectHandler, msg) {
                     if (!this.loggingOptions)
                         return;
-                    var logMsg = new Date() + " || INFORMATION || " + objectHandler.toUpperCase() + " || " + msg;
+                    var logMsg = new Date() + " || Information || " + objectHandler + " || " + msg;
                     if (this.loggerEnabled && this.loggingOptions.On) {
                         console.log(logMsg);
                     }
@@ -909,7 +909,7 @@ var Pzl;
                 Logger.prototype.Error = function (objectHandler, msg) {
                     if (!this.loggingOptions)
                         return;
-                    var logMsg = new Date() + " || ERROR || " + objectHandler.toUpperCase() + " || " + msg;
+                    var logMsg = new Date() + " || Error || " + objectHandler + " || " + msg;
                     if (this.loggerEnabled && this.loggingOptions.On) {
                         console.log(logMsg);
                     }

@@ -17,7 +17,7 @@ module Pzl.Sites.Core {
         
         Information(objectHandler: string, msg : string) {
             if(!this.loggingOptions) return;
-            var logMsg = `${new Date()} || INFORMATION || ${objectHandler.toUpperCase()} || ${msg}`;
+            var logMsg = `${new Date()} || Information || ${objectHandler} || ${msg}`;
             if(this.loggerEnabled && this.loggingOptions.On) {
                 console.log(logMsg);
             }
@@ -25,7 +25,7 @@ module Pzl.Sites.Core {
         }
         Error(objectHandler: string, msg : string) {
             if(!this.loggingOptions) return;
-            var logMsg = `${new Date()} || ERROR || ${objectHandler.toUpperCase()} || ${msg}`;
+            var logMsg = `${new Date()} || Error || ${objectHandler} || ${msg}`;
             if(this.loggerEnabled && this.loggingOptions.On) {
                 console.log(logMsg);
             }

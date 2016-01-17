@@ -19,4 +19,4 @@ jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.
 
 
 # Schema
-[Schema 1.4.0](js-sites-core/Schema-1.4.0.md)
+[Schema 1.4.0](Schema-1.4.0.md)

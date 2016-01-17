@@ -1,3 +1,6 @@
+# JS Sites Core
+SharePoint Provisioning engine with pure JavaScript inspired by https://github.com/OfficeDev/PnP-Sites-Core/
+
 # Using js-sites-core
 Can be as simple as
 ```
@@ -31,6 +34,7 @@ Install package
 ```
 
 # Schema
+Schema is inspired by https://github.com/OfficeDev/PnP-Provisioning-Schema
 [Schema 1.4.2](Schema-1.4.2.md)
 
 # Samples

@@ -6,7 +6,7 @@
     "olemp <olemp@puzzlepart.com>",
     "tarjeieo <tarjeieo@puzzlepart.com>"
   ],
-  "description": "Provisioning engine with pure JavaScript",
+  "description": "SharePoint Provisioning engine with pure JavaScript",
   "main": [
       "dist/pzl.sites.core.js",
       "dist/pzl.sites.core.min.js"

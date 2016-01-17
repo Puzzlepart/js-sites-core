@@ -1,3 +1,5 @@
+/// <reference path="IContents.ts" />
+
 module Pzl.Sites.Core.Schema {
     export interface IWebPart {
         Title: string;
@@ -5,6 +7,6 @@ module Pzl.Sites.Core.Schema {
         Zone: string;
         Row: number;
         Column: number;
-        Xml: string;
+        Contents: IContents;
     }
 }

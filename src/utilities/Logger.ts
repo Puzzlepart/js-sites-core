@@ -41,7 +41,6 @@ module Pzl.Sites.Core {
             
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_site().get_rootWeb();
-
             var fileName = `${new Date().getTime()}.txt`;
             var fileCreateInfo = new SP.FileCreationInformation();
             fileCreateInfo.set_url(fileName);

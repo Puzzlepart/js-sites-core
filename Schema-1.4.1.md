@@ -334,4 +334,28 @@ Attibute|Type|Description
 Title|string|The Title of the WebPart, required attribute
 Zone|string|The Zone of the WebPart, required attribute
 Order|number|The Order of the WebPart, required attribute
-Xml|string|The Xml of the WebPart, required attribute
+Contents|[Contents](#contents)|The Contents entry of the Web Part, required element
+
+
+###Contents
+Defines a Contents element
+
+```json
+    {
+      "Xml": "",
+      "FileUrl": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Xml|string|The Xml of the Contents
+FileUrl|string|The FileUrl of the Contents
+
+Tokens available
+
+Attibute|Token|Description
+--------|----|-----------
+FileUrl|{resources}|URL to the resources path at /Resources/ on site collection
+FileUrl|{webpartgallery}|URL to the web part galleryat /_catalogs/wp on site collection

@@ -1,3 +1,5 @@
+/// <reference path="IWebPart.ts" />
+
 module Pzl.Sites.Core.Schema {
     export interface IFile {
         Overwrite: boolean;

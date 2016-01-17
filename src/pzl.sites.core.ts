@@ -7,6 +7,7 @@
 /// <reference path="objecthandlers/CustomActions.ts" />
 /// <reference path="objecthandlers/LocalNavigation.ts" />
 /// <reference path="objecthandlers/PropertyBagEntries.ts" />
+/// <reference path="objecthandlers/WebSettings.ts" />
 /// <reference path="utilities/Logger.ts" />
 /// <reference path="model/TemplateQueueItem.ts" />
 /// <reference path="model/ILoggingOptions.ts" />

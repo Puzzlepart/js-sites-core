@@ -7,6 +7,7 @@
 /// <reference path="INavigationNode.ts" />
 /// <reference path="ICustomAction.ts" />
 /// <reference path="IComposedLook.ts" />
+/// <reference path="IWebSettings.ts" />
 
 module Pzl.Sites.Core.Schema {
     export interface SiteSchema {
@@ -19,5 +20,6 @@ module Pzl.Sites.Core.Schema {
         ComposedLook: IComposedLook;
         PropertyBagEntries: Object;
         Parameters: Object;
+        WebSettings: IWebSettings;
     }
 }

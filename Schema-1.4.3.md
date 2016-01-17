@@ -9,6 +9,7 @@ Here follows the list of root elements available in the JS Sites Core Schema.
 ```json
 {
     "Parameters": {},
+    "WebSettings: {},
     "PropertyBagEntries": {},
     "Files": [],
     "Pages": [],
@@ -22,6 +23,7 @@ Here follows the list of root elements available in the JS Sites Core Schema.
 Element|Type|Description
 -------|----|-----------
 Parameters|[Parameters](#parameters)|No description available yet
+WebSettings|[WebSettings](#websettings)|No description available yet
 PropertyBagEntries|[PropertyBagEntries](#propertybagentries)|No description available yet
 Files|[Files](#files)|No description available yet
 Pages|[Pages](#pages)|No description available yet
@@ -33,6 +35,16 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 ###Parameters
 
+###WebSettings
+```json
+     "WebSettings": [
+         "WelcomePage": ""
+     ]
+```
+
+Attibute|Type|Description
+--------|----|-----------
+WelcomePage|string|The WelcomePage attribute of the WebSettings
 
 
 ###PropertyBagEntries

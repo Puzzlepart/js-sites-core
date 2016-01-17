@@ -82,21 +82,28 @@ var Pzl;
                         return def.promise();
                     }
                     Extensions.CreateFolders = CreateFolders;
-                    function ApplyContentTypeBindings(clientContext, list, contentTypeBindings) {
+                    function ApplyContentTypeBindings(clientContext, lists, objects) {
                         var def = jQuery.Deferred();
                         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
-                        var listCts = list.get_contentTypes();
-                        Core.Log.Information("Lists Content Types", "Enabled content types for list '" + list.get_title() + "'");
-                        list.set_contentTypesEnabled(true);
-                        list.update();
+                        lists.forEach(function (l, index) {
+                            if (!objects[index].ContentTypeBindings)
+                                return;
+                            Core.Log.Information("Lists Content Types", "Enabled content types for list '" + l.get_title() + "'");
+                            l.set_contentTypesEnabled(true);
+                            l.update();
+                        });
                         clientContext.load(webCts);
-                        clientContext.load(listCts);
                         clientContext.executeQueryAsync(function () {
-                            contentTypeBindings.forEach(function (ctb) {
-                                Core.Log.Information("Lists Content Types", "Adding content type '" + ctb.ContentTypeId + "' to list '" + list.get_title() + "'");
-                                listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
+                            lists.forEach(function (l, index) {
+                                var obj = objects[index];
+                                if (!obj.ContentTypeBindings)
+                                    return;
+                                obj.ContentTypeBindings.forEach(function (ctb) {
+                                    Core.Log.Information("Lists Content Types", "Adding content type '" + ctb.ContentTypeId + "' to list '" + l.get_title() + "'");
+                                    l.get_contentTypes().addExistingContentType(webCts.getById(ctb.ContentTypeId));
+                                });
+                                l.update();
                             });
-                            list.update();
                             def.resolve();
                         }, function (sender, args) {
                             def.resolve(sender, args);
@@ -208,12 +215,10 @@ var Pzl;
                             }
                             clientContext.executeQueryAsync(function () {
                                 var promises = [];
+                                promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects));
                                 objects.forEach(function (obj, index) {
                                     if (obj.Folders && obj.Folders.length > 0) {
                                         promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
-                                    }
-                                    if (obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
-                                        promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances[index], obj.ContentTypeBindings));
                                     }
                                     if (obj.Security) {
                                         promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));

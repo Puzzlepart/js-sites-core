@@ -34,25 +34,30 @@ module Pzl.Sites.Core.ObjectHandlers {
             
             return def.promise();
         }
-        export function ApplyContentTypeBindings(clientContext : SP.ClientContext, list: SP.List, contentTypeBindings : Array<Schema.IContentTypeBinding>) {
+        export function ApplyContentTypeBindings(clientContext : SP.ClientContext, lists: Array<SP.List>, objects : Array<Schema.IListInstance>) {
             var def = jQuery.Deferred();    
             var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
-            var listCts = list.get_contentTypes();
             
-            Core.Log.Information("Lists Content Types", `Enabled content types for list '${list.get_title()}'`)
-            list.set_contentTypesEnabled(true);
-            list.update();
+            lists.forEach((l, index) => {
+                if(!objects[index].ContentTypeBindings) return;
+                Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
+                l.set_contentTypesEnabled(true);
+                l.update();
+            })            
                         
             clientContext.load(webCts);
-            clientContext.load(listCts);
             clientContext.executeQueryAsync(
                 () => {      
-                    contentTypeBindings.forEach(ctb => {
-                        Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${list.get_title()}'`)
-                        listCts.addExistingContentType(webCts.getById(ctb.ContentTypeId));
-                        
+                    lists.forEach((l, index) => {
+                        var obj = objects[index];
+                        if(!obj.ContentTypeBindings) return;
+                        obj.ContentTypeBindings.forEach(ctb => {
+                            Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${l.get_title()}'`)
+                            l.get_contentTypes().addExistingContentType(webCts.getById(ctb.ContentTypeId));                        
+                        });
+                        l.update();
                     });
-                    list.update();
+                    
                     def.resolve();   
                 },
                 (sender, args) => { 
@@ -164,12 +169,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                     clientContext.executeQueryAsync(
                         () => {      
                             var promises = [];
+                            promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects));
                             objects.forEach(function(obj, index) {
                                 if(obj.Folders && obj.Folders.length > 0) {
                                     promises.push(Extensions.CreateFolders(clientContext, obj.Url, obj.Folders));
-                                }
-                                if(obj.ContentTypeBindings && obj.ContentTypeBindings.length > 0) {
-                                    promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances[index], obj.ContentTypeBindings));
                                 }
                                 if(obj.Security) {
                                     promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));

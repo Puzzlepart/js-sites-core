@@ -29,3 +29,32 @@ Lists|[Lists](#lists)|No description available yet
 CustomActions|[CustomActions](#customactions)|No description available yet
 LocalNavigation|[LocalNavigation](#localnavigation)|No description available yet
 ComposedLook|[ComposedLook](#composedlook)|No description available yet
+
+
+###Parameters
+
+
+
+###PropertyBagEntries
+
+
+
+###Files
+
+
+###Pages
+
+
+
+###Lists
+
+
+###CustomActions
+
+
+
+###LocalNavigation
+
+
+
+###ComposedLook

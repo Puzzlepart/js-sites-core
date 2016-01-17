@@ -35,6 +35,7 @@ Install package
 
 # Schema
 Schema is inspired by https://github.com/OfficeDev/PnP-Provisioning-Schema
+
 [Schema 1.4.2](Schema-1.4.2.md)
 
 # Samples

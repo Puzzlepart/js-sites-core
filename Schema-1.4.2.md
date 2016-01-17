@@ -287,6 +287,18 @@ Principal|{associatevisitorgroup}|The associated visitors group of the web
 Principal|{associatemembergroup}|The associated members group of the web
 Principal|{associateownergroup}|The associated owners group of the web
 
+Role definitions
+
+ID|Name|
+--------|----
+1073741829|Full Control
+1073741828|Design
+1073741830|Edit
+1073741827|Contribute
+1073741826|Read
+1073741825|Limited Access
+1073741924|View Only
+
 
 ###File
 Defines a File element

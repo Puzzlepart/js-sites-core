@@ -36,14 +36,30 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 
 ###PropertyBagEntries
+```json
+     "PropertyBagEntries": {}
+```
 
+An Object of key value pairs
 
 
 ###Files
+```json
+     "Files": []
+```
 
+Attibute|Type|Description
+--------|----|-----------
+Files|Array<[File](#file)>|The File entries of the Files, optional collection of elements
 
 ###Pages
+```json
+     "Pages": []
+```
 
+Attibute|Type|Description
+--------|----|-----------
+Pages|Array<[Page](#page)>|The Page entries of the Pages, optional collection of elements
 
 
 ###Lists
@@ -58,12 +74,23 @@ Element|Type|Description
 ListInstance|[ListInstance](#listinstance)|
 
 ###CustomActions
+```json
+     "CustomActions": []
+```
 
+Attibute|Type|Description
+--------|----|-----------
+CustomActions|Array<[CustomAction](#customaction)>|The CustomAction entries of the CustomActions, optional collection of elements
 
 
 ###LocalNavigation
+```json
+     "LocalNavigation": []
+```
 
-
+Attibute|Type|Description
+--------|----|-----------
+NavigationNodes|Array<[NavigationNode](#navigationnode)>|The NavigationNodes entries of the LocalNavigation, optional collection of elements
 
 ###ComposedLook
 ```json
@@ -109,3 +136,19 @@ Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optio
 ###ContentTypeBinding
 
 ###Folder
+
+###NavigationNode
+Defines a NavigationNode element
+
+```json
+    {
+      "Title": "",
+      "Url": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Title|string|The Title of the NavigationNode, required attribute
+Url|string|The Url of the NavigationNode, required attribute

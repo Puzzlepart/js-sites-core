@@ -117,6 +117,12 @@ ColorPaletteUrl|string|The ColorPaletteUrl of the Composed Look, required attrib
 FontSchemeUrl|string|The FontSchemeUrl of the Composed Look, optional attribute
 BackgroundImageUrl|string|The BackgroundImageUrl of the Composed Look, optional attribute
 
+Tokens available
+
+Attibute|Token|Description
+--------|----|-----------
+ColorPaletteUrl|{ThemeGallery}|URL to the site collection theme gallery
+FontSchemeUrl|{ThemeGallery}|URL to the site collection theme gallery
 
 
 

@@ -143,6 +143,7 @@ TemplateType|number|The TemplateType of the List Instance, required attribute Va
 Url|string|The Url of the List Instance, required attribute
 ContentTypeBindings|Array<[ContentTypeBinding](#contenttypebinding)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
 Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optional collection of elements
+Security|[Security](#security)|The Security entrie of the List Instance, optional elemenet
 
 
 ###ContentTypeBinding
@@ -174,7 +175,7 @@ Defines a Folder element
 Attibute|Type|Description
 --------|----|-----------
 Name|string|The Name of the Folder, required attribute
-DefaultValues|Key/Value Pair|The DefaultValues of the Folder, required attribute
+DefaultValues|Key/Value Pair|The DefaultValues of the Folder, optional attribute
 
 
 ###NavigationNode
@@ -194,7 +195,7 @@ Title|string|The Title of the NavigationNode, required attribute
 Url|string|The Url of the NavigationNode, required attribute
 
 ###CustomAction
-Defines a NavigationNode element
+Defines a CustomAction element
 
 ```json
     {
@@ -230,3 +231,49 @@ ScriptSrc|string|The ScriptSrc of the CustomAction, optional attribute
 Sequence|number|The Sequence of the CustomAction, optional attribute
 Title|string|The Title of the CustomAction, optional attribute
 Url|string|The Url of the CustomAction, optional attribute
+
+
+###Security
+Defines a Security element
+
+```json
+    {
+      "BreakRoleInheritance": true,
+      "CopyRoleAssignments": true,
+      "ClearSubscopes": true,
+      "RoleAssignments": []
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+BreakRoleInheritance|boolean|The BreakRoleInheritance of the Security
+CopyRoleAssignments|boolean|The CopyRoleAssignments of the Security
+ClearSubscopes|boolean|The ClearSubscopes of the Security
+RoleAssignments|Array<[RoleAssignment](#roleassignment)>|The RoleAssignment entries of the RoleAssignments, optional collection of elements
+
+
+###RoleAssignment
+Defines a RoleAssignment element
+
+```json
+    {
+     "Principal": "", 
+     "RoleDefinition": ""
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Principal|string|The Principal of the RoleAssignment
+RoleDefinition|string/number|The RoleDefinition of the RoleAssignment
+
+Tokens available
+
+Attibute|Token|Description
+--------|----|-----------
+Principal|{associatevisitorgroup}|The associated visitors group of the web
+Principal|{associatemembergroup}|The associated members group of the web
+Principal|{associateownergroup}|The associated owners group of the web

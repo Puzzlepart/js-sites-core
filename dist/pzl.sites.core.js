@@ -851,6 +851,8 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="../model/ILoggingOptions.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -858,21 +860,53 @@ var Pzl;
         var Core;
         (function (Core) {
             var Logger = (function () {
-                function Logger(debug) {
-                    this.debug = debug;
+                function Logger(loggingOptions) {
+                    this.array = [];
+                    this.loggingOptions = loggingOptions;
                 }
                 Logger.prototype.loggerEnabled = function () {
                     return (console && console.log);
                 };
                 Logger.prototype.Information = function (objectHandler, msg) {
-                    if (this.loggerEnabled && this.debug) {
-                        console.log(new Date() + " || " + objectHandler + " || " + msg);
+                    if (!this.loggingOptions)
+                        return;
+                    var logMsg = new Date() + " || " + objectHandler + " || " + msg;
+                    if (this.loggerEnabled && this.loggingOptions.On) {
+                        console.log(logMsg);
                     }
+                    this.array.push(logMsg);
                 };
                 Logger.prototype.Error = function (objectHandler, msg) {
-                    if (this.loggerEnabled && this.debug) {
-                        console.log(new Date() + " || " + objectHandler + " || " + msg);
+                    if (!this.loggingOptions)
+                        return;
+                    var logMsg = new Date() + " || " + objectHandler + " || " + msg;
+                    if (this.loggerEnabled && this.loggingOptions.On) {
+                        console.log(logMsg);
                     }
+                    this.array.push(logMsg);
+                };
+                Logger.prototype.SaveToFile = function () {
+                    var def = jQuery.Deferred();
+                    if (!this.loggingOptions || !this.loggingOptions.LoggingFolder) {
+                        def.resolve();
+                        return def.promise();
+                    }
+                    var clientContext = SP.ClientContext.get_current();
+                    var web = clientContext.get_site().get_rootWeb();
+                    var fileCreateInfo = new SP.FileCreationInformation();
+                    fileCreateInfo.set_url(new Date().getTime() + ".txt");
+                    fileCreateInfo.set_content(new SP.Base64EncodedByteArray());
+                    var fileContent = this.array.join("\n");
+                    for (var i = 0; i < fileContent.length; i++) {
+                        fileCreateInfo.get_content().append(fileContent.charCodeAt(i));
+                    }
+                    clientContext.load(web.getFolderByServerRelativeUrl(this.loggingOptions.LoggingFolder).get_files().add(fileCreateInfo));
+                    clientContext.executeQueryAsync(function () {
+                        def.resolve();
+                    }, function (sender, args) {
+                        def.resolve(sender, args);
+                    });
+                    return def.promise();
                 };
                 return Logger;
             })();
@@ -928,6 +962,7 @@ var Pzl;
 /// <reference path="objecthandlers/PropertyBagEntries.ts" />
 /// <reference path="utilities/Logger.ts" />
 /// <reference path="model/TemplateQueueItem.ts" />
+/// <reference path="model/ILoggingOptions.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -943,7 +978,7 @@ var Pzl;
             }
             function start(json, queue) {
                 var def = jQuery.Deferred();
-                Core.Log.Information("Provisioning", "Starting");
+                Core.Log.Information("Provisioning", "Starting at URL '" + _spPageContextInfo.webServerRelativeUrl + "'");
                 var queueItems = [];
                 queue.forEach(function (q, index) {
                     if (!Core.ObjectHandlers[q])
@@ -966,15 +1001,17 @@ var Pzl;
                 });
                 return def.promise();
             }
-            function init(json, debug) {
+            function init(template, loggingOptions) {
                 var def = jQuery.Deferred();
                 ShowWaitMessage("Applying template", "This might take a moment..", 130, 600);
-                Core.Log = new Core.Logger(debug);
-                var queue = getSetupQueue(json);
-                start(json, queue).then(function () {
+                Core.Log = new Core.Logger(loggingOptions);
+                var queue = getSetupQueue(template);
+                start(template, queue).then(function () {
                     Core.Log.Information("Provisioning", "All done");
-                    setupWebDialog.close(null);
-                    def.resolve();
+                    Core.Log.SaveToFile().then(function () {
+                        setupWebDialog.close(null);
+                        def.resolve();
+                    });
                 });
                 return def.promise();
             }

@@ -117,8 +117,8 @@
     }
   ],
   "ComposedLook": {
-    "ColorPaletteUrl": "{ThemeGallery}/Palette008.spcolor",
-    "FontSchemeUrl": "{ThemeGallery}/SharePointPersonality.spfont"
+    "ColorPaletteUrl": "{themegallery}/Palette008.spcolor",
+    "FontSchemeUrl": "{themegallery}/SharePointPersonality.spfont"
   }
 }
 ```

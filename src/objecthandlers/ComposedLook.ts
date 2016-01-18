@@ -8,7 +8,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             return url.replace("{Site}", _spPageContextInfo.webAbsoluteUrl)
                         .replace("{SiteCollection}", _spPageContextInfo.siteAbsoluteUrl)
                         .replace("{SiteCollectionRelativeUrl}", _spPageContextInfo.siteServerRelativeUrl)
-                        .replace("{ThemeGallery}", `${_spPageContextInfo.siteServerRelativeUrl}/_catalogs/theme/15`);
+                        .replace("{themegallery}", `${_spPageContextInfo.siteServerRelativeUrl}/_catalogs/theme/15`);
         }
     }
     

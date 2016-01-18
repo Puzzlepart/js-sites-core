@@ -133,8 +133,8 @@ Tokens available
 
 Attibute|Token|Description
 --------|----|-----------
-ColorPaletteUrl|{ThemeGallery}|URL to the site collection theme gallery
-FontSchemeUrl|{ThemeGallery}|URL to the site collection theme gallery
+ColorPaletteUrl|{themegallery}|URL to the site collection theme gallery
+FontSchemeUrl|{themegallery}|URL to the site collection theme gallery
 
 
 

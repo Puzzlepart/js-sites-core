@@ -351,7 +351,7 @@ Defines a WebPart element
       "Title": "",
       "Zone": "",
       "Order": 0,
-      "Xml": ""
+      "Contents": ""
     }
 ```
 

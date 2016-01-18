@@ -63,6 +63,10 @@
         "ClearSubscopes": true,
         "RoleAssignments": [
           {
+            "Principal": "{associatevisitorgroup}",
+            "RoleDefinition": 1073741826
+          },
+          {
             "Principal": "{associatemembergroup}",
             "RoleDefinition": "Contribute"
           },

@@ -78,6 +78,7 @@ var Pzl;
                         return def.promise();
                     }
                     function CreateFolders(clientContext, list, listUrl, folders) {
+                        Core.Log.Information("Lists Folders", "Code execution scope started");
                         var def = jQuery.Deferred();
                         var listRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + listUrl;
                         var rootFolder = clientContext.get_web().getFolderByServerRelativeUrl(listRelativeUrl);
@@ -129,6 +130,7 @@ var Pzl;
                     function ApplyContentTypeBindings(clientContext, lists, objects) {
                         var def = jQuery.Deferred();
                         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
+                        Core.Log.Information("Lists Content Types", "Code execution scope started");
                         lists.forEach(function (l, index) {
                             if (!objects[index].ContentTypeBindings)
                                 return;
@@ -148,8 +150,17 @@ var Pzl;
                                 });
                                 l.update();
                             });
-                            def.resolve();
+                            clientContext.executeQueryAsync(function () {
+                                Core.Log.Information("Lists Content Types", "Content Type bindings successfully applied to lists");
+                                Core.Log.Information("Lists Content Types", "Code execution scope ended");
+                                def.resolve();
+                            }, function () {
+                                Core.Log.Information("Lists Content Types", "Failed to apply content type bindings'");
+                                Core.Log.Information("Lists Content Types", "Code execution scope ended");
+                                def.resolve();
+                            });
                         }, function (sender, args) {
+                            Core.Log.Information("Lists Content Types", "Failed to load web content types'");
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -157,6 +168,7 @@ var Pzl;
                     Extensions.ApplyContentTypeBindings = ApplyContentTypeBindings;
                     function ApplyListSecurity(clientContext, list, security) {
                         var def = jQuery.Deferred();
+                        Core.Log.Information("Lists Security", "Code execution scope started");
                         Core.Log.Information("Lists Security", "Setting security for list '" + list.get_title() + "'");
                         if (security.BreakRoleInheritance) {
                             list.breakRoleInheritance(security.CopyRoleAssignments, security.ClearSubscopes);
@@ -211,6 +223,7 @@ var Pzl;
                     }
                     function CreateViews(clientContext, lists, objects) {
                         var def = jQuery.Deferred();
+                        Core.Log.Information("Lists Views", "Code execution scope ended");
                         lists.forEach(function (l, index) {
                             var obj = objects[index];
                             if (!obj.Views)
@@ -245,8 +258,10 @@ var Pzl;
                             });
                         });
                         clientContext.executeQueryAsync(function () {
+                            Core.Log.Information("Lists Views", "Code execution scope ended");
                             def.resolve();
                         }, function (sender, args) {
+                            Core.Log.Information("Lists Views", "Code execution scope ended");
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -260,7 +275,7 @@ var Pzl;
                     }
                     Lists.prototype.ProvisionObjects = function (objects) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Code execution scope started");
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var lists = clientContext.get_web().get_lists();
@@ -299,26 +314,31 @@ var Pzl;
                                 }
                             });
                             if (!clientContext.get_hasPendingRequest()) {
-                                Core.Log.Information(_this.name, "Provisioning of objects ended");
+                                Core.Log.Information(_this.name, "Code execution scope ended");
                                 def.resolve();
                                 return def.promise();
                             }
                             clientContext.executeQueryAsync(function () {
-                                var promises = [];
-                                promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects));
-                                promises.push(Extensions.CreateViews(clientContext, listInstances, objects));
-                                objects.forEach(function (obj, index) {
-                                    if (obj.Folders && obj.Folders.length > 0) {
-                                        promises.push(Extensions.CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
-                                    }
-                                    if (obj.Security) {
-                                        promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
-                                    }
-                                });
-                                jQuery.when.apply(jQuery, promises).done(function () {
-                                    clientContext.executeQueryAsync(function () {
-                                        Core.Log.Information(_this.name, "Provisioning of objects ended");
-                                        def.resolve();
+                                Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects).then(function () {
+                                    Extensions.CreateViews(clientContext, listInstances, objects).then(function () {
+                                        var promises = [];
+                                        objects.forEach(function (obj, index) {
+                                            if (obj.Folders && obj.Folders.length > 0) {
+                                                promises.push(Extensions.CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
+                                            }
+                                            if (obj.Security) {
+                                                promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
+                                            }
+                                        });
+                                        jQuery.when.apply(jQuery, promises).done(function () {
+                                            clientContext.executeQueryAsync(function () {
+                                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                                def.resolve();
+                                            }, function () {
+                                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                                def.resolve();
+                                            });
+                                        });
                                     });
                                 });
                             }, function (sender, args) {
@@ -368,7 +388,7 @@ var Pzl;
                     }
                     ComposedLook.prototype.ProvisionObjects = function (object) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Starting provisioning of objects");
+                        Core.Log.Information(this.name, "Code execution scope started");
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
@@ -376,19 +396,13 @@ var Pzl;
                         var fontSchemeUrl = object.FontSchemeUrl ? Helpers.GetUrlWithoutTokens(object.FontSchemeUrl) : "";
                         var backgroundImageUrl = object.BackgroundImageUrl ? Helpers.GetUrlWithoutTokens(object.BackgroundImageUrl) : null;
                         web.applyTheme(colorPaletteUrl, fontSchemeUrl, backgroundImageUrl, true);
-                        if (object.MasterUrl) {
-                            web.set_masterUrl(object.MasterUrl);
-                        }
-                        if (object.CustomMasterUrl) {
-                            web.set_customMasterUrl(object.CustomMasterUrl);
-                        }
-                        ;
                         web.update();
                         clientContext.executeQueryAsync(function () {
-                            Core.Log.Information(_this.name, "Provisioning of objects ended");
+                            Core.Log.Information(_this.name, "Code execution scope ended");
                             def.resolve();
                         }, function (sender, args) {
-                            console.log(sender, args);
+                            Core.Log.Information(_this.name, "Code execution scope ended");
+                            Core.Log.Information(_this.name, args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();

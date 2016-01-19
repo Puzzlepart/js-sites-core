@@ -17,7 +17,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             super("ComposedLook")
         }
         ProvisionObjects(object : Schema.IComposedLook) {
-            Core.Log.Information(this.name, `Starting provisioning of objects`);
+            Core.Log.Information(this.name, `Code execution scope started`);
             
             var def = jQuery.Deferred();     
             var clientContext = SP.ClientContext.get_current();
@@ -25,18 +25,16 @@ module Pzl.Sites.Core.ObjectHandlers {
             var colorPaletteUrl = object.ColorPaletteUrl ? Helpers.GetUrlWithoutTokens(object.ColorPaletteUrl) : "";
             var fontSchemeUrl = object.FontSchemeUrl ? Helpers.GetUrlWithoutTokens(object.FontSchemeUrl) : "";
             var backgroundImageUrl = object.BackgroundImageUrl ? Helpers.GetUrlWithoutTokens(object.BackgroundImageUrl) : null;
-            web.applyTheme(colorPaletteUrl, fontSchemeUrl, backgroundImageUrl, true);
-            if(object.MasterUrl) { web.set_masterUrl(object.MasterUrl); }
-            if(object.CustomMasterUrl) { web.set_customMasterUrl(object.CustomMasterUrl); };
-         
+            web.applyTheme(colorPaletteUrl, fontSchemeUrl, backgroundImageUrl, true);         
             web.update();
             clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information(this.name, `Provisioning of objects ended`);
+                    Core.Log.Information(this.name, `Code execution scope ended`);
                     def.resolve();
                 },
                 (sender, args) => {
-                    console.log(sender, args);
+                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    Core.Log.Information(this.name, args.get_message());
                     def.resolve(sender, args);
                 }
             )

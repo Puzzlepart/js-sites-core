@@ -31,6 +31,8 @@ module Pzl.Sites.Core.ObjectHandlers {
             return def.promise();
         }
         export function CreateFolders(clientContext : SP.ClientContext, list: SP.List, listUrl: string, folders : Array<Schema.IFolder>) {
+            Core.Log.Information("Lists Folders", `Code execution scope started`)
+            
             var def = jQuery.Deferred();    
             var listRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${listUrl}`;
             var rootFolder = clientContext.get_web().getFolderByServerRelativeUrl(listRelativeUrl);
@@ -88,6 +90,8 @@ module Pzl.Sites.Core.ObjectHandlers {
             var def = jQuery.Deferred();    
             var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
             
+            Core.Log.Information("Lists Content Types", `Code execution scope started`);
+            
             lists.forEach((l, index) => {
                 if(!objects[index].ContentTypeBindings) return;
                 Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
@@ -108,9 +112,20 @@ module Pzl.Sites.Core.ObjectHandlers {
                         l.update();
                     });
                     
-                    def.resolve();   
+                    clientContext.executeQueryAsync(
+                            () => {   
+                                Core.Log.Information("Lists Content Types", `Content Type bindings successfully applied to lists`);
+                                Core.Log.Information("Lists Content Types", `Code execution scope ended`);
+                                def.resolve();
+                            },
+                            () => {
+                                Core.Log.Information("Lists Content Types", `Failed to apply content type bindings'`);
+                                Core.Log.Information("Lists Content Types", `Code execution scope ended`);
+                                def.resolve();
+                            });
                 },
                 (sender, args) => { 
+                    Core.Log.Information("Lists Content Types", `Failed to load web content types'`)
                     def.resolve(sender, args);   
                 });         
             
@@ -119,6 +134,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         export function ApplyListSecurity(clientContext : SP.ClientContext, list: SP.List, security : Schema.ISecurity) {
             var def = jQuery.Deferred();    
             
+            Core.Log.Information("Lists Security", "Code execution scope started");
             Core.Log.Information("Lists Security", `Setting security for list '${list.get_title()}'`)
             if(security.BreakRoleInheritance) {
                 list.breakRoleInheritance(security.CopyRoleAssignments, security.ClearSubscopes);
@@ -156,10 +172,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                     list.update();
                     clientContext.executeQueryAsync(
-                        () => {     
+                        () => {              
                             def.resolve();
                         },
-                        (sender, args) => {               
+                        (sender, args) => {       
                             def.resolve(sender, args);  
                         }); 
                 },
@@ -176,6 +192,8 @@ module Pzl.Sites.Core.ObjectHandlers {
         }
         export function CreateViews(clientContext : SP.ClientContext, lists: Array<SP.List>, objects : Array<Schema.IListInstance>) {
             var def = jQuery.Deferred();
+            
+            Core.Log.Information("Lists Views", "Code execution scope ended");  
             
             lists.forEach((l, index) => {
                 var obj = objects[index];
@@ -198,9 +216,11 @@ module Pzl.Sites.Core.ObjectHandlers {
             
             clientContext.executeQueryAsync(
                         () => { 
+                            Core.Log.Information("Lists Views", "Code execution scope ended");  
                             def.resolve();
                         },
-                        (sender, args) => {               
+                        (sender, args) => {      
+                            Core.Log.Information("Lists Views", "Code execution scope ended");           
                             def.resolve(sender, args);  
                         });
             
@@ -213,7 +233,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             super("Lists")
         }
         ProvisionObjects(objects : Array<Schema.IListInstance>) {
-            Core.Log.Information(this.name, `Starting provisioning of objects`);
+            Core.Log.Information(this.name, `Code execution scope started`);
             var def = jQuery.Deferred();            
  
             var clientContext = SP.ClientContext.get_current();
@@ -246,31 +266,37 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                     
                     if(!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information(this.name, `Provisioning of objects ended`);
+                        Core.Log.Information(this.name, `Code execution scope ended`);
                         def.resolve();                        
                         return def.promise();
                     }
                     
                     clientContext.executeQueryAsync(
-                        () => {      
-                            var promises = [];
-                            promises.push(Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects));                            
-                            promises.push(Extensions.CreateViews(clientContext, listInstances, objects));
-                            objects.forEach(function(obj, index) {
-                                if(obj.Folders && obj.Folders.length > 0) {
-                                    promises.push(Extensions.CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
-                                }
-                                if(obj.Security) {
-                                    promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
-                                }
-                            });
-                            jQuery.when.apply(jQuery, promises).done(() => {        
-                                    clientContext.executeQueryAsync(
-                                        () => {   
-                                            Core.Log.Information(this.name, `Provisioning of objects ended`);
-                                            def.resolve();
+                        () => {    
+                            Extensions.ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
+                                Extensions.CreateViews(clientContext, listInstances, objects).then(() => {
+                                    var promises = [];
+                                    objects.forEach(function(obj, index) {
+                                            if(obj.Folders && obj.Folders.length > 0) {
+                                                promises.push(Extensions.CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
+                                            }
+                                            if(obj.Security) {
+                                                promises.push(Extensions.ApplyListSecurity(clientContext, listInstances[index], obj.Security));
+                                            }
                                         });
-                            });
+                                        jQuery.when.apply(jQuery, promises).done(() => {        
+                                                clientContext.executeQueryAsync(
+                                                    () => {   
+                                                        Core.Log.Information(this.name, `Code execution scope ended`);
+                                                        def.resolve();
+                                                    },
+                                                    () => {
+                                                        Core.Log.Information(this.name, `Code execution scope ended`);
+                                                        def.resolve();
+                                                    });
+                                        });
+                                });
+                            }); 
                         }, 
                         (sender, args) => {
                             Core.Log.Information(this.name, `Provisioning of objects failed`)

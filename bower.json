@@ -1,6 +1,6 @@
 {
   "name": "js-sites-core",
-  "version": "1.6.1",
+  "version": "1.6.4",
   "homepage": "https://github.com/olemp/js-sites-core",
   "authors": [
     "olemp <olemp@puzzlepart.com>",
@@ -9,7 +9,8 @@
   "description": "SharePoint Provisioning engine with pure JavaScript",
   "main": [
       "dist/pzl.sites.core.js",
-      "dist/pzl.sites.core.min.js"
+      "dist/pzl.sites.core.min.js",
+      "dist/schema.md"
   ],
   "moduleType": [
     "es6"

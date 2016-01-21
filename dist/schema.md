@@ -322,7 +322,8 @@ Defines a File element
       "Src": "",
       "RemoveExistingWebParts": false,
       "Properties": [],
-      "WebParts": []
+      "WebParts": [],
+      "Views": []
     }
 ```
 
@@ -335,6 +336,7 @@ Src|string|The Src of the File, required attribute
 RemoveExistingWebParts|boolean|The RemoveExistingWebParts of the File
 Properties|Key/Value Pair|The Properties of the File
 WebParts|Array<[WebPart](#webpart)>|The WebPart entries of the File, optional collection of elements
+Views|Array<[HiddenView](#hiddenview)>|The Views entries of the File, optional collection of elements
 
 Tokens available
 
@@ -415,3 +417,25 @@ RowLimit|number|The RowLimit of the View
 SetAsDefaultView|boolean|The SetAsDefaultView of the View
 ViewFields|Array<string>|The ViewFields of the View
 ViewTypeKind|string|The ViewTypeKind of the View
+
+###HiddenView
+Defines a HiddenView element
+
+```json
+    {
+      "List": "",
+      "Paged": true,
+      "Query": "",
+      "RowLimit": 10,
+      "ViewFields": []
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+List|string|The Title of the HiddenView
+Paged|boolean|The Paged of the HiddenView
+Query|string|The Query of the HiddenView
+RowLimit|number|The RowLimit of the HiddenView
+ViewFields|Array<string>|The ViewFields of the HiddenView

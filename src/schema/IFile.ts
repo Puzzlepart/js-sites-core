@@ -1,4 +1,5 @@
 /// <reference path="IWebPart.ts" />
+/// <reference path="HiddenView.ts" />
 
 module Pzl.Sites.Core.Schema {
     export interface IFile {
@@ -8,5 +9,6 @@ module Pzl.Sites.Core.Schema {
         Properties: Object;
         RemoveExistingWebParts: boolean;
         WebParts: Array<IWebPart>;
+        Views: Array<HiddenView>
     }
 }

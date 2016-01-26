@@ -89,9 +89,12 @@ module Pzl.Sites.Core.ObjectHandlers {
         Core.Log.Information("Lists Content Types", `Code execution scope started`);
         var def = jQuery.Deferred();
         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
+        var listCts : Array<SP.ContentTypeCollection> = [];
         lists.forEach((l, index) => {
             if (!objects[index].ContentTypeBindings) return;
             Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
+            listCts.push(l.get_contentTypes());
+            clientContext.load(listCts[index])
             l.set_contentTypesEnabled(true);
             l.update();
         })
@@ -102,9 +105,17 @@ module Pzl.Sites.Core.ObjectHandlers {
                 lists.forEach((l, index) => {
                     var obj = objects[index];
                     if (!obj.ContentTypeBindings) return;
-                    obj.ContentTypeBindings.forEach(ctb => {
-                        Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${l.get_title()}'`)
-                        l.get_contentTypes().addExistingContentType(webCts.getById(ctb.ContentTypeId));
+                    var listContentTypes = listCts[index];
+                    if(obj.RemoveExistingContentTypes) {
+                        Core.Log.Information("Lists Content Types", `Removing existing content types from list '${l.get_title()}'`)
+                        listContentTypes.get_data().forEach(ct => {
+                            Core.Log.Information("Lists Content Types", `Removing content type '${ct.get_stringId()}' from list '${l.get_title()}'`)
+                            ct.deleteObject(); 
+                        });
+                    }      
+                    obj.ContentTypeBindings.forEach(ctb => {                                          
+                        Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${l.get_title()}'`);
+                        listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                     });
                     l.update();
                 });

@@ -15,6 +15,7 @@ module Pzl.Sites.Core.Schema {
         MinorVersionLimit: number;
         MaxVersionLimit: number;
         DraftVersionVisibility: number;
+        RemoveExistingContentTypes: boolean;
         ContentTypeBindings: Array<IContentTypeBinding>;
         Folders: Array<IFolder>;
         Views: Array<IView>;

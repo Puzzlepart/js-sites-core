@@ -161,6 +161,7 @@ Title|string|The Title of the List Instance, required attribute
 Description|string|The Description of the List Instance, optional attribute
 TemplateType|number|The TemplateType of the List Instance, required attribute Values available here: https://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.listtemplatetype.aspx
 Url|string|The Url of the List Instance, required attribute
+RemoveExistingContentTypes|boolean|The RemoveExistingContentTypes of the List Instance, optional attribute
 ContentTypeBindings|Array<[ContentTypeBinding](#contenttypebinding)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
 Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optional collection of elements
 Views|Array<[View](#view)>|The Views entries of the List Instance, optional collection of elements

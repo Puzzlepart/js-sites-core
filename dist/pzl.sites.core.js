@@ -314,7 +314,11 @@ var Pzl;
                                     if (v.ViewTypeKind) {
                                         viewCreationInformation.set_viewTypeKind(SP.ViewType.html);
                                     }
-                                    l.get_views().add(viewCreationInformation);
+                                    var view = l.get_views().add(viewCreationInformation);
+                                    if (v.Scope) {
+                                        view.set_scope(v.Scope);
+                                        view.update();
+                                    }
                                     l.update();
                                 }
                                 clientContext.load(l.get_views());

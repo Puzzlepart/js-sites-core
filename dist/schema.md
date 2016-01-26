@@ -401,6 +401,7 @@ Defines a View element
       "PersonalView": false,
       "Query": "",
       "RowLimit": 10,
+      "Scope": 1,
       "SetAsDefaultView": false,
       "ViewFields": [],
       "ViewTypeKind": ""
@@ -415,9 +416,20 @@ Paged|boolean|The Paged of the View
 PersonalView|boolean|The PersonalView of the View
 Query|string|The Query of the View
 RowLimit|number|The RowLimit of the View
+Scope|number|The Scope of the View
 SetAsDefaultView|boolean|The SetAsDefaultView of the View
 ViewFields|Array<string>|The ViewFields of the View
 ViewTypeKind|string|The ViewTypeKind of the View
+
+Scope
+
+Value|Description
+--------|----
+0|DefaultValue
+1|Recursive
+2|RecursiveAll
+3|FilesOnly
+
 
 ###HiddenView
 Defines a HiddenView element
@@ -427,6 +439,7 @@ Defines a HiddenView element
       "List": "",
       "Paged": true,
       "Query": "",
+      "Scope": 1,
       "RowLimit": 10,
       "ViewFields": []
     }
@@ -438,5 +451,15 @@ Attibute|Type|Description
 List|string|The Title of the HiddenView
 Paged|boolean|The Paged of the HiddenView
 Query|string|The Query of the HiddenView
+Scope|number|The Scope of the View
 RowLimit|number|The RowLimit of the HiddenView
 ViewFields|Array<string>|The ViewFields of the HiddenView
+
+Scope
+
+Value|Description
+--------|----
+0|DefaultValue
+1|Recursive
+2|RecursiveAll
+3|FilesOnly

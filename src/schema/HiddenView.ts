@@ -5,6 +5,7 @@ module Pzl.Sites.Core.Schema {
         Paged: boolean;
         Query: string;
         RowLimit: number;
+        Scope: number;
         ViewFields: Array<string>;
     }
 }

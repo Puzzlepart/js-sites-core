@@ -245,6 +245,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                                     columns.add(vf);
                                 });
                             }
+                            if(v.Scope) { view.set_scope(v.Scope); }
                             view.update();
                         } else {
                             Core.Log.Information("Lists Views", `Adding view '${v.Title}' to list '${l.get_title()}'`)
@@ -257,7 +258,11 @@ module Pzl.Sites.Core.ObjectHandlers {
                             if (v.SetAsDefaultView) { viewCreationInformation.set_setAsDefaultView(v.SetAsDefaultView); }
                             if (v.ViewFields) { viewCreationInformation.set_viewFields(v.ViewFields); }
                             if (v.ViewTypeKind) { viewCreationInformation.set_viewTypeKind(SP.ViewType.html); }
-                            l.get_views().add(viewCreationInformation);
+                            var view = l.get_views().add(viewCreationInformation);
+                            if(v.Scope) {
+                                view.set_scope(v.Scope);
+                                view.update();
+                            }
                             l.update();
                         }
                         clientContext.load(l.get_views());

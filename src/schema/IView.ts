@@ -5,6 +5,7 @@ module Pzl.Sites.Core.Schema {
         PersonalView: boolean;
         Query: string;
         RowLimit: number;
+        Scope: number;
         SetAsDefaultView: boolean;
         ViewFields: Array<string>;
         ViewTypeKind: string;

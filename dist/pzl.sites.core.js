@@ -132,13 +132,13 @@ var Pzl;
                     var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
                     var listCts = [];
                     lists.forEach(function (l, index) {
-                        if (!objects[index].ContentTypeBindings)
-                            return;
-                        Core.Log.Information("Lists Content Types", "Enabled content types for list '" + l.get_title() + "'");
                         listCts.push(l.get_contentTypes());
                         clientContext.load(listCts[index]);
-                        l.set_contentTypesEnabled(true);
-                        l.update();
+                        if (objects[index].ContentTypeBindings) {
+                            Core.Log.Information("Lists Content Types", "Enabled content types for list '" + l.get_title() + "'");
+                            l.set_contentTypesEnabled(true);
+                            l.update();
+                        }
                     });
                     clientContext.load(webCts);
                     clientContext.executeQueryAsync(function () {
@@ -284,6 +284,9 @@ var Pzl;
                                         v.ViewFields.forEach(function (vf) {
                                             columns.add(vf);
                                         });
+                                    }
+                                    if (v.Scope) {
+                                        view.set_scope(v.Scope);
                                     }
                                     view.update();
                                 }

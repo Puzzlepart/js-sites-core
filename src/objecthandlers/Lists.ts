@@ -91,12 +91,13 @@ module Pzl.Sites.Core.ObjectHandlers {
         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
         var listCts : Array<SP.ContentTypeCollection> = [];
         lists.forEach((l, index) => {
-            if (!objects[index].ContentTypeBindings) return;
-            Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
             listCts.push(l.get_contentTypes());
             clientContext.load(listCts[index])
-            l.set_contentTypesEnabled(true);
-            l.update();
+            if (objects[index].ContentTypeBindings) {
+                Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
+                l.set_contentTypesEnabled(true);
+                l.update();
+            }
         })
 
         clientContext.load(webCts);

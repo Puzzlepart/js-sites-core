@@ -1,0 +1,1 @@
+tsc --out ..\dist\pzl.sites.core.js .\pzl.sites.core.ts --removeComments

@@ -1137,6 +1137,87 @@ var Pzl;
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
 /// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
+/// <reference path="..\schema\ISecurity.ts" />
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var ObjectHandlers;
+            (function (ObjectHandlers) {
+                var Security = (function (_super) {
+                    __extends(Security, _super);
+                    function Security() {
+                        _super.call(this, "Security");
+                    }
+                    Security.prototype.ProvisionObjects = function (object) {
+                        var _this = this;
+                        Core.Log.Information(this.name, "Code execution scope started");
+                        var def = jQuery.Deferred();
+                        var clientContext = SP.ClientContext.get_current();
+                        var web = clientContext.get_web();
+                        if (object.BreakRoleInheritance) {
+                            web.breakRoleInheritance(object.CopyRoleAssignments, object.ClearSubscopes);
+                            web.update();
+                        }
+                        var rootSiteProperties = clientContext.get_site().get_rootWeb().get_allProperties();
+                        var rootSiteGroups = clientContext.get_site().get_rootWeb().get_siteGroups();
+                        var rootSiteRoleDefinitions = clientContext.get_site().get_rootWeb().get_roleDefinitions();
+                        clientContext.load(rootSiteProperties);
+                        clientContext.load(rootSiteGroups);
+                        clientContext.load(rootSiteRoleDefinitions);
+                        clientContext.executeQueryAsync(function () {
+                            if (!object.RoleAssignments || object.RoleAssignments.length == 0) {
+                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                def.resolve();
+                            }
+                            object.RoleAssignments.forEach(function (ra) {
+                                var roleDef = null;
+                                if (typeof ra.RoleDefinition == "number") {
+                                    roleDef = rootSiteRoleDefinitions.getById(ra.RoleDefinition);
+                                }
+                                else {
+                                    roleDef = rootSiteRoleDefinitions.getByName(ra.RoleDefinition);
+                                }
+                                var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                                roleBindings.add(roleDef);
+                                var principal = null;
+                                if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
+                                    var token = ra.Principal.substring(1, ra.Principal.length - 1);
+                                    var groupId = rootSiteProperties.get_fieldValues()[("vti_" + token)];
+                                    principal = rootSiteGroups.getById(groupId);
+                                }
+                                else {
+                                    principal = rootSiteGroups.getByName(principal);
+                                }
+                                web.get_roleAssignments().add(principal, roleBindings);
+                            });
+                            web.update();
+                            clientContext.executeQueryAsync(function () {
+                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                def.resolve();
+                            }, function (sender, args) {
+                                Core.Log.Error(_this.name, "" + args.get_message());
+                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                def.resolve(sender, args);
+                            });
+                        }, function (sender, args) {
+                            Core.Log.Error(_this.name, "" + args.get_message());
+                            Core.Log.Information(_this.name, "Code execution scope ended");
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    return Security;
+                })(Core.Model.ObjectHandlerBase);
+                ObjectHandlers.Security = Security;
+            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="../model/ILoggingOptions.ts" />
 var Pzl;
 (function (Pzl) {
@@ -1247,6 +1328,7 @@ var Pzl;
 /// <reference path="objecthandlers/LocalNavigation.ts" />
 /// <reference path="objecthandlers/PropertyBagEntries.ts" />
 /// <reference path="objecthandlers/WebSettings.ts" />
+/// <reference path="objecthandlers/Security.ts" />
 /// <reference path="utilities/Logger.ts" />
 /// <reference path="model/TemplateQueueItem.ts" />
 /// <reference path="model/ILoggingOptions.ts" />

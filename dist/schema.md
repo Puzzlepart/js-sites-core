@@ -9,6 +9,7 @@ Here follows the list of root elements available in the JS Sites Core Schema.
 ```json
 {
     "Parameters": {},
+    "Security": {},
     "WebSettings": {},
     "PropertyBagEntries": {},
     "Files": [],
@@ -23,6 +24,7 @@ Here follows the list of root elements available in the JS Sites Core Schema.
 Element|Type|Description
 -------|----|-----------
 Parameters|[Parameters](#parameters)|No description available yet
+Security|[Security](#security)|No description available yet
 WebSettings|[WebSettings](#websettings)|No description available yet
 PropertyBagEntries|[PropertyBagEntries](#propertybagentries)|No description available yet
 Files|[Files](#files)|No description available yet

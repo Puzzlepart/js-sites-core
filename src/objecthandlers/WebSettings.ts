@@ -11,11 +11,12 @@ module Pzl.Sites.Core.ObjectHandlers {
             var def = jQuery.Deferred();       
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();
+            
             if(object.WelcomePage) {
                 Core.Log.Information(this.name, `Setting WelcomePage to '${object.WelcomePage}'`);
                 web.get_rootFolder().set_welcomePage(object.WelcomePage);   
                 web.get_rootFolder().update();
-            }            
+            }
             web.update();
             clientContext.load(web);
             clientContext.executeQueryAsync(

@@ -4,7 +4,7 @@
 /// <reference path="IFeature.ts" />
 /// <reference path="IField.ts" />
 /// <reference path="IContentType.ts" />
-/// <reference path="INavigationNode.ts" />
+/// <reference path="INavigation.ts" />
 /// <reference path="ICustomAction.ts" />
 /// <reference path="IComposedLook.ts" />
 /// <reference path="IWebSettings.ts" />
@@ -15,7 +15,7 @@ module Pzl.Sites.Core.Schema {
         Files: Array<IFile>;
         Pages: Array<IPage>;
         Features: Array<IFeature>;
-        LocalNavigation: Array<INavigationNode>;
+        Navigation: INavigation;
         CustomActions: Array<ICustomAction>;
         ComposedLook: IComposedLook;
         PropertyBagEntries: Object;

@@ -217,6 +217,7 @@ Attibute|Type|Description
 --------|----|-----------
 Title|string|The Title of the NavigationNode, required attribute
 Url|string|The Url of the NavigationNode, required attribute
+Children|Array<[NavigationNode](#navigationnode)>|The Children of the NavigationNode, optional attribute
 
 ###CustomAction
 Defines a CustomAction element

@@ -1,10 +1,11 @@
 {
   "name": "js-sites-core",
-  "version": "1.7.6",
+  "version": "1.8.0",
   "homepage": "https://github.com/olemp/js-sites-core",
   "authors": [
     "olemp <olemp@puzzlepart.com>",
-    "tarjeieo <tarjeieo@puzzlepart.com>"
+    "tarjeieo <tarjeieo@puzzlepart.com>",
+    "olekms <olekms@puzzlepart.com>"
   ],
   "description": "SharePoint Provisioning engine with pure JavaScript",
   "main": [

@@ -1031,18 +1031,45 @@ var Pzl;
                                     quickLaunchNodeCollection.add(newNode);
                                 });
                                 clientContext.executeQueryAsync(function () {
-                                    Core.Log.Information(_this.name, "Provisioning of objects ended");
-                                    def.resolve();
+                                    jQuery.ajax({
+                                        url: _spPageContextInfo.webAbsoluteUrl + "/_api/web/Navigation/QuickLaunch",
+                                        type: 'get',
+                                        headers: {
+                                            "accept": "application/json;odata=verbose"
+                                        }
+                                    }).done(function (data) {
+                                        data = data.d.results;
+                                        data.forEach(function (n) {
+                                            var node = navigation.getNodeById(n.Id);
+                                            var childrenNodeCollection = node.get_children();
+                                            var parentNode = jQuery.grep(objects, function (value) { return value.Title === n.Title; })[0];
+                                            if (parentNode && parentNode.Children) {
+                                                parentNode.Children.forEach(function (c) {
+                                                    var existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, c.Title);
+                                                    var newNode = new SP.NavigationNodeCreationInformation();
+                                                    newNode.set_title(c.Title);
+                                                    newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(c.Url));
+                                                    newNode.set_asLastNode(true);
+                                                    childrenNodeCollection.add(newNode);
+                                                    Core.Log.Information(_this.name, "Adding the link node " + c.Title + " to the quicklaunch, under parent " + n.Title);
+                                                });
+                                            }
+                                        });
+                                        clientContext.executeQueryAsync(function () {
+                                            Core.Log.Information(_this.name, "Provisioning of objects ended");
+                                            def.resolve();
+                                        }, function (sender, args) {
+                                            Core.Log.Information(_this.name, "Provisioning of objects failed");
+                                            Core.Log.Error(_this.name, "" + args.get_message());
+                                            def.resolve(sender, args);
+                                        });
+                                    });
                                 }, function (sender, args) {
                                     Core.Log.Information(_this.name, "Provisioning of objects failed");
                                     Core.Log.Error(_this.name, "" + args.get_message());
                                     def.resolve(sender, args);
                                 });
                             });
-                        }, function (sender, args) {
-                            Core.Log.Information(_this.name, "Provisioning of objects failed");
-                            Core.Log.Error(_this.name, "" + args.get_message());
-                            def.resolve(sender, args);
                         });
                         return def.promise();
                     };

@@ -1,9 +1,6 @@
 # JS Sites Core
 SharePoint Provisioning engine with pure JavaScript inspired by https://github.com/OfficeDev/PnP-Sites-Core/
 
-# Contributors
-@okms
-
 # Using js-sites-core
 Can be as simple as
 ```

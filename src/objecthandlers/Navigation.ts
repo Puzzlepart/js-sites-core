@@ -34,7 +34,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();
 
-            Core.Log.Information(this.name, `Starting provisioning of objects`);
+            Core.Log.Information(this.name, `Code execution scope started`);
             const navigation = web.get_navigation();
             
             if (object.UseShared != undefined) {
@@ -42,15 +42,18 @@ module Pzl.Sites.Core.ObjectHandlers {
             }
             clientContext.executeQueryAsync(
             () => {
-                jQuery.when(
-                    this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation))
-                .then(() => {
+                if(!object.QuickLaunch || object.QuickLaunch.length == 0) {
                     def.resolve();
-                }, () => {
-                    def.reject();
+                    return def.promise();
+                }
+                this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
+                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    def.resolve();
                 });
-            }, () => {
-                def.reject();
+            }, (sender, args) => {
+                Core.Log.Information(this.name, `Code execution scope ended`);
+                Core.Log.Error(this.name, `${args.get_message()}`);
+                def.resolve();
             });
             
             return def.promise();
@@ -113,17 +116,17 @@ module Pzl.Sites.Core.ObjectHandlers {
                                     }
                                 });
                                 clientContext.executeQueryAsync(() => {
-                                    Core.Log.Information(this.name, `Provisioning of objects ended`);
+                                    Core.Log.Information(this.name, `Configuring of quicklaunch done`);
                                     def.resolve();
                                 }, (sender, args) => {
-                                    Core.Log.Information(this.name, `Provisioning of objects failed`)
-                                    Core.Log.Error(this.name, `${args.get_message()}`)
+                                    Core.Log.Information(this.name, `Configuring of quicklaunch failed`);
+                                    Core.Log.Error(this.name, `${args.get_message()}`);
                                     def.resolve(sender, args);
                                 });
-                            }); //end GetRestJSON)
+                            });
                         },
                         (sender, args) => {
-                            Core.Log.Information(this.name, `Provisioning of objects failed`)
+                            Core.Log.Information(this.name, `Configuring of quicklaunch failed`)
                             Core.Log.Error(this.name, `${args.get_message()}`)
                             def.resolve(sender, args);
                         });

@@ -8,6 +8,7 @@
 /// <reference path="objecthandlers/PropertyBagEntries.ts" />
 /// <reference path="objecthandlers/WebSettings.ts" />
 /// <reference path="objecthandlers/Security.ts" />
+/// <reference path="objecthandlers/Navigation.ts" />
 /// <reference path="utilities/Logger.ts" />
 /// <reference path="model/TemplateQueueItem.ts" />
 /// <reference path="model/ILoggingOptions.ts" />

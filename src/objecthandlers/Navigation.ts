@@ -23,43 +23,8 @@ module Pzl.Sites.Core.ObjectHandlers {
             return f[0] || null;
         }
     }
-
-    export class Navigation extends Model.ObjectHandlerBase {
-        constructor() {
-            super("Navigation")
-        }
-
-        ProvisionObjects(object: Schema.INavigation) : JQueryPromise<any> {
-            var def = jQuery.Deferred();
-            var clientContext = SP.ClientContext.get_current();
-            var web = clientContext.get_web();
-
-            Core.Log.Information(this.name, `Code execution scope started`);
-            const navigation = web.get_navigation();
-            
-            if (object.UseShared != undefined) {
-                navigation.set_useShared(object.UseShared);
-            }
-            clientContext.executeQueryAsync(
-            () => {
-                if(!object.QuickLaunch || object.QuickLaunch.length == 0) {
-                    def.resolve();
-                    return def.promise();
-                }
-                this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
-                    Core.Log.Information(this.name, `Code execution scope ended`);
-                    def.resolve();
-                });
-            }, (sender, args) => {
-                Core.Log.Information(this.name, `Code execution scope ended`);
-                Core.Log.Error(this.name, `${args.get_message()}`);
-                def.resolve();
-            });
-            
-            return def.promise();
-        }
-        
-        ConfigureQuickLaunch(objects: Array<Schema.INavigationNode>, clientContext: SP.ClientContext, navigation: SP.Navigation) : JQueryPromise<any> {
+    
+    function ConfigureQuickLaunch(objects: Array<Schema.INavigationNode>, clientContext: SP.ClientContext, navigation: SP.Navigation) : JQueryPromise<any> {
             Core.Log.Information(this.name, `Configuring quicklaunch navigation`);
             
             var def = jQuery.Deferred();
@@ -133,6 +98,41 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                 });
             }
+            return def.promise();
+        }
+    
+    export class Navigation extends Model.ObjectHandlerBase {
+        constructor() {
+            super("Navigation")
+        }
+
+        ProvisionObjects(object: Schema.INavigation) : JQueryPromise<any> {
+            var def = jQuery.Deferred();
+            var clientContext = SP.ClientContext.get_current();
+            var web = clientContext.get_web();
+
+            Core.Log.Information(this.name, `Code execution scope started`);
+            const navigation = web.get_navigation();
+            
+            if (object.UseShared != undefined) {
+                navigation.set_useShared(object.UseShared);
+            }
+            clientContext.executeQueryAsync(
+            () => {
+                if(!object.QuickLaunch || object.QuickLaunch.length == 0) {
+                    def.resolve();
+                    return def.promise();
+                }
+                ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
+                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    def.resolve();
+                });
+            }, (sender, args) => {
+                Core.Log.Information(this.name, `Code execution scope ended`);
+                Core.Log.Error(this.name, `${args.get_message()}`);
+                def.resolve();
+            });
+            
             return def.promise();
         }
     }

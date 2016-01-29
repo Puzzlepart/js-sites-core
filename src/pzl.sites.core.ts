@@ -5,7 +5,6 @@
 /// <reference path="objecthandlers/Files.ts" />
 /// <reference path="objecthandlers/Pages.ts" />
 /// <reference path="objecthandlers/CustomActions.ts" />
-/// <reference path="objecthandlers/LocalNavigation.ts" />
 /// <reference path="objecthandlers/PropertyBagEntries.ts" />
 /// <reference path="objecthandlers/WebSettings.ts" />
 /// <reference path="objecthandlers/Security.ts" />

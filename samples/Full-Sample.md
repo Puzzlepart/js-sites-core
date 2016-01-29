@@ -106,20 +106,23 @@
       "Title": "script.js"
     }
   ],
-  "LocalNavigation": [
-    {
-      "Url": "",
-      "Title": "Home"
-    },
-    {
-      "Url": "",
-      "Title": "Notebook"
-    },
-    {
-      "Url": "Documents",
-      "Title": "Documents"
-    }
-  ],
+  "Navigation": {
+    "UseShared": "true",
+    "QuickLaunch": [
+        {
+            "Url": "",
+            "Title": "Home"
+        },
+        {
+            "Url": "",
+            "Title": "Notebook"
+        },
+        {
+            "Url": "Documents",
+            "Title": "Documents"
+        }
+    ]
+  },
   "ComposedLook": {
     "ColorPaletteUrl": "{themegallery}/Palette008.spcolor",
     "FontSchemeUrl": "{themegallery}/SharePointPersonality.spfont"

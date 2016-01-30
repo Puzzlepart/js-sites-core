@@ -18,4 +18,12 @@ module Pzl.Sites.Core.Resources {
     export var Lists_adding_list_view = "Adding view {0} for list {1}";
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
+    export var WebSettings_setting_welcomePage = "Setting welcome page to {0}";    
+    export var WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";    
+    export var WebSettings_setting_masterUrl = "Setting master url to {0}";    
+    export var WebSettings_setting_customMasterUrl = "Setting custom master url to {0}";    
+    export var WebSettings_setting_saveSiteAsTemplateEnabled = "Setting save site as template enabled to {0}";    
+    export var WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";    
+    export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";    
+    export var WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
 }

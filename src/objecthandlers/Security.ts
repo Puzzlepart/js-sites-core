@@ -1,6 +1,8 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ISecurity.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class Security extends Model.ObjectHandlerBase {
@@ -8,7 +10,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             super("Security")
       }
       ProvisionObjects(object : Schema.ISecurity) {
-            Core.Log.Information(this.name, "Code execution scope started");
+            Core.Log.Information(this.name, Resources.Code_execution_started);
             var def = jQuery.Deferred();       
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();     
@@ -26,7 +28,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.executeQueryAsync(
                 () => {  
                     if(!object.RoleAssignments || object.RoleAssignments.length == 0) {                        
-                        Core.Log.Information(this.name, "Code execution scope ended");
+                        Core.Log.Information(this.name, Resources.Code_execution_ended);
                         def.resolve();
                     }
                     object.RoleAssignments.forEach(ra => {
@@ -51,18 +53,18 @@ module Pzl.Sites.Core.ObjectHandlers {
                     web.update();
                     clientContext.executeQueryAsync(
                         () => {  
-                            Core.Log.Information(this.name, "Code execution scope ended");
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
                             def.resolve();
                         },
                         (sender, args) => {     
                             Core.Log.Error(this.name, `${args.get_message()}`);                                             
-                            Core.Log.Information(this.name, "Code execution scope ended");
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
                             def.resolve(sender, args);
                         });
                 },
                 (sender, args) => {                    
                     Core.Log.Error(this.name, `${args.get_message()}`);                      
-                    Core.Log.Information(this.name, "Code execution scope ended");
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                     def.resolve(sender, args);
                 });
             

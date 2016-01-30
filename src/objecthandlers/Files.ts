@@ -2,6 +2,9 @@
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IFile.ts" />
 /// <reference path="..\schema\IWebPart.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+"use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
     module Helpers {

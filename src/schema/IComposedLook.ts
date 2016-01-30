@@ -3,7 +3,5 @@ module Pzl.Sites.Core.Schema {
         ColorPaletteUrl: string;
         FontSchemeUrl: string;
         BackgroundImageUrl: string;
-        MasterUrl: string;
-        CustomMasterUrl: string;
     }
 }

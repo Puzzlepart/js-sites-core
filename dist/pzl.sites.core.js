@@ -45,6 +45,26 @@ var Pzl;
                 Resources.Lists_adding_list_view = "Adding view {0} for list {1}";
                 Resources.Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
                 Resources.Lists_adding_field_ref = "Adding field {0} to list {1}";
+                Resources.WebSettings_setting_welcomePage = "Setting welcome page to {0}";
+                Resources.WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";
+                Resources.WebSettings_setting_masterUrl = "Setting master url to {0}";
+                Resources.WebSettings_setting_customMasterUrl = "Setting custom master url to {0}";
+                Resources.WebSettings_setting_saveSiteAsTemplateEnabled = "Setting save site as template enabled to {0}";
+                Resources.WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";
+                Resources.WebSettings_setting_recycleBinEnabled = "Setting recyclebin enabled to {0}";
+                Resources.WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
+                Resources.PropertyBagEntries_setting_propety = "Setting property '{0}' = '{1}' on web";
+                Resources.Pages_creating_page = "Creating wiki page with Url {0}";
+                Resources.Pages_creating_page_failed = "Failed to create wiki page with Url {0}";
+                Resources.Navigation_setting_shared = "Setting useShared to {0}";
+                Resources.Navigation_configuring_of_quicklaunch_done = "Configuring of quicklaunch done";
+                Resources.Navigation_configuring_of_quicklaunch_failed = "Configuring of quicklaunch failed";
+                Resources.Navigation_configuring_quicklaunch_navigation = "Configuring quicklaunch navigation";
+                Resources.Navigation_removing_existing_nodes = "Removing existing navigation nodes";
+                Resources.Navigation_adding_node = "Adding navigation node with Url {0} and Title {1}";
+                Resources.Navigation_adding_children_node = "Adding navigation node with Url {0} and Title {1}, under parent {2}";
+                Resources.CustomAction_already_exists = "A custom action with Title '{0}' already exists";
+                Resources.CustomAction_creating = "Creating custom action with Title '{0}'";
             })(Resources = Core.Resources || (Core.Resources = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
@@ -485,6 +505,7 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+"use strict";
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -799,22 +820,21 @@ var Pzl;
                     }
                     Helpers.GetFolderFromFilePath = GetFolderFromFilePath;
                 })(Helpers || (Helpers = {}));
-                function AddWikiPageByUrl(fileUrl) {
+                function AddWikiPageByUrl(pageUrl) {
                     var def = jQuery.Deferred();
-                    Core.Log.Information("Pages", "Creating file with Url '" + fileUrl + "'");
+                    Core.Log.Information("Pages", String.format(Core.Resources.Pages_creating_page, pageUrl));
                     var clientContext = SP.ClientContext.get_current();
                     var web = clientContext.get_web();
-                    var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + fileUrl;
-                    var folderServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + Helpers.GetFolderFromFilePath(fileUrl);
+                    var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + pageUrl;
+                    var folderServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + Helpers.GetFolderFromFilePath(pageUrl);
                     var folder = web.getFolderByServerRelativeUrl(folderServerRelativeUrl);
                     clientContext.load(folder.get_files().addTemplateFile(fileServerRelativeUrl, SP.TemplateFileType.wikiPage));
-                    clientContext.executeQueryAsync(function () {
-                        def.resolve();
-                    }, function (sender, args) {
-                        Core.Log.Information("Pages", "Failed to create file with Url '" + fileUrl + "'");
+                    clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        Core.Log.Information("Pages", String.format(Core.Resources.Pages_creating_page_failed, pageUrl));
                         Core.Log.Error("Pages", "" + args.get_message());
                         def.resolve(sender, args);
                     });
+                    aa;
                     return def.promise();
                 }
                 ObjectHandlers.AddWikiPageByUrl = AddWikiPageByUrl;
@@ -825,7 +845,7 @@ var Pzl;
                     }
                     Pages.prototype.ProvisionObjects = function (objects) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Code execution scope started");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var promises = [];
@@ -833,7 +853,7 @@ var Pzl;
                             AddWikiPageByUrl(obj.Url);
                         });
                         jQuery.when.apply(jQuery, promises).done(function () {
-                            Core.Log.Information(_this.name, "Code execution scope ended");
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve();
                         });
                         return def.promise();
@@ -845,6 +865,7 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+"use strict";
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -861,7 +882,7 @@ var Pzl;
                     CustomActions.prototype.ProvisionObjects = function (objects) {
                         var _this = this;
                         var def = jQuery.Deferred();
-                        Core.Log.Information(this.name, "Starting provisioning of objects");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var clientContext = SP.ClientContext.get_current();
                         var userCustomActions = clientContext.get_web().get_userCustomActions();
                         clientContext.load(userCustomActions);
@@ -871,10 +892,10 @@ var Pzl;
                                     return userCustomAction.get_title() == obj.Title;
                                 }).length > 0;
                                 if (objExists) {
-                                    Core.Log.Information(_this.name, "A custom action with Title '" + obj.Title + "' already exists in this Web site at Url '" + obj.Url + "'.");
+                                    Core.Log.Information(_this.name, String.format(Core.Resources.CustomAction_already_exists, obj.Title));
                                 }
                                 else {
-                                    Core.Log.Information(_this.name, "Creating custom action with Title '" + obj.Title + "'");
+                                    Core.Log.Information(_this.name, String.format(Core.Resources.CustomAction_creating, obj.Title));
                                     var objCreationInformation = userCustomActions.add();
                                     if (obj.Description) {
                                         objCreationInformation.set_description(obj.Description);
@@ -921,22 +942,17 @@ var Pzl;
                                     objCreationInformation.update();
                                 }
                             });
-                            if (!clientContext.get_hasPendingRequest()) {
-                                Core.Log.Information(_this.name, "Provisioning of objects ended");
-                                def.resolve();
-                                return def.promise();
-                            }
                             clientContext.executeQueryAsync(function () {
-                                Core.Log.Information(_this.name, "Provisioning of objects ended");
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve();
                             }, function (sender, args) {
-                                Core.Log.Information(_this.name, "Provisioning of objects failed");
-                                Core.Log.Error(_this.name, "" + args.get_message());
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                Core.Log.Error(_this.name, args.get_message());
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
-                            Core.Log.Information(_this.name, "Provisioning of objects failed");
-                            Core.Log.Error(_this.name, "" + args.get_message());
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                            Core.Log.Error(_this.name, args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -963,20 +979,21 @@ var Pzl;
                     }
                     PropertyBagEntries.prototype.ProvisionObjects = function (object) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Starting provisioning of objects");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
                         var allProperties = web.get_allProperties();
                         for (var key in object) {
-                            Core.Log.Information(this.name, "Setting property '" + key + "' = '" + object[key] + "' on web");
+                            Core.Log.Information(this.name, String.format(Core.Resources.PropertyBagEntries_setting_propety, key, object[key]));
                             allProperties.set_item(key, object[key]);
                         }
                         web.update();
                         clientContext.executeQueryAsync(function () {
-                            Core.Log.Information(_this.name, "Provisioning of objects ended");
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve();
                         }, function (sender, args) {
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -988,6 +1005,7 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+"use strict";
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1002,19 +1020,51 @@ var Pzl;
                         _super.call(this, "WebSettings");
                     }
                     WebSettings.prototype.ProvisionObjects = function (object) {
+                        var _this = this;
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
                         if (object.WelcomePage) {
-                            Core.Log.Information(this.name, "Setting WelcomePage to '" + object.WelcomePage + "'");
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_welcomePage, object.WelcomePage));
                             web.get_rootFolder().set_welcomePage(object.WelcomePage);
                             web.get_rootFolder().update();
+                        }
+                        if (object.AlternateCssUrl) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_alternateCssUrl, object.AlternateCssUrl));
+                            web['set_alternateCssUrl'](object.AlternateCssUrl);
+                        }
+                        if (object.MasterUrl) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_masterUrl, object.MasterUrl));
+                            web.set_masterUrl(object.MasterUrl);
+                        }
+                        if (object.CustomMasterUrl) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_customMasterUrl, object.CustomMasterUrl));
+                            web.set_customMasterUrl(object.CustomMasterUrl);
+                        }
+                        if (object.SaveSiteAsTemplateEnabled != undefined) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_saveSiteAsTemplateEnabled, object.SaveSiteAsTemplateEnabled));
+                            web.set_saveSiteAsTemplateEnabled(object.SaveSiteAsTemplateEnabled);
+                        }
+                        if (object.QuickLaunchEnabled != undefined) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_quickLaunchEnabled, object.QuickLaunchEnabled));
+                            web.set_saveSiteAsTemplateEnabled(object.QuickLaunchEnabled);
+                        }
+                        if (object.RecycleBinEnabled != undefined) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_recycleBinEnabled, object.RecycleBinEnabled));
+                            web['set_recycleBinEnabled'](object.RecycleBinEnabled);
+                        }
+                        if (object.TreeViewEnabled != undefined) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.WebSettings_setting_treeViewEnabled, object.TreeViewEnabled));
+                            web.set_treeViewEnabled(object.TreeViewEnabled);
                         }
                         web.update();
                         clientContext.load(web);
                         clientContext.executeQueryAsync(function () {
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve();
                         }, function (sender, args) {
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -1041,7 +1091,7 @@ var Pzl;
                     }
                     Security.prototype.ProvisionObjects = function (object) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Code execution scope started");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
@@ -1057,7 +1107,7 @@ var Pzl;
                         clientContext.load(rootSiteRoleDefinitions);
                         clientContext.executeQueryAsync(function () {
                             if (!object.RoleAssignments || object.RoleAssignments.length == 0) {
-                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve();
                             }
                             object.RoleAssignments.forEach(function (ra) {
@@ -1083,16 +1133,16 @@ var Pzl;
                             });
                             web.update();
                             clientContext.executeQueryAsync(function () {
-                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve();
                             }, function (sender, args) {
                                 Core.Log.Error(_this.name, "" + args.get_message());
-                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
                             Core.Log.Error(_this.name, "" + args.get_message());
-                            Core.Log.Information(_this.name, "Code execution scope ended");
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                             def.resolve(sender, args);
                         });
                         return def.promise();
@@ -1134,8 +1184,7 @@ var Pzl;
                     Helpers.GetNodeFromQuickLaunchByTitle = GetNodeFromQuickLaunchByTitle;
                 })(Helpers || (Helpers = {}));
                 function ConfigureQuickLaunch(objects, clientContext, navigation) {
-                    var _this = this;
-                    Core.Log.Information(this.name, "Configuring quicklaunch navigation");
+                    Core.Log.Information("QuickLaunch", Core.Resources.Navigation_configuring_quicklaunch_navigation);
                     var def = jQuery.Deferred();
                     if (objects.length == 0) {
                         def.resolve();
@@ -1144,7 +1193,7 @@ var Pzl;
                         var quickLaunchNodeCollection = navigation.get_quickLaunch();
                         clientContext.load(quickLaunchNodeCollection);
                         clientContext.executeQueryAsync(function () {
-                            Core.Log.Information(_this.name, "Removing existing navigation nodes");
+                            Core.Log.Information("QuickLaunch", Core.Resources.Navigation_removing_existing_nodes);
                             var temporaryQuickLaunch = [];
                             var index = quickLaunchNodeCollection.get_count() - 1;
                             while (index >= 0) {
@@ -1155,7 +1204,7 @@ var Pzl;
                             }
                             clientContext.executeQueryAsync(function () {
                                 objects.forEach(function (obj) {
-                                    Core.Log.Information(_this.name, "Adding navigation node with Url '" + obj.Url + "' and Title '" + obj.Title + "'");
+                                    Core.Log.Information("QuickLaunch", String.format(Core.Resources.Navigation_adding_node, obj.Url, obj.Title));
                                     var existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                                     var newNode = new SP.NavigationNodeCreationInformation();
                                     newNode.set_title(obj.Title);
@@ -1184,22 +1233,22 @@ var Pzl;
                                                     newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(c.Url));
                                                     newNode.set_asLastNode(true);
                                                     childrenNodeCollection.add(newNode);
-                                                    Core.Log.Information(_this.name, "Adding the link node " + c.Title + " to the quicklaunch, under parent " + n.Title);
+                                                    Core.Log.Information("QuickLaunch", String.format(Core.Resources.Navigation_adding_children_node, c.Url, c.Title, n.Title));
                                                 });
                                             }
                                         });
                                         clientContext.executeQueryAsync(function () {
-                                            Core.Log.Information(_this.name, "Configuring of quicklaunch done");
+                                            Core.Log.Information("QuickLaunch", Core.Resources.Navigation_configuring_of_quicklaunch_done);
                                             def.resolve();
                                         }, function (sender, args) {
-                                            Core.Log.Information(_this.name, "Configuring of quicklaunch failed");
-                                            Core.Log.Error(_this.name, "" + args.get_message());
+                                            Core.Log.Information("QuickLaunch", Core.Resources.Navigation_configuring_of_quicklaunch_failed);
+                                            Core.Log.Error("QuickLaunch", "" + args.get_message());
                                             def.resolve(sender, args);
                                         });
                                     });
                                 }, function (sender, args) {
-                                    Core.Log.Information(_this.name, "Configuring of quicklaunch failed");
-                                    Core.Log.Error(_this.name, "" + args.get_message());
+                                    Core.Log.Information("QuickLaunch", Core.Resources.Navigation_configuring_of_quicklaunch_failed);
+                                    Core.Log.Error("QuickLaunch", "" + args.get_message());
                                     def.resolve(sender, args);
                                 });
                             });
@@ -1217,23 +1266,25 @@ var Pzl;
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
-                        Core.Log.Information(this.name, "Code execution scope started");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var navigation = web.get_navigation();
                         if (object.UseShared != undefined) {
+                            Core.Log.Information(this.name, String.format(Core.Resources.Navigation_setting_shared, object.UseShared));
                             navigation.set_useShared(object.UseShared);
                         }
                         clientContext.executeQueryAsync(function () {
                             if (!object.QuickLaunch || object.QuickLaunch.length == 0) {
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve();
                                 return def.promise();
                             }
                             ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(function () {
-                                Core.Log.Information(_this.name, "Code execution scope ended");
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                 def.resolve();
                             });
                         }, function (sender, args) {
-                            Core.Log.Information(_this.name, "Code execution scope ended");
-                            Core.Log.Error(_this.name, "" + args.get_message());
+                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                            Core.Log.Error(_this.name, "Error: " + args.get_message());
                             def.resolve();
                         });
                         return def.promise();

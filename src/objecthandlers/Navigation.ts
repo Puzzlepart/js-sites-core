@@ -2,6 +2,8 @@
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\INavigation.ts" />
 /// <reference path="..\schema\INavigationNode.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
     module Helpers {
@@ -25,7 +27,7 @@ module Pzl.Sites.Core.ObjectHandlers {
     }
     
     function ConfigureQuickLaunch(objects: Array<Schema.INavigationNode>, clientContext: SP.ClientContext, navigation: SP.Navigation) : JQueryPromise<any> {
-            Core.Log.Information(this.name, `Configuring quicklaunch navigation`);
+            Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_quicklaunch_navigation);
             
             var def = jQuery.Deferred();
             
@@ -36,7 +38,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 clientContext.load(quickLaunchNodeCollection);
                 clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information(this.name, `Removing existing navigation nodes`);
+                    Core.Log.Information("QuickLaunch", Resources.Navigation_removing_existing_nodes);
                     var temporaryQuickLaunch: Array<SP.NavigationNode> = [];
                     var index = quickLaunchNodeCollection.get_count() - 1;
                     while (index >= 0) {
@@ -47,7 +49,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     }
                     clientContext.executeQueryAsync(() => {
                         objects.forEach((obj) => {
-                            Core.Log.Information(this.name, `Adding navigation node with Url '${obj.Url}' and Title '${obj.Title}'`);
+                            Core.Log.Information("QuickLaunch", String.format(Resources.Navigation_adding_node, obj.Url, obj.Title));
                             const existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                             const newNode = new SP.NavigationNodeCreationInformation();
                             newNode.set_title(obj.Title);
@@ -76,23 +78,23 @@ module Pzl.Sites.Core.ObjectHandlers {
                                             newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(c.Url));
                                             newNode.set_asLastNode(true);
                                             childrenNodeCollection.add(newNode);
-                                            Core.Log.Information(this.name, `Adding the link node ${c.Title} to the quicklaunch, under parent ${n.Title}`);
+                                            Core.Log.Information("QuickLaunch", String.format(Resources. Navigation_adding_children_node, c.Url, c.Title, n.Title));
                                         });
                                     }
                                 });
                                 clientContext.executeQueryAsync(() => {
-                                    Core.Log.Information(this.name, `Configuring of quicklaunch done`);
+                                    Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_done);
                                     def.resolve();
                                 }, (sender, args) => {
-                                    Core.Log.Information(this.name, `Configuring of quicklaunch failed`);
-                                    Core.Log.Error(this.name, `${args.get_message()}`);
+                                    Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_failed);
+                                    Core.Log.Error("QuickLaunch", `${args.get_message()}`);
                                     def.resolve(sender, args);
                                 });
                             });
                         },
                         (sender, args) => {
-                            Core.Log.Information(this.name, `Configuring of quicklaunch failed`)
-                            Core.Log.Error(this.name, `${args.get_message()}`)
+                            Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_failed)
+                            Core.Log.Error("QuickLaunch", `${args.get_message()}`)
                             def.resolve(sender, args);
                         });
                     });
@@ -111,25 +113,26 @@ module Pzl.Sites.Core.ObjectHandlers {
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_web();
 
-            Core.Log.Information(this.name, `Code execution scope started`);
-            const navigation = web.get_navigation();
-            
+            Core.Log.Information(this.name, Resources.Code_execution_started);
+            const navigation = web.get_navigation();            
             if (object.UseShared != undefined) {
+                Core.Log.Information(this.name, String.format(Resources.Navigation_setting_shared, object.UseShared));
                 navigation.set_useShared(object.UseShared);
             }
             clientContext.executeQueryAsync(
             () => {
                 if(!object.QuickLaunch || object.QuickLaunch.length == 0) {
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                     def.resolve();
                     return def.promise();
                 }
                 ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
-                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                     def.resolve();
                 });
             }, (sender, args) => {
-                Core.Log.Information(this.name, `Code execution scope ended`);
-                Core.Log.Error(this.name, `${args.get_message()}`);
+                Core.Log.Information(this.name, Resources.Code_execution_ended);
+                Core.Log.Error(this.name, `Error: ${args.get_message()}`);
                 def.resolve();
             });
             

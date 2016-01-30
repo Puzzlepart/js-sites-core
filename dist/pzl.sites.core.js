@@ -126,7 +126,7 @@ var Pzl;
                     var listCts = [];
                     lists.forEach(function (l, index) {
                         listCts.push(l.get_contentTypes());
-                        clientContext.load(listCts[index]);
+                        clientContext.load(listCts[index], 'Include(Name,Id)');
                         if (objects[index].ContentTypeBindings) {
                             Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_enabled_content_types, l.get_title()));
                             l.set_contentTypesEnabled(true);
@@ -135,7 +135,7 @@ var Pzl;
                     });
                     clientContext.load(webCts);
                     clientContext.executeQueryAsync(function () {
-                        lists.forEach(function (l, index) {
+                        lists.forEach(function (list, index) {
                             var obj = objects[index];
                             if (!obj.ContentTypeBindings)
                                 return;
@@ -143,22 +143,21 @@ var Pzl;
                             var existingContentTypes = new Array();
                             if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                                 listContentTypes.get_data().forEach(function (ct) {
-                                    existingContentTypes.push(ct.get_stringId());
+                                    existingContentTypes.push(ct);
                                 });
                             }
                             obj.ContentTypeBindings.forEach(function (ctb) {
-                                Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_adding_content_type, ctb.ContentTypeId, l.get_title()));
+                                Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_adding_content_type, ctb.ContentTypeId, list.get_title()));
                                 listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                             });
                             if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
-                                listContentTypes.get_data().forEach(function (ct) {
-                                    if (existingContentTypes[ct.get_stringId()]) {
-                                        Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()));
-                                        ct.deleteObject();
-                                    }
-                                });
+                                for (var j = 0; j < existingContentTypes.length; j++) {
+                                    var ect = existingContentTypes[j];
+                                    Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_removing_content_type, ect.get_id().get_stringValue(), list.get_title()));
+                                    ect.deleteObject();
+                                }
                             }
-                            l.update();
+                            list.update();
                         });
                         clientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Content Types", "Error: " + args.get_message());

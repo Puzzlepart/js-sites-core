@@ -71,7 +71,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         var listCts: Array<SP.ContentTypeCollection> = [];
         lists.forEach((l, index) => {
             listCts.push(l.get_contentTypes());
-            clientContext.load(listCts[index])
+            clientContext.load(listCts[index], 'Include(Name,Id)');
             if (objects[index].ContentTypeBindings) {
                 Core.Log.Information("Lists Content Types", String.format(Resources.Lists_enabled_content_types, l.get_title()));
                 l.set_contentTypesEnabled(true);
@@ -81,33 +81,31 @@ module Pzl.Sites.Core.ObjectHandlers {
         clientContext.load(webCts);
         clientContext.executeQueryAsync(
             () => {
-                lists.forEach((l, index) => {
+                lists.forEach((list, index) => {
                     var obj = objects[index];
                     if (!obj.ContentTypeBindings) return;
                     var listContentTypes = listCts[index];
-                    
                     //Cannot remove content types before we have added others
-                    var existingContentTypes = new Array<string>();
+                    var existingContentTypes = new Array<SP.ContentType>();
                     if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                         listContentTypes.get_data().forEach(ct => {
-                            existingContentTypes.push(ct.get_stringId());
+                            existingContentTypes.push(ct);
                         });
                     }
                     obj.ContentTypeBindings.forEach(ctb => {
-                        Core.Log.Information("Lists Content Types", String.format(Resources.Lists_adding_content_type, ctb.ContentTypeId, l.get_title()));
+                        Core.Log.Information("Lists Content Types", String.format(Resources.Lists_adding_content_type, ctb.ContentTypeId, list.get_title()));
                         listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                     });
                     
+                    //Content types can now be removed
                     if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
-                        listContentTypes.get_data().forEach(ct => {
-                            if (existingContentTypes[ct.get_stringId()])
-                            {
-                                Core.Log.Information("Lists Content Types", String.format(Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()))
-                                ct.deleteObject();
-                            }
-                        });
+                        for (var j = 0; j < existingContentTypes.length; j++) {
+                            var ect = existingContentTypes[j];
+                            Core.Log.Information("Lists Content Types", String.format(Resources.Lists_removing_content_type, ect.get_id().get_stringValue(), list.get_title()))
+                            ect.deleteObject();
+                        }
                     }
-                    l.update();
+                    list.update();
                 });
 
                 clientContext.executeQueryAsync(def.resolve,

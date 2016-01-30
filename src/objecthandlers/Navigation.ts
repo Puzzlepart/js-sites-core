@@ -27,7 +27,7 @@ module Pzl.Sites.Core.ObjectHandlers {
     }
     
     function ConfigureQuickLaunch(objects: Array<Schema.INavigationNode>, clientContext: SP.ClientContext, navigation: SP.Navigation) : JQueryPromise<any> {
-            Core.Log.Information(this.name, Resources.Navigation_configuring_quicklaunch_navigation);
+            Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_quicklaunch_navigation);
             
             var def = jQuery.Deferred();
             
@@ -38,7 +38,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 clientContext.load(quickLaunchNodeCollection);
                 clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information(this.name, Resources.Navigation_removing_existing_nodes);
+                    Core.Log.Information("QuickLaunch", Resources.Navigation_removing_existing_nodes);
                     var temporaryQuickLaunch: Array<SP.NavigationNode> = [];
                     var index = quickLaunchNodeCollection.get_count() - 1;
                     while (index >= 0) {
@@ -49,7 +49,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     }
                     clientContext.executeQueryAsync(() => {
                         objects.forEach((obj) => {
-                            Core.Log.Information(this.name, String.format(Resources.Navigation_adding_node, obj.Url, obj.Title));
+                            Core.Log.Information("QuickLaunch", String.format(Resources.Navigation_adding_node, obj.Url, obj.Title));
                             const existingNode = Helpers.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                             const newNode = new SP.NavigationNodeCreationInformation();
                             newNode.set_title(obj.Title);
@@ -78,23 +78,23 @@ module Pzl.Sites.Core.ObjectHandlers {
                                             newNode.set_url(existingNode ? existingNode.get_url() : Helpers.GetUrlWithoutTokens(c.Url));
                                             newNode.set_asLastNode(true);
                                             childrenNodeCollection.add(newNode);
-                                            Core.Log.Information(this.name, String.format(Resources. Navigation_adding_children_node, c.Url, c.Title, n.Title));
+                                            Core.Log.Information("QuickLaunch", String.format(Resources. Navigation_adding_children_node, c.Url, c.Title, n.Title));
                                         });
                                     }
                                 });
                                 clientContext.executeQueryAsync(() => {
-                                    Core.Log.Information(this.name, Resources.Navigation_configuring_of_quicklaunch_done);
+                                    Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_done);
                                     def.resolve();
                                 }, (sender, args) => {
-                                    Core.Log.Information(this.name, Resources.Navigation_configuring_of_quicklaunch_failed);
-                                    Core.Log.Error(this.name, `${args.get_message()}`);
+                                    Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_failed);
+                                    Core.Log.Error("QuickLaunch", `${args.get_message()}`);
                                     def.resolve(sender, args);
                                 });
                             });
                         },
                         (sender, args) => {
-                            Core.Log.Information(this.name, Resources.Navigation_configuring_of_quicklaunch_failed)
-                            Core.Log.Error(this.name, `${args.get_message()}`)
+                            Core.Log.Information("QuickLaunch", Resources.Navigation_configuring_of_quicklaunch_failed)
+                            Core.Log.Error("QuickLaunch", `${args.get_message()}`)
                             def.resolve(sender, args);
                         });
                     });

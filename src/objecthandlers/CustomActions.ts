@@ -1,7 +1,9 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\ICustomAction.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+"use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class CustomActions extends Model.ObjectHandlerBase {
@@ -11,7 +13,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         ProvisionObjects(objects : Array<Schema.ICustomAction>) {
             var def = jQuery.Deferred();
             
-            Core.Log.Information(this.name, `Starting provisioning of objects`);                        
+            Core.Log.Information(this.name, Resources.Code_execution_started);                        
  
             var clientContext = SP.ClientContext.get_current();
             var userCustomActions = clientContext.get_web().get_userCustomActions();
@@ -25,9 +27,9 @@ module Pzl.Sites.Core.ObjectHandlers {
                         }).length > 0;                        
                         
                         if(objExists) {                            
-                            Core.Log.Information(this.name, `A custom action with Title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`)                            
+                            Core.Log.Information(this.name, String.format(Resources.CustomAction_already_exists, obj.Title))                            
                         } else {
-                            Core.Log.Information(this.name, `Creating custom action with Title '${obj.Title}'`)
+                            Core.Log.Information(this.name, String.format(Resources.CustomAction_creating, obj.Title)) 
                             var objCreationInformation = userCustomActions.add();       
                             if(obj.Description) { objCreationInformation.set_description(obj.Description); }
                             if(obj.CommandUIExtension) { objCreationInformation.set_commandUIExtension(obj.CommandUIExtension); }
@@ -47,26 +49,20 @@ module Pzl.Sites.Core.ObjectHandlers {
                         }
                     });
                     
-                    if(!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information(this.name, `Provisioning of objects ended`);
-                        def.resolve();                        
-                        return def.promise();
-                    }
-                    
                     clientContext.executeQueryAsync(
                         () => {
-                            Core.Log.Information(this.name, `Provisioning of objects ended`);
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
                             def.resolve();
                         }, 
                         (sender, args) => {
-                            Core.Log.Information(this.name, `Provisioning of objects failed`)
-                            Core.Log.Error(this.name, `${args.get_message()}`)
+                            Core.Log.Information(this.name, Resources.Code_execution_ended)
+                            Core.Log.Error(this.name, args.get_message())
                             def.resolve(sender, args);
                         });
                 }, 
                 (sender, args) => {
-                    Core.Log.Information(this.name, `Provisioning of objects failed`)
-                    Core.Log.Error(this.name, `${args.get_message()}`)
+                    Core.Log.Information(this.name, Resources.Code_execution_ended)
+                    Core.Log.Error(this.name, args.get_message())
                     def.resolve(sender, args);
                 });      
                 

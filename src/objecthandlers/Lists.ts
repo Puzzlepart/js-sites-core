@@ -78,7 +78,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                 l.update();
             }
         });
-
         clientContext.load(webCts);
         clientContext.executeQueryAsync(
             () => {
@@ -86,16 +85,28 @@ module Pzl.Sites.Core.ObjectHandlers {
                     var obj = objects[index];
                     if (!obj.ContentTypeBindings) return;
                     var listContentTypes = listCts[index];
-                    if (obj.RemoveExistingContentTypes) {
+                    
+                    //Cannot remove content types before we have added others
+                    var existingContentTypes = new Array<string>();
+                    if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                         listContentTypes.get_data().forEach(ct => {
-                            Core.Log.Information("Lists Content Types", String.format(Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()))
-                            ct.deleteObject();
+                            existingContentTypes.push(ct.get_stringId());
                         });
                     }
                     obj.ContentTypeBindings.forEach(ctb => {
                         Core.Log.Information("Lists Content Types", String.format(Resources.Lists_adding_content_type, ctb.ContentTypeId, l.get_title()));
                         listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                     });
+                    
+                    if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
+                        listContentTypes.get_data().forEach(ct => {
+                            if (existingContentTypes[ct.get_stringId()])
+                            {
+                                Core.Log.Information("Lists Content Types", String.format(Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()))
+                                ct.deleteObject();
+                            }
+                        });
+                    }
                     l.update();
                 });
 
@@ -297,7 +308,9 @@ module Pzl.Sites.Core.ObjectHandlers {
                             Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
                             var objCreationInformation = new SP.ListCreationInformation();
                             if (obj.Description) { objCreationInformation.set_description(obj.Description); }
-                            if (obj.OnQuickLaunch) { objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); }
+                            if (obj.OnQuickLaunch != undefined) { 
+                                objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); 
+                            }
                             if (obj.TemplateType) { objCreationInformation.set_templateType(obj.TemplateType); }
                             if (obj.Title) { objCreationInformation.set_title(obj.Title); }
                             if (obj.Url) { objCreationInformation.set_url(obj.Url); }

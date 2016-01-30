@@ -40,13 +40,27 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 ###WebSettings
 ```json
      "WebSettings": {
-         "WelcomePage": ""
+        "WelcomePage": "",
+        "AlternateCssUrl": "",
+        "SaveSiteAsTemplateEnabled": false,
+        "MasterUrl": "",
+        "CustomMasterUrl": "",
+        "RecycleBinEnabled": false,
+        "TreeViewEnabled": true,
+        "QuickLaunchEnabled": false
      }
 ```
 
 Attibute|Type|Description
 --------|----|-----------
 WelcomePage|string|The WelcomePage attribute of the WebSettings
+AlternateCssUrl|string|The AlternateCssUrl attribute of the WebSettings
+SaveSiteAsTemplateEnabled|boolean|The SaveSiteAsTemplateEnabled attribute of the WebSettings
+MasterUrl|string|The MasterUrl attribute of the WebSettings
+CustomMasterUrl|string|The CustomMasterUrl attribute of the WebSettings
+RecycleBinEnabled|boolean|The RecycleBinEnabled attribute of the WebSettings
+TreeViewEnabled: boolean|The TreeViewEnabled attribute of the WebSettings
+QuickLaunchEnabled|boolean|The QuickLaunchEnabled attribute of the WebSettings
 
 
 ###PropertyBagEntries

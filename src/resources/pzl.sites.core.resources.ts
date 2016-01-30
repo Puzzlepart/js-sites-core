@@ -36,4 +36,6 @@ module Pzl.Sites.Core.Resources {
     export var Navigation_removing_existing_nodes = "Removing existing navigation nodes";
     export var Navigation_adding_node = "Adding navigation node with Url {0} and Title {1}";
     export var Navigation_adding_children_node = "Adding navigation node with Url {0} and Title {1}, under parent {2}";
+    export var CustomAction_already_exists = "A custom action with Title '{0}' already exists";
+    export var CustomAction_creating = "Creating custom action with Title '{0}'";
 }

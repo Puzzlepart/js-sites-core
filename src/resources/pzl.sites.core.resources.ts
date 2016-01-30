@@ -29,4 +29,11 @@ module Pzl.Sites.Core.Resources {
     export var PropertyBagEntries_setting_propety = "Setting property '{0}' = '{1}' on web";
     export var Pages_creating_page = "Creating wiki page with Url {0}";
     export var Pages_creating_page_failed = "Failed to create wiki page with Url {0}";
+    export var Navigation_setting_shared = "Setting useShared to {0}";
+    export var Navigation_configuring_of_quicklaunch_done = "Configuring of quicklaunch done";
+    export var Navigation_configuring_of_quicklaunch_failed = "Configuring of quicklaunch failed";
+    export var Navigation_configuring_quicklaunch_navigation = "Configuring quicklaunch navigation";
+    export var Navigation_removing_existing_nodes = "Removing existing navigation nodes";
+    export var Navigation_adding_node = "Adding navigation node with Url {0} and Title {1}";
+    export var Navigation_adding_children_node = "Adding navigation node with Url {0} and Title {1}, under parent {2}";
 }

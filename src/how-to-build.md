@@ -8,4 +8,4 @@ npm install -g tsc
 ```
 
 
-Run build.ps1.
+###Run build.ps1.

@@ -36,6 +36,7 @@ ComposedLook|[ComposedLook](#composedlook)|No description available yet
 
 
 ###Parameters
+Coming soon.
 
 ###WebSettings
 ```json
@@ -59,7 +60,7 @@ SaveSiteAsTemplateEnabled|boolean|The SaveSiteAsTemplateEnabled attribute of the
 MasterUrl|string|The MasterUrl attribute of the WebSettings
 CustomMasterUrl|string|The CustomMasterUrl attribute of the WebSettings
 RecycleBinEnabled|boolean|The RecycleBinEnabled attribute of the WebSettings
-TreeViewEnabled: boolean|The TreeViewEnabled attribute of the WebSettings
+TreeViewEnabled|boolean|The TreeViewEnabled attribute of the WebSettings
 QuickLaunchEnabled|boolean|The QuickLaunchEnabled attribute of the WebSettings
 
 

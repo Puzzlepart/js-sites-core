@@ -49,6 +49,10 @@ var Pzl;
         (function (Core) {
             var Resources;
             (function (Resources) {
+                Resources.Provisioning_started = "Starting at URL {0}";
+                Resources.Provisioning_ended = "Done in {0} seconds";
+                Resources.WaitMessage_header = "Applying template";
+                Resources.WaitMessage_content = "This might take a moment.";
                 Resources.Code_execution_started = "Code execution scope started";
                 Resources.Code_execution_ended = "Code execution scope ended";
                 Resources.Lists_list_already_exists = "A list with the specified title {0} already exists in this Web site at Url {1}";
@@ -1390,6 +1394,8 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="ILoggingOptions.ts" />
+/// <reference path="IWaitMessageOptions.ts" />
 /// <reference path="..\typings\tsd.d.ts" />
 /// <reference path="schema/ISiteSchema.ts" />
 /// <reference path="objecthandlers/Lists.ts" />
@@ -1403,7 +1409,8 @@ var Pzl;
 /// <reference path="objecthandlers/Navigation.ts" />
 /// <reference path="utilities/Logger.ts" />
 /// <reference path="model/TemplateQueueItem.ts" />
-/// <reference path="model/ILoggingOptions.ts" />
+/// <reference path="model/IOptions.ts" />
+/// <reference path="resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1412,8 +1419,18 @@ var Pzl;
         (function (Core) {
             var startTime = null;
             var setupWebDialog;
-            function ShowWaitMessage(header, content, height, width) {
-                setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, height, width);
+            function ShowWaitMessage(options) {
+                var header = Core.Resources.WaitMessage_header;
+                var content = Core.Resources.WaitMessage_content;
+                if (options) {
+                    if (options.Header) {
+                        header = options.Header;
+                    }
+                    if (options.Content) {
+                        content = options.Content;
+                    }
+                }
+                setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, 130, 600);
             }
             function getSetupQueue(json) {
                 return Object.keys(json);
@@ -1421,7 +1438,7 @@ var Pzl;
             function start(json, queue) {
                 var def = jQuery.Deferred();
                 startTime = new Date().getTime();
-                Core.Log.Information("Provisioning", "Starting at URL '" + _spPageContextInfo.webServerRelativeUrl + "'");
+                Core.Log.Information("Provisioning", String.format(Core.Resources.Code_execution_started, _spPageContextInfo.webServerRelativeUrl));
                 var queueItems = [];
                 queue.forEach(function (q, index) {
                     if (!Core.ObjectHandlers[q])
@@ -1439,19 +1456,16 @@ var Pzl;
                     index++;
                 }
                 ;
-                jQuery.when.apply(jQuery, promises).done(function () {
-                    def.resolve();
-                });
+                jQuery.when.apply(jQuery, promises).done(def.resolve);
                 return def.promise();
             }
-            function init(template, loggingOptions) {
+            function init(template, options) {
                 var def = jQuery.Deferred();
-                ShowWaitMessage("Applying template", "This might take a moment..", 130, 600);
-                Core.Log = new Core.Logger(loggingOptions);
+                ShowWaitMessage(options.WaitMessage);
+                Core.Log = new Core.Logger(options.Logging);
                 var queue = getSetupQueue(template);
                 start(template, queue).then(function () {
-                    var provisioningTime = ((new Date().getTime()) - startTime) / 1000;
-                    Core.Log.Information("Provisioning", "All done in " + provisioningTime + " seconds");
+                    Core.Log.Information("Provisioning", String.format(Core.Resources.Code_execution_ended, ((new Date().getTime()) - startTime) / 1000));
                     Core.Log.SaveToFile().then(function () {
                         setupWebDialog.close(null);
                         def.resolve();

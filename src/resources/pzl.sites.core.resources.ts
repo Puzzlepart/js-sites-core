@@ -1,4 +1,8 @@
 module Pzl.Sites.Core.Resources {
+    export var Provisioning_started = "Starting at URL {0}";
+    export var Provisioning_ended = "Done in {0} seconds";
+    export var WaitMessage_header = "Applying template";
+    export var WaitMessage_content = "This might take a moment.";
     export var Code_execution_started = "Code execution scope started";
     export var Code_execution_ended = "Code execution scope ended";
     export var Lists_list_already_exists = "A list with the specified title {0} already exists in this Web site at Url {1}";

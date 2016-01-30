@@ -26,4 +26,5 @@ module Pzl.Sites.Core.Resources {
     export var WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";    
     export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";    
     export var WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
+    export var PropertyBagEntries_setting_propety = "Setting property '{0}' = '{1}' on web";
 }

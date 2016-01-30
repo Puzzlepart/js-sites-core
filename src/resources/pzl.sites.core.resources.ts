@@ -27,4 +27,6 @@ module Pzl.Sites.Core.Resources {
     export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";    
     export var WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
     export var PropertyBagEntries_setting_propety = "Setting property '{0}' = '{1}' on web";
+    export var Pages_creating_page = "Creating wiki page with Url {0}";
+    export var Pages_creating_page_failed = "Failed to create wiki page with Url {0}";
 }

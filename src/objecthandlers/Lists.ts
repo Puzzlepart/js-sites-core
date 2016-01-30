@@ -1,37 +1,29 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IListInstance.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+"use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
     function EnsureLocationBasedMetadataDefaultsReceiver(clientContext: SP.ClientContext, list: SP.List) {
         var receiverName = "LocationBasedMetadataDefaultsReceiver ItemAdded";
-
         var def = jQuery.Deferred();
         var eventReceivers = list.get_eventReceivers();
-        Core.Log.Information("Lists Event Receivers", `Adding eventreceiver '${receiverName}' to list '${list.get_title()}'`);
+        Core.Log.Information("Lists Event Receivers", String.format(Resources.Lists_adding_eventreceiver, receiverName, list.get_title()));
         var eventRecCreationInfo = new SP.EventReceiverDefinitionCreationInformation();
         eventRecCreationInfo.set_receiverName(receiverName);
         eventRecCreationInfo.set_synchronization(1);
         eventRecCreationInfo.set_sequenceNumber(1000);
-        eventRecCreationInfo.set_receiverAssembly('Microsoft.Office.DocumentManagement, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c');
-        eventRecCreationInfo.set_receiverClass('Microsoft.Office.DocumentManagement.LocationBasedMetadataDefaultsReceiver');
+        eventRecCreationInfo.set_receiverAssembly("Microsoft.Office.DocumentManagement, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c");
+        eventRecCreationInfo.set_receiverClass("Microsoft.Office.DocumentManagement.LocationBasedMetadataDefaultsReceiver");
         eventRecCreationInfo.set_eventType(SP.EventReceiverType.itemAdded);
         eventReceivers.add(eventRecCreationInfo);
         list.update();
-
-        clientContext.executeQueryAsync(
-            () => {
-                def.resolve();
-            },
-            (sender, args) => {
-                def.resolve(sender, args);
-            });
-
+        clientContext.executeQueryAsync(def.resolve, def.resolve);
         return def.promise();
     }
-    export function CreateFolders(clientContext: SP.ClientContext, list: SP.List, listUrl: string, folders: Array<Schema.IFolder>) {
-        Core.Log.Information("Lists Folders", `Code execution scope started`)
-
+    function CreateFolders(clientContext: SP.ClientContext, list: SP.List, listUrl: string, folders: Array<Schema.IFolder>) {
         var def = jQuery.Deferred();
         var listRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${listUrl}`;
         var rootFolder = clientContext.get_web().getFolderByServerRelativeUrl(listRelativeUrl);
@@ -39,10 +31,10 @@ module Pzl.Sites.Core.ObjectHandlers {
         var setMetadataDefaults = false;
         folders.forEach(f => {
             var folderUrl = `${listRelativeUrl}/${f.Name}`;
-            Core.Log.Information("Lists Folders", `Creating folder '${folderUrl}'`)
+            Core.Log.Information("Lists Folders", String.format(Resources.Lists_creating_folder, folderUrl));
             rootFolder.get_folders().add(folderUrl)
             if (f.DefaultValues) {
-                Core.Log.Information("Lists Folders", `Setting default metadata for folder '${folderUrl}'`);
+                Core.Log.Information("Lists Folders", String.format(Resources.Lists_setting_default_metadata, folderUrl));
                 var keys = Object.keys(f.DefaultValues).length;
                 if (keys > 0) {
                     metadataDefaults += `<a href='${listRelativeUrl}/${f.Name}'>`;
@@ -65,40 +57,27 @@ module Pzl.Sites.Core.ObjectHandlers {
             rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
 
             EnsureLocationBasedMetadataDefaultsReceiver(clientContext, list).then(() => {
-                clientContext.executeQueryAsync(
-                    () => {
-                        def.resolve();
-                    },
-                    (sender, args) => {
-                        def.resolve(sender, args);
-                    });
+                clientContext.executeQueryAsync(def.resolve, def.resolve);
             });
         } else {
-            clientContext.executeQueryAsync(
-                () => {
-                    def.resolve();
-                },
-                (sender, args) => {
-                    def.resolve(sender, args);
-                });
+            clientContext.executeQueryAsync(def.resolve, def.resolve);
         }
 
         return def.promise();
     }
-    export function ApplyContentTypeBindings(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {     
-        Core.Log.Information("Lists Content Types", `Code execution scope started`);
+    function ApplyContentTypeBindings(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
-        var listCts : Array<SP.ContentTypeCollection> = [];
+        var listCts: Array<SP.ContentTypeCollection> = [];
         lists.forEach((l, index) => {
             listCts.push(l.get_contentTypes());
             clientContext.load(listCts[index])
             if (objects[index].ContentTypeBindings) {
-                Core.Log.Information("Lists Content Types", `Enabled content types for list '${l.get_title()}'`)
+                Core.Log.Information("Lists Content Types", String.format(Resources.Lists_enabled_content_types, l.get_title()));
                 l.set_contentTypesEnabled(true);
                 l.update();
             }
-        })
+        });
 
         clientContext.load(webCts);
         clientContext.executeQueryAsync(
@@ -107,48 +86,61 @@ module Pzl.Sites.Core.ObjectHandlers {
                     var obj = objects[index];
                     if (!obj.ContentTypeBindings) return;
                     var listContentTypes = listCts[index];
-                    if(obj.RemoveExistingContentTypes) {
-                        Core.Log.Information("Lists Content Types", `Removing existing content types from list '${l.get_title()}'`)
+                    if (obj.RemoveExistingContentTypes) {
                         listContentTypes.get_data().forEach(ct => {
-                            Core.Log.Information("Lists Content Types", `Removing content type '${ct.get_stringId()}' from list '${l.get_title()}'`)
-                            ct.deleteObject(); 
+                            Core.Log.Information("Lists Content Types", String.format(Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()))
+                            ct.deleteObject();
                         });
-                    }      
-                    obj.ContentTypeBindings.forEach(ctb => {                                          
-                        Core.Log.Information("Lists Content Types", `Adding content type '${ctb.ContentTypeId}' to list '${l.get_title()}'`);
+                    }
+                    obj.ContentTypeBindings.forEach(ctb => {
+                        Core.Log.Information("Lists Content Types", String.format(Resources.Lists_adding_content_type, ctb.ContentTypeId, l.get_title()));
                         listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                     });
                     l.update();
                 });
 
-                clientContext.executeQueryAsync(
-                    () => {
-                        Core.Log.Information("Lists Content Types", `Code execution scope ended`);
-                        def.resolve();
-                    },
+                clientContext.executeQueryAsync(def.resolve,
                     (sender, args) => {
                         Core.Log.Error("Lists Content Types", `Error: ${args.get_message()}`);
-                        Core.Log.Information("Lists Content Types", `Code execution scope ended`);
                         def.resolve(sender, args);
                     });
             },
             (sender, args) => {
                 Core.Log.Error("Lists Content Types", `Error: ${args.get_message()}`);
-                Core.Log.Information("Lists Content Types", `Code execution scope ended`);
                 def.resolve(sender, args);
             });
 
         return def.promise();
     }
-    export function ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
-        Core.Log.Information("Lists Security", "Code execution scope started");
+    function ApplyListInstanceFieldRefs(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        var def = jQuery.Deferred();
+        var siteFields = clientContext.get_site().get_rootWeb().get_fields();
+        lists.forEach((l, index) => {
+            var obj = objects[index];
+            if (obj.FieldRefs) {
+                obj.FieldRefs.forEach(fr => {
+                    Core.Log.Information("Lists Field Refs", String.format(Resources.Lists_adding_field_ref, fr.Name, l.get_title()));
+                    var field = siteFields.getByInternalNameOrTitle(fr.Name);
+                    l.get_fields().add(field);
+                });
+                l.update();
+            }
+        });
+        clientContext.executeQueryAsync(def.resolve,
+            (sender, args) => {
+                Core.Log.Error("Lists Field Refs", `Error: ${args.get_message()}`);
+                def.resolve(sender, args);
+            });
+        return def.promise();
+    }
+    function ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
         lists.forEach((l, index) => {
             var obj = objects[index];
             if (!obj.Security) return;
             if (obj.Security.BreakRoleInheritance) {
-                Core.Log.Information("Lists Security", `Breaking Role Inheritance for list '${l.get_title()}'. CopyRoleAssignments = '${obj.Security.CopyRoleAssignments}', ClearSubscopes = '${obj.Security.ClearSubscopes}'`);
-                l.breakRoleInheritance(obj.Security.CopyRoleAssignments, obj.Security.ClearSubscopes);                
+                Core.Log.Information("Lists Security", String.format(Resources.Lists_breaking_role_inheritance, l.get_title()));
+                l.breakRoleInheritance(obj.Security.CopyRoleAssignments, obj.Security.ClearSubscopes);
                 l.update();
                 clientContext.load(l.get_roleAssignments());
             }
@@ -186,22 +178,16 @@ module Pzl.Sites.Core.ObjectHandlers {
                         l.get_roleAssignments().add(principal, roleBindings);
                     });
                     l.update();
-                    Core.Log.Information("Lists Security", `Role assignments applied for list '${l.get_title()}'`);
+                    Core.Log.Information("Lists Security", String.format(Resources.Lists_role_assignments_applied, l.get_title()));
                 });
-                clientContext.executeQueryAsync(
-                    () => {
-                        Core.Log.Information("Lists Security", "Code execution scope ended");
-                        def.resolve();
-                    },
+                clientContext.executeQueryAsync(def.resolve,
                     (sender, args) => {
                         Core.Log.Error("Lists Security", `Error: ${args.get_message()}`);
-                        Core.Log.Information("Lists Security", "Code execution scope ended");
                         def.resolve(sender, args);
                     });
             },
             (sender, args) => {
                 Core.Log.Error("Lists Security", `Error: ${args.get_message()}`);
-                Core.Log.Information("Lists Security", "Code execution scope ended");
                 def.resolve(sender, args);
             });
         return def.promise();
@@ -212,15 +198,15 @@ module Pzl.Sites.Core.ObjectHandlers {
         });
         return view ? view[0] : null;
     }
-    export function CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
-        Core.Log.Information("Lists Views", "Code execution scope started");
+    function CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        Core.Log.Information("Lists Views", Resources.Code_execution_started);
         var def = jQuery.Deferred();
         var listViewCollections: Array<SP.ViewCollection> = [];
 
         lists.forEach((l, index) => {
             listViewCollections.push(l.get_views());
             clientContext.load(listViewCollections[index]);
-        })
+        });
 
         clientContext.executeQueryAsync(
             () => {
@@ -235,7 +221,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         }).length > 0;
                         if (viewExists) {
                             var view = listViewCollections[index].getByTitle(v.Title);
-                            Core.Log.Information("Lists Views", `Updating existing view '${v.Title}' for list '${l.get_title()}'`);
+                            Core.Log.Information("Lists Views", String.format(Resources.Lists_updating_list_view, v.Title, l.get_title()));
                             if (v.Paged) { view.set_paged(v.Paged); }
                             if (v.Query) { view.set_viewQuery(v.Query); }
                             if (v.RowLimit) { view.set_rowLimit(v.RowLimit); }
@@ -246,10 +232,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                                     columns.add(vf);
                                 });
                             }
-                            if(v.Scope) { view.set_scope(v.Scope); }
+                            if (v.Scope) { view.set_scope(v.Scope); }
                             view.update();
                         } else {
-                            Core.Log.Information("Lists Views", `Adding view '${v.Title}' to list '${l.get_title()}'`)
+                            Core.Log.Information("Lists Views", String.format(Resources.Lists_adding_list_view, v.Title, l.get_title()));
                             var viewCreationInformation = new SP.ViewCreationInformation();
                             if (v.Title) { viewCreationInformation.set_title(v.Title); }
                             if (v.PersonalView) { viewCreationInformation.set_personalView(v.PersonalView); }
@@ -260,7 +246,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                             if (v.ViewFields) { viewCreationInformation.set_viewFields(v.ViewFields); }
                             if (v.ViewTypeKind) { viewCreationInformation.set_viewTypeKind(SP.ViewType.html); }
                             var view = l.get_views().add(viewCreationInformation);
-                            if(v.Scope) {
+                            if (v.Scope) {
                                 view.set_scope(v.Scope);
                                 view.update();
                             }
@@ -269,20 +255,14 @@ module Pzl.Sites.Core.ObjectHandlers {
                         clientContext.load(l.get_views());
                     });
                 });
-                clientContext.executeQueryAsync(
-                    () => {
-                        Core.Log.Information("Lists Views", "Code execution scope ended");
-                        def.resolve();
-                    },
+                clientContext.executeQueryAsync(def.resolve,
                     (sender, args) => {
                         Core.Log.Error("Lists Views", `Error: ${args.get_message()}`);
-                        Core.Log.Information("Lists Views", "Code execution scope ended");
                         def.resolve(sender, args);
                     });
             },
             (sender, args) => {
                 Core.Log.Error("Lists Views", `Error: ${args.get_message()}`);
-                Core.Log.Information("Lists Views", "Code execution scope ended");
                 def.resolve(sender, args);
             });
 
@@ -294,7 +274,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             super("Lists")
         }
         ProvisionObjects(objects: Array<Schema.IListInstance>) {
-            Core.Log.Information(this.name, `Code execution scope started`);
+            Core.Log.Information(this.name, Resources.Code_execution_started);
             var def = jQuery.Deferred();
 
             var clientContext = SP.ClientContext.get_current();
@@ -310,11 +290,11 @@ module Pzl.Sites.Core.ObjectHandlers {
                         })[0];
 
                         if (existingObj) {
-                            Core.Log.Information(this.name, `A list, survey, discussion board, or document library with the specified title '${obj.Title}' already exists in this Web site at Url '${obj.Url}'.`);
+                            Core.Log.Information(this.name, String.format(Resources.Lists_list_already_exists, obj.Title, obj.Url));
                             listInstances.push(existingObj);
                             clientContext.load(listInstances[index]);
                         } else {
-                            Core.Log.Information(this.name, `Creating list with Title '${obj.Title}' and Url '${obj.Url}'.`)
+                            Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
                             var objCreationInformation = new SP.ListCreationInformation();
                             if (obj.Description) { objCreationInformation.set_description(obj.Description); }
                             if (obj.OnQuickLaunch) { objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); }
@@ -327,7 +307,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
 
                     if (!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information(this.name, `Code execution scope ended`);
+                        Core.Log.Information(this.name, Resources.Code_execution_ended);
                         def.resolve();
                         return def.promise();
                     }
@@ -335,25 +315,25 @@ module Pzl.Sites.Core.ObjectHandlers {
                     clientContext.executeQueryAsync(
                         () => {
                             ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
-                                CreateViews(clientContext, listInstances, objects).then(() => {
+                                ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
                                     ApplyListSecurity(clientContext, listInstances, objects).then(() => {
-                                        var promises = [];
-                                        objects.forEach(function(obj, index) {
-                                            if (obj.Folders && obj.Folders.length > 0) {
-                                                promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
-                                            }
-                                        });
-                                        jQuery.when.apply(jQuery, promises).done(() => {
-                                            clientContext.executeQueryAsync(
-                                                () => {
-                                                    Core.Log.Information(this.name, `Code execution scope ended`);
+                                        CreateViews(clientContext, listInstances, objects).then(() => {
+                                            var promises = [];
+                                            objects.forEach((obj, index) => {
+                                                if (obj.Folders && obj.Folders.length > 0) {
+                                                    promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
+                                                }
+                                            });
+                                            jQuery.when.apply(jQuery, promises).done(() => {
+                                                clientContext.executeQueryAsync(() => {
+                                                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                                                     def.resolve();
                                                 },
                                                 (sender, args) => {
                                                     Core.Log.Error(this.name, `Error: ${args.get_message()}`);
-                                                    Core.Log.Information(this.name, `Code execution scope ended`);
                                                     def.resolve(sender, args);
                                                 });
+                                            });
                                         });
                                     });
                                 });
@@ -361,13 +341,11 @@ module Pzl.Sites.Core.ObjectHandlers {
                         },
                         (sender, args) => {
                             Core.Log.Error(this.name, `Error: ${args.get_message()}`);
-                            Core.Log.Information(this.name, `Code execution scope ended`);
                             def.resolve(sender, args);
                         });
                 },
                 (sender, args) => {
                     Core.Log.Error(this.name, `Error: ${args.get_message()}`);
-                    Core.Log.Information(this.name, `Provisioning of objects failed`);
                     def.resolve(sender, args);
                 });
 

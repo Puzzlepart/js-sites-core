@@ -297,7 +297,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                             Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
                             var objCreationInformation = new SP.ListCreationInformation();
                             if (obj.Description) { objCreationInformation.set_description(obj.Description); }
-                            if (obj.OnQuickLaunch) { objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); }
+                            if (obj.OnQuickLaunch != undefined) { objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); }
                             if (obj.TemplateType) { objCreationInformation.set_templateType(obj.TemplateType); }
                             if (obj.Title) { objCreationInformation.set_title(obj.Title); }
                             if (obj.Url) { objCreationInformation.set_url(obj.Url); }

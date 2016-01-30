@@ -1,26 +1,3 @@
-/// <reference path="IRoleDefinition.ts" />
-/// <reference path="IRoleAssignment.ts" />
-/// <reference path="IContentTypeBinding.ts" />
-/// <reference path="IFolder.ts" />
-/// <reference path="ISecurity.ts" />
-/// <reference path="IView.ts" />
-/// <reference path="IListInstanceFieldRef.ts" />
-/// <reference path="IContents.ts" />
-/// <reference path="IWebPart.ts" />
-/// <reference path="HiddenView.ts" />
-/// <reference path="IWebPart.ts" />
-/// <reference path="INavigationNode.ts" />
-/// <reference path="IListInstance.ts" />
-/// <reference path="IFile.ts" />
-/// <reference path="IPage.ts" />
-/// <reference path="IFeature.ts" />
-/// <reference path="IField.ts" />
-/// <reference path="IContentType.ts" />
-/// <reference path="INavigation.ts" />
-/// <reference path="ICustomAction.ts" />
-/// <reference path="IComposedLook.ts" />
-/// <reference path="IWebSettings.ts" />
-/// <reference path="IObjectHandler.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -72,11 +49,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IListInstance.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -393,7 +365,7 @@ var Pzl;
                                     if (obj.Description) {
                                         objCreationInformation.set_description(obj.Description);
                                     }
-                                    if (obj.OnQuickLaunch) {
+                                    if (obj.OnQuickLaunch != undefined) {
                                         objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off);
                                     }
                                     if (obj.TemplateType) {
@@ -455,9 +427,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IComposedLook.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -509,10 +478,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IFile.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -806,10 +771,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IPage.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -877,10 +838,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\ICustomAction.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -984,8 +941,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1026,9 +981,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IWebSettings.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1067,9 +1019,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\ISecurity.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1148,10 +1097,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\INavigation.ts" />
-/// <reference path="..\schema\INavigationNode.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1293,8 +1238,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="../model/ILoggingOptions.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1357,7 +1300,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1394,23 +1336,6 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="ILoggingOptions.ts" />
-/// <reference path="IWaitMessageOptions.ts" />
-/// <reference path="..\typings\tsd.d.ts" />
-/// <reference path="schema/ISiteSchema.ts" />
-/// <reference path="objecthandlers/Lists.ts" />
-/// <reference path="objecthandlers/ComposedLook.ts" />
-/// <reference path="objecthandlers/Files.ts" />
-/// <reference path="objecthandlers/Pages.ts" />
-/// <reference path="objecthandlers/CustomActions.ts" />
-/// <reference path="objecthandlers/PropertyBagEntries.ts" />
-/// <reference path="objecthandlers/WebSettings.ts" />
-/// <reference path="objecthandlers/Security.ts" />
-/// <reference path="objecthandlers/Navigation.ts" />
-/// <reference path="utilities/Logger.ts" />
-/// <reference path="model/TemplateQueueItem.ts" />
-/// <reference path="model/IOptions.ts" />
-/// <reference path="resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;

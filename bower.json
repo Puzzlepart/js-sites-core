@@ -1,6 +1,10 @@
 {
   "name": "js-sites-core",
+<<<<<<< HEAD
   "version": "1.8.2",
+=======
+  "version": "1.8.3",
+>>>>>>> master
   "homepage": "https://github.com/olemp/js-sites-core",
   "authors": [
     "olemp <olemp@puzzlepart.com>",

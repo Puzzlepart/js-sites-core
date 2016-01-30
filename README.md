@@ -5,21 +5,36 @@ SharePoint Provisioning engine with pure JavaScript inspired by https://github.c
 Can be as simple as
 ```
 jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
-    Pzl.Sites.Core.init(siteTemplateConfig, { "On": true }).then(() => {               
+    Pzl.Sites.Core.init(siteTemplateConfig, { "Logging": { "On": true } }).then(() => {               
         
     })
 });
 ```
 
 or with logging to file
+
 ```
 jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
-    Pzl.Sites.Core.init(siteTemplateConfig, { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" }).then(() => {               
+    Pzl.Sites.Core.init(siteTemplateConfig, { "Logging": { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" } }).then(() => {               
         
     })
 });
 ```
 
+with customized wait message
+
+```
+jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
+    Pzl.Sites.Core.init(siteTemplateConfig, 
+    { 
+        "WaitMessage": { "Header": "Working on it..", "Content": "Won't take long mate!" },  
+        "Logging": { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" } 
+    }
+    ).then(() => {               
+        
+    })
+});
+```
 # Bower
 js-sites-core is available through bower.
 

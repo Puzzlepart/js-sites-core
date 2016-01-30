@@ -140,16 +140,24 @@ var Pzl;
                             if (!obj.ContentTypeBindings)
                                 return;
                             var listContentTypes = listCts[index];
-                            if (obj.RemoveExistingContentTypes) {
+                            var existingContentTypes = new Array();
+                            if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                                 listContentTypes.get_data().forEach(function (ct) {
-                                    Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()));
-                                    ct.deleteObject();
+                                    existingContentTypes.push(ct.get_stringId());
                                 });
                             }
                             obj.ContentTypeBindings.forEach(function (ctb) {
                                 Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_adding_content_type, ctb.ContentTypeId, l.get_title()));
                                 listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                             });
+                            if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
+                                listContentTypes.get_data().forEach(function (ct) {
+                                    if (existingContentTypes[ct.get_stringId()]) {
+                                        Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_removing_content_type, ct.get_stringId(), l.get_title()));
+                                        ct.deleteObject();
+                                    }
+                                });
+                            }
                             l.update();
                         });
                         clientContext.executeQueryAsync(def.resolve, function (sender, args) {

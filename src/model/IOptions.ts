@@ -3,7 +3,7 @@
 
 module Pzl.Sites.Core.Model {
     export interface IOptions {
-       WaitMessage: IWaitMessageOptions;
-       Logging: ILoggingOptions;
+       WaitMessage?: IWaitMessageOptions;
+       Logging?: ILoggingOptions;
     }
 }

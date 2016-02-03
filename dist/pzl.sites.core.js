@@ -1,26 +1,3 @@
-/// <reference path="IRoleDefinition.ts" />
-/// <reference path="IRoleAssignment.ts" />
-/// <reference path="IContentTypeBinding.ts" />
-/// <reference path="IFolder.ts" />
-/// <reference path="ISecurity.ts" />
-/// <reference path="IView.ts" />
-/// <reference path="IListInstanceFieldRef.ts" />
-/// <reference path="IContents.ts" />
-/// <reference path="IWebPart.ts" />
-/// <reference path="HiddenView.ts" />
-/// <reference path="IWebPart.ts" />
-/// <reference path="INavigationNode.ts" />
-/// <reference path="IListInstance.ts" />
-/// <reference path="IFile.ts" />
-/// <reference path="IPage.ts" />
-/// <reference path="IFeature.ts" />
-/// <reference path="IField.ts" />
-/// <reference path="IContentType.ts" />
-/// <reference path="INavigation.ts" />
-/// <reference path="ICustomAction.ts" />
-/// <reference path="IComposedLook.ts" />
-/// <reference path="IWebSettings.ts" />
-/// <reference path="IObjectHandler.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -35,7 +12,7 @@ var Pzl;
                     }
                     ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
                     return ObjectHandlerBase;
-                })();
+                }());
                 Model.ObjectHandlerBase = ObjectHandlerBase;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -49,8 +26,12 @@ var Pzl;
         (function (Core) {
             var Resources;
             (function (Resources) {
+                Resources.Provisioning_progressbar_id = "js-sites-core-progress";
+                Resources.Provisioning_progressbar_text_id = "js-sites-core-progress-text";
+                Resources.Provisioning_progressbar_markup = "<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"{0}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:{0}%\">{0}%</div>";
                 Resources.Provisioning_started = "Starting at URL {0}";
                 Resources.Provisioning_ended = "Done in {0} seconds";
+                Resources.Provisioning_timeout = "Timeout for {0} seconds";
                 Resources.WaitMessage_header = "Applying template";
                 Resources.WaitMessage_content = "This might take a moment.";
                 Resources.Code_execution_started = "Code execution scope started";
@@ -68,6 +49,8 @@ var Pzl;
                 Resources.Lists_adding_list_view = "Adding view {0} for list {1}";
                 Resources.Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
                 Resources.Lists_adding_field_ref = "Adding field {0} to list {1}";
+                Resources.Lists_adding_field = "Adding field '{0}' to list '{1}'";
+                Resources.Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";
                 Resources.WebSettings_setting_welcomePage = "Setting welcome page to {0}";
                 Resources.WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";
                 Resources.WebSettings_setting_masterUrl = "Setting master url to {0}";
@@ -88,15 +71,45 @@ var Pzl;
                 Resources.Navigation_adding_children_node = "Adding navigation node with Url {0} and Title {1}, under parent {2}";
                 Resources.CustomAction_already_exists = "A custom action with Title '{0}' already exists";
                 Resources.CustomAction_creating = "Creating custom action with Title '{0}'";
+                Resources.Files_retrieving_xml_for_webpart = "Retrieving XML for webpart '{0}' from file";
+                Resources.Files_removing_existing_webparts = "Removing existing webparts for file with URL '{0}'";
+                Resources.Files_adding_webpart = "Adding web part '{0}' to zone '{1}' for file with URL '{2}'";
+                Resources.Files_setting_properties = "Setting properties for file with URL {0}";
+                Resources.Files_setting_property = "Setting property '{0}' = '{1}' for file with URL '{2}'";
+                Resources.Files_retrieved_file_contents = "Retrieved content for file with Url '{0}' from source file";
+                Resources.Files_creating_file = "Creating file with Url '{0}'";
+                Resources.Files_skipping_form_file = "File with Url {0} is a form file. Skipping creation.";
+                Resources.Files_modifying_list_views = "Modifying list views for list '{0}'";
+                Resources.Files_modifying_list_view = "Modifying list view with Url '{0}' for list '{1}'";
             })(Resources = Core.Resources || (Core.Resources = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IListInstance.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var Utilities;
+            (function (Utilities) {
+                var RestHelper = (function () {
+                    function RestHelper() {
+                        this.headers = { accept: 'application/json;odata=verbose' };
+                    }
+                    RestHelper.prototype.getListData = function (baseUrl, listTitle) {
+                        return this.get(baseUrl + "/_api/web/lists/getByTitle('" + listTitle + "')/Items");
+                    };
+                    RestHelper.prototype.get = function (url) {
+                        return jQuery.ajax({ url: url, type: 'get', headers: this.headers });
+                    };
+                    return RestHelper;
+                }());
+                Utilities.RestHelper = RestHelper;
+            })(Utilities = Core.Utilities || (Core.Utilities = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -208,11 +221,11 @@ var Pzl;
                             list.update();
                         });
                         clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                            Core.Log.Error("Lists Content Types", "Error: " + args.get_message());
+                            Core.Log.Error("Lists Content Types", args.get_message());
                             def.resolve(sender, args);
                         });
                     }, function (sender, args) {
-                        Core.Log.Error("Lists Content Types", "Error: " + args.get_message());
+                        Core.Log.Error("Lists Content Types", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -232,7 +245,30 @@ var Pzl;
                         }
                     });
                     clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                        Core.Log.Error("Lists Field Refs", "Error: " + args.get_message());
+                        Core.Log.Error("Lists Field Refs", args.get_message());
+                        def.resolve(sender, args);
+                    });
+                    return def.promise();
+                }
+                function ApplyFields(clientContext, lists, objects) {
+                    var def = jQuery.Deferred();
+                    lists.forEach(function (l, index) {
+                        var obj = objects[index];
+                        if (obj.Fields) {
+                            obj.Fields.forEach(function (f) {
+                                Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, f.ID, l.get_title()));
+                                var properties = [];
+                                for (var prop in f) {
+                                    properties.push(prop + "=\"" + f[prop] + "\"");
+                                }
+                                var fieldXml = "<Field " + properties.join(" ") + "></Field>";
+                                l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
+                            });
+                            l.update();
+                        }
+                    });
+                    clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        Core.Log.Error("Lists Fields", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -294,12 +330,6 @@ var Pzl;
                         def.resolve(sender, args);
                     });
                     return def.promise();
-                }
-                function GetViewFromCollectionByUrl(viewCollection, url) {
-                    var view = jQuery.grep(viewCollection.get_data(), function (v) {
-                        return v.get_serverRelativeUrl() == _spPageContextInfo.siteServerRelativeUrl + "/" + url;
-                    });
-                    return view ? view[0] : null;
                 }
                 function CreateViews(clientContext, lists, objects) {
                     Core.Log.Information("Lists Views", Core.Resources.Code_execution_started);
@@ -382,11 +412,38 @@ var Pzl;
                             });
                         });
                         clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                            Core.Log.Error("Lists Views", "Error: " + args.get_message());
+                            Core.Log.Error("Lists Views", args.get_message());
                             def.resolve(sender, args);
                         });
                     }, function (sender, args) {
-                        Core.Log.Error("Lists Views", "Error: " + args.get_message());
+                        Core.Log.Error("Lists Views", args.get_message());
+                        def.resolve(sender, args);
+                    });
+                    return def.promise();
+                }
+                function InsertDataRows(clientContext, lists, objects) {
+                    Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_started);
+                    var def = jQuery.Deferred();
+                    var promises = [];
+                    lists.forEach(function (l, index) {
+                        var obj = objects[index];
+                        if (obj.DataRows) {
+                            obj.DataRows.forEach(function (r, index) {
+                                Core.Log.Information("Lists Data Rows", String.format(Core.Resources.Lists_inserting_data_row, (index + 1), obj.DataRows.length, l.get_title()));
+                                var item = l.addItem(new SP.ListItemCreationInformation());
+                                for (var key in r) {
+                                    item.set_item(key, r[key]);
+                                }
+                                item.update();
+                                clientContext.load(item);
+                            });
+                        }
+                    });
+                    clientContext.executeQueryAsync(function () {
+                        Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_ended);
+                        def.resolve();
+                    }, function (sender, args) {
+                        Core.Log.Error("Lists Data Rows", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -436,29 +493,28 @@ var Pzl;
                                     clientContext.load(listInstances[index]);
                                 }
                             });
-                            if (!clientContext.get_hasPendingRequest()) {
-                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                def.resolve();
-                                return def.promise();
-                            }
                             clientContext.executeQueryAsync(function () {
                                 ApplyContentTypeBindings(clientContext, listInstances, objects).then(function () {
                                     ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(function () {
-                                        ApplyListSecurity(clientContext, listInstances, objects).then(function () {
-                                            CreateViews(clientContext, listInstances, objects).then(function () {
-                                                var promises = [];
-                                                objects.forEach(function (obj, index) {
-                                                    if (obj.Folders && obj.Folders.length > 0) {
-                                                        promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
-                                                    }
-                                                });
-                                                jQuery.when.apply(jQuery, promises).done(function () {
-                                                    clientContext.executeQueryAsync(function () {
-                                                        Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                                        def.resolve();
-                                                    }, function (sender, args) {
-                                                        Core.Log.Error(_this.name, "Error: " + args.get_message());
-                                                        def.resolve(sender, args);
+                                        ApplyFields(clientContext, listInstances, objects).then(function () {
+                                            ApplyListSecurity(clientContext, listInstances, objects).then(function () {
+                                                CreateViews(clientContext, listInstances, objects).then(function () {
+                                                    InsertDataRows(clientContext, listInstances, objects).then(function () {
+                                                        var promises = [];
+                                                        objects.forEach(function (obj, index) {
+                                                            if (obj.Folders && obj.Folders.length > 0) {
+                                                                promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
+                                                            }
+                                                        });
+                                                        jQuery.when.apply(jQuery, promises).done(function () {
+                                                            clientContext.executeQueryAsync(function () {
+                                                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                                                def.resolve();
+                                                            }, function (sender, args) {
+                                                                Core.Log.Error(_this.name, args.get_message());
+                                                                def.resolve(sender, args);
+                                                            });
+                                                        });
                                                     });
                                                 });
                                             });
@@ -466,25 +522,22 @@ var Pzl;
                                     });
                                 });
                             }, function (sender, args) {
-                                Core.Log.Error(_this.name, "Error: " + args.get_message());
+                                Core.Log.Error(_this.name, args.get_message());
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
-                            Core.Log.Error(_this.name, "Error: " + args.get_message());
+                            Core.Log.Error(_this.name, args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
                     return Lists;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IComposedLook.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -530,18 +583,12 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IFile.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -578,35 +625,6 @@ var Pzl;
                     }
                     Helpers.LastItemInArray = LastItemInArray;
                 })(Helpers || (Helpers = {}));
-                function AddFileByUrl(dest, src, overwrite) {
-                    var def = jQuery.Deferred();
-                    Core.Log.Information("Files", "Creating file with Url '" + dest + "'");
-                    var clientContext = SP.ClientContext.get_current();
-                    var web = clientContext.get_web();
-                    var sourceFile = Helpers.GetFileUrlWithoutTokens(src);
-                    var destFolder = Helpers.GetFolderFromFilePath(dest);
-                    var destFileName = Helpers.GetFilenameFromFilePath(dest);
-                    var folderServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + destFolder;
-                    var folder = web.getFolderByServerRelativeUrl(folderServerRelativeUrl);
-                    jQuery.get(sourceFile, function (fileContent) {
-                        var objCreationInformation = new SP.FileCreationInformation();
-                        objCreationInformation.set_overwrite(overwrite);
-                        objCreationInformation.set_url(destFileName);
-                        objCreationInformation.set_content(new SP.Base64EncodedByteArray());
-                        for (var i = 0; i < fileContent.length; i++) {
-                            objCreationInformation.get_content().append(fileContent.charCodeAt(i));
-                        }
-                        clientContext.load(folder.get_files().add(objCreationInformation));
-                        clientContext.executeQueryAsync(function () {
-                            def.resolve();
-                        }, function (sender, args) {
-                            Core.Log.Information("Files", "Failed to create file with Url '" + dest + "'");
-                            Core.Log.Error("Files", "" + args.get_message());
-                            def.resolve(sender, args);
-                        });
-                    });
-                    return def.promise();
-                }
                 function RemoveWebPartsFromFileIfSpecified(clientContext, limitedWebPartManager, shouldRemoveExisting) {
                     var def = jQuery.Deferred();
                     if (!shouldRemoveExisting) {
@@ -620,14 +638,8 @@ var Pzl;
                             wp.deleteWebPart();
                         });
                         clientContext.load(existingWebParts);
-                        clientContext.executeQueryAsync(function () {
-                            def.resolve();
-                        }, function () {
-                            def.resolve();
-                        });
-                    }, function () {
-                        def.resolve();
-                    });
+                        clientContext.executeQueryAsync(def.resolve, def.resolve);
+                    }, def.resolve);
                     return def.promise();
                 }
                 function GetWebPartXml(webParts) {
@@ -668,23 +680,19 @@ var Pzl;
                                 webParts.forEach(function (wp) {
                                     if (!wp.Contents.Xml)
                                         return;
-                                    Core.Log.Information("Files Web Parts", "Adding web part '" + wp.Title + "' to zone '" + wp.Zone + "' for file with URL '" + dest + "'");
+                                    Core.Log.Information("Files Web Parts", String.format(Core.Resources.Files_adding_webpart, wp.Title, wp.Zone, dest));
                                     var oWebPartDefinition = limitedWebPartManager.importWebPart(Helpers.GetWebPartXmlWithoutTokens(wp.Contents.Xml));
                                     var oWebPart = oWebPartDefinition.get_webPart();
                                     limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
                                 });
-                                clientContext.executeQueryAsync(function () {
-                                    def.resolve();
-                                }, function (sender, args) {
-                                    Core.Log.Information("Files Web Parts", "Provisioning of objects failed for file with Url '" + fileUrl + "'");
-                                    Core.Log.Error("Files Web Parts", "" + args.get_message());
+                                clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                                    Core.Log.Error("Files Web Parts", args.get_message());
                                     def.resolve(sender, args);
                                 });
                             });
                         });
                     }, function (sender, args) {
-                        Core.Log.Information("Files Web Parts", "Provisioning of objects failed for file with Url '" + fileUrl + "'");
-                        Core.Log.Error("Files Web Parts", "" + args.get_message());
+                        Core.Log.Error("Files Web Parts", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -696,17 +704,14 @@ var Pzl;
                     var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + dest;
                     var file = web.getFileByServerRelativeUrl(fileServerRelativeUrl);
                     var listItemAllFields = file.get_listItemAllFields();
-                    Core.Log.Information("Files Properties", "Setting properties for file with URL '" + dest + "'");
+                    Core.Log.Information("Files Properties", String.format(Core.Resources.Files_setting_properties, dest));
                     for (var key in fileProperties) {
-                        Core.Log.Information("Files Properties", "Setting property '" + key + "' = '" + fileProperties[key] + "' for file with URL '" + dest + "'");
+                        Core.Log.Information("Files Properties", String.format(Core.Resources.Files_setting_property, key, fileProperties[key], dest));
                         listItemAllFields.set_item(key, fileProperties[key]);
                     }
                     listItemAllFields.update();
-                    clientContext.executeQueryAsync(function () {
-                        def.resolve();
-                    }, function (sender, args) {
-                        Core.Log.Information("Files Properties", "Provisioning of objects failed for file with Url '" + dest + "'");
-                        Core.Log.Error("Files Properties", "" + args.get_message());
+                    clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        Core.Log.Error("Files Properties", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -723,7 +728,6 @@ var Pzl;
                     return null;
                 }
                 function ModifyHiddenViews(objects) {
-                    Core.Log.Information("Hidden Views", "Code execution scope started");
                     var def = jQuery.Deferred();
                     var clientContext = SP.ClientContext.get_current();
                     var web = clientContext.get_web();
@@ -746,7 +750,7 @@ var Pzl;
                     });
                     clientContext.executeQueryAsync(function () {
                         Object.keys(mapping).forEach(function (l, index) {
-                            Core.Log.Information("Hidden Views", "Modifying list views for list '" + l + "'");
+                            Core.Log.Information("Hidden Views", String.format(Core.Resources.Files_modifying_list_views, l));
                             var views = mapping[l];
                             var list = lists[index];
                             var viewCollection = listViewCollections[index];
@@ -754,7 +758,7 @@ var Pzl;
                                 var view = GetViewFromCollectionByUrl(viewCollection, v.Url);
                                 if (view == null)
                                     return;
-                                Core.Log.Information("Hidden Views", "Modifying list view with Url '" + v.Url + "' for list '" + l + "'");
+                                Core.Log.Information("Hidden Views", String.format(Core.Resources.Files_modifying_list_view, v.Url, l));
                                 if (v.Paged) {
                                     view.set_paged(v.Paged);
                                 }
@@ -776,17 +780,12 @@ var Pzl;
                             clientContext.load(viewCollection);
                             list.update();
                         });
-                        clientContext.executeQueryAsync(function () {
-                            Core.Log.Information("Hidden Views", "Code execution scope ended");
-                            def.resolve();
-                        }, function (sender, args) {
-                            Core.Log.Error("Hidden Views", "Error: " + args.get_message());
-                            Core.Log.Information("Hidden Views", "Code execution scope ended");
+                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            Core.Log.Error("Hidden Views", args.get_message());
                             def.resolve(sender, args);
                         });
                     }, function (sender, args) {
-                        Core.Log.Error("Hidden Views", "Error: " + args.get_message());
-                        Core.Log.Information("Hidden Views", "Code execution scope ended");
+                        Core.Log.Error("Hidden Views", args.get_message());
                         def.resolve(sender, args);
                     });
                     return def.promise();
@@ -798,50 +797,69 @@ var Pzl;
                     }
                     Files.prototype.ProvisionObjects = function (objects) {
                         var _this = this;
-                        Core.Log.Information(this.name, "Code execution scope started");
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var clientContext = SP.ClientContext.get_current();
+                        var web = clientContext.get_web();
+                        var fileInfos = [];
                         var promises = [];
-                        objects.forEach(function (obj) {
-                            AddFileByUrl(obj.Dest, obj.Src, obj.Overwrite);
+                        objects.forEach(function (obj, index) {
+                            var filename = Helpers.GetFilenameFromFilePath(obj.Dest);
+                            var folder = web.getFolderByServerRelativeUrl(_spPageContextInfo.webServerRelativeUrl + "/" + Helpers.GetFolderFromFilePath(obj.Dest));
+                            promises.push(jQuery.get(Helpers.GetFileUrlWithoutTokens(obj.Src), function (fileContents) {
+                                var f = {};
+                                jQuery.extend(f, obj, { "Filename": filename, "Folder": folder, "Contents": fileContents });
+                                fileInfos.push(f);
+                                Core.Log.Information(_this.name, String.format(Core.Resources.Files_retrieved_file_contents, f.Dest));
+                            }));
                         });
                         jQuery.when.apply(jQuery, promises).done(function () {
-                            var promises = [];
-                            objects.forEach(function (obj) {
-                                if (obj.WebParts && obj.WebParts.length > 0) {
-                                    promises.push(AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
+                            fileInfos.forEach(function (f, index) {
+                                if (f.Filename.indexOf("Form.aspx") != -1) {
+                                    Core.Log.Information(_this.name, String.format(Core.Resources.Files_skipping_form_file, f.Dest));
+                                    return;
                                 }
+                                Core.Log.Information(_this.name, String.format(Core.Resources.Files_creating_file, f.Dest));
+                                var objCreationInformation = new SP.FileCreationInformation();
+                                objCreationInformation.set_overwrite(f.Overwrite != undefined ? f.Overwrite : false);
+                                objCreationInformation.set_url(f.Filename);
+                                objCreationInformation.set_content(new SP.Base64EncodedByteArray());
+                                for (var i = 0; i < f.Contents.length; i++) {
+                                    objCreationInformation.get_content().append(f.Contents.charCodeAt(i));
+                                }
+                                clientContext.load(f.Folder.get_files().add(objCreationInformation));
                             });
-                            jQuery.when.apply(jQuery, promises).done(function () {
+                            clientContext.executeQueryAsync(function () {
                                 var promises = [];
                                 objects.forEach(function (obj) {
                                     if (obj.Properties && Object.keys(obj.Properties).length > 0) {
                                         promises.push(ApplyFileProperties(obj.Dest, obj.Properties));
                                     }
+                                    if (obj.WebParts && obj.WebParts.length > 0) {
+                                        promises.push(AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
+                                    }
                                 });
                                 jQuery.when.apply(jQuery, promises).done(function () {
                                     ModifyHiddenViews(objects).then(function () {
-                                        Core.Log.Information(_this.name, "Code execution scope ended");
+                                        Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                         def.resolve();
                                     });
                                 });
+                            }, function (sender, args) {
+                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                Core.Log.Error(_this.name, args.get_message());
+                                def.resolve(sender, args);
                             });
                         });
                         return def.promise();
                     };
                     return Files;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IPage.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -877,7 +895,6 @@ var Pzl;
                         Core.Log.Error("Pages", "" + args.get_message());
                         def.resolve(sender, args);
                     });
-                    aa;
                     return def.promise();
                 }
                 ObjectHandlers.AddWikiPageByUrl = AddWikiPageByUrl;
@@ -902,17 +919,12 @@ var Pzl;
                         return def.promise();
                     };
                     return Pages;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\ICustomAction.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1006,16 +1018,12 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1051,17 +1059,12 @@ var Pzl;
                         return def.promise();
                     };
                     return PropertyBagEntries;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.PropertyBagEntries = PropertyBagEntries;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IWebSettings.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1127,17 +1130,12 @@ var Pzl;
                         return def.promise();
                     };
                     return WebSettings;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\ISecurity.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1210,18 +1208,12 @@ var Pzl;
                         return def.promise();
                     };
                     return Security;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.Security = Security;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\INavigation.ts" />
-/// <reference path="..\schema\INavigationNode.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1358,14 +1350,12 @@ var Pzl;
                         return def.promise();
                     };
                     return Navigation;
-                })(Core.Model.ObjectHandlerBase);
+                }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.Navigation = Navigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="../model/ILoggingOptions.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1423,12 +1413,11 @@ var Pzl;
                     return def.promise();
                 };
                 return Logger;
-            })();
+            }());
             Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="..\..\typings\tsd.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -1452,6 +1441,7 @@ var Pzl;
                         }
                         var def = jQuery.Deferred();
                         dependentPromise.done(function () {
+                            Core.UpdateProgress(_this.index, _this.name);
                             return _this.callback(_this.objects, _this.parameters).done(function () {
                                 def.resolve();
                             });
@@ -1459,49 +1449,41 @@ var Pzl;
                         return def.promise();
                     };
                     return TemplateQueueItem;
-                })();
+                }());
                 Model.TemplateQueueItem = TemplateQueueItem;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
-/// <reference path="ILoggingOptions.ts" />
-/// <reference path="IWaitMessageOptions.ts" />
-/// <reference path="..\typings\tsd.d.ts" />
-/// <reference path="schema/ISiteSchema.ts" />
-/// <reference path="objecthandlers/Lists.ts" />
-/// <reference path="objecthandlers/ComposedLook.ts" />
-/// <reference path="objecthandlers/Files.ts" />
-/// <reference path="objecthandlers/Pages.ts" />
-/// <reference path="objecthandlers/CustomActions.ts" />
-/// <reference path="objecthandlers/PropertyBagEntries.ts" />
-/// <reference path="objecthandlers/WebSettings.ts" />
-/// <reference path="objecthandlers/Security.ts" />
-/// <reference path="objecthandlers/Navigation.ts" />
-/// <reference path="utilities/Logger.ts" />
-/// <reference path="model/TemplateQueueItem.ts" />
-/// <reference path="model/IOptions.ts" />
-/// <reference path="resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
     (function (Sites) {
         var Core;
         (function (Core) {
+            var options;
             var startTime = null;
+            var queueItems;
             var setupWebDialog;
             function ShowWaitMessage(options) {
+                var size = {
+                    width: 600,
+                    height: 130
+                };
                 var header = Core.Resources.WaitMessage_header;
                 var content = Core.Resources.WaitMessage_content;
                 if (options) {
-                    if (options.Header) {
-                        header = options.Header;
-                    }
-                    if (options.Content) {
-                        content = options.Content;
+                    options.Header && (header = options.Header);
+                    options.Content && (content = options.Content);
+                    if (options.ShowProgress === true) {
+                        content = "";
+                        content += "<style type=\"text/css\">.progress{overflow:hidden;height:20px;margin-bottom:20px;background-color:#f5f5f5;border-radius:4px;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,.1);box-shadow:inset 0 1px 2px rgba(0,0,0,.1)}.progress-bar{float:left;width:0;height:100%;font-size:12px;line-height:20px;color:#fff;text-align:center;background-color:#337ab7;-webkit-box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);-webkit-transition:width .6s ease;-o-transition:width .6s ease;transition:width .6s ease}</style>";
+                        content += "<div id=\"" + Core.Resources.Provisioning_progressbar_id + "\" class=\"progress\">\n                                " + String.format(Core.Resources.Provisioning_progressbar_markup, "0") + "\n                            </div>\n                            <div id=\"" + Core.Resources.Provisioning_progressbar_text_id + "\"></div>\n                            ";
+                        size.width = 700;
+                        size.height = 160;
                     }
                 }
-                setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, 130, 600);
+                setupWebDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(header, content, size.height, size.width);
             }
             function getSetupQueue(json) {
                 return Object.keys(json);
@@ -1510,7 +1492,7 @@ var Pzl;
                 var def = jQuery.Deferred();
                 startTime = new Date().getTime();
                 Core.Log.Information("Provisioning", String.format(Core.Resources.Code_execution_started, _spPageContextInfo.webServerRelativeUrl));
-                var queueItems = [];
+                queueItems = [];
                 queue.forEach(function (q, index) {
                     if (!Core.ObjectHandlers[q])
                         return;
@@ -1530,13 +1512,26 @@ var Pzl;
                 jQuery.when.apply(jQuery, promises).done(def.resolve);
                 return def.promise();
             }
-            function init(template, options) {
+            function UpdateProgress(index, name) {
+                if (!options.WaitMessage)
+                    return;
+                if (!options.WaitMessage.ShowProgress === true)
+                    return;
+                var progress = ((index) / queueItems.length) * 100;
+                var text = options.WaitMessage.ProgressOverrides ? (options.WaitMessage.ProgressOverrides[name] || name) : name;
+                document.getElementById(Core.Resources.Provisioning_progressbar_id).innerHTML = String.format(Core.Resources.Provisioning_progressbar_markup, progress);
+                document.getElementById(Core.Resources.Provisioning_progressbar_text_id).innerHTML = text;
+            }
+            Core.UpdateProgress = UpdateProgress;
+            function init(template, _options) {
                 var def = jQuery.Deferred();
+                options = _options || {};
                 ShowWaitMessage(options.WaitMessage);
                 Core.Log = new Core.Logger(options.Logging);
                 var queue = getSetupQueue(template);
                 start(template, queue).then(function () {
-                    Core.Log.Information("Provisioning", String.format(Core.Resources.Code_execution_ended, ((new Date().getTime()) - startTime) / 1000));
+                    var elapsedTime = ((new Date().getTime()) - startTime) / 1000;
+                    Core.Log.Information("Provisioning", String.format(Core.Resources.Code_execution_ended, elapsedTime));
                     Core.Log.SaveToFile().then(function () {
                         setupWebDialog.close(null);
                         def.resolve();

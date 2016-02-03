@@ -13,6 +13,7 @@ module Pzl.Sites.Core.Model {
             }
             var def = jQuery.Deferred();
             dependentPromise.done(() => {
+                UpdateProgress(this.index, this.name);
                 return this.callback(this.objects, this.parameters).done(function () {
                     def.resolve();
                 });

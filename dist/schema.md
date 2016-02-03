@@ -23,16 +23,16 @@ Here follows the list of root elements available in the JS Sites Core Schema.
 
 Element|Type|Description
 -------|----|-----------
-Parameters|[Parameters](#parameters)|No description available yet
-Security|[Security](#security)|No description available yet
-WebSettings|[WebSettings](#websettings)|No description available yet
-PropertyBagEntries|[PropertyBagEntries](#propertybagentries)|No description available yet
-Files|[Files](#files)|No description available yet
-Pages|[Pages](#pages)|No description available yet
-Lists|[Lists](#lists)|No description available yet
-CustomActions|[CustomActions](#customactions)|No description available yet
-Navigation|[Navigation](#navigation)|No description available yet
-ComposedLook|[ComposedLook](#composedlook)|No description available yet
+Parameters|[Parameters](#parameters)|Parameters used throughout the framework
+Security|[Security](#security)|Permissions for the web
+WebSettings|[WebSettings](#websettings)|Settings for the web, e.g. Welcome Page and Master Url
+PropertyBagEntries|[PropertyBagEntries](#propertybagentries)|Key/Value pairs for the web property bag
+Files|[Files](#files)|Files in a SharePoint Web site that can be a Web Parts page, an item in a document library, or a file in a folder
+Pages|[Pages](#pages)|Files in a SharePoint Web site (Wiki Pages)
+Lists|[Lists](#lists)|Lists on a SharePoint Web site. 
+CustomActions|[CustomActions](#customactions)|Custom actions associated with a SharePoint list, Web site, or subsite.
+Navigation|[Navigation](#navigation)|Navigation settings
+ComposedLook|[ComposedLook](#composedlook)|Composed Look, a package containing a .spcolor and a .spfont file
 
 
 ###Parameters
@@ -170,6 +170,7 @@ Defines a ListInstance element
       "ContentTypeBindings": [],
       "FieldRefs": [],
       "Views": [],
+      "DataRows": [],
       "Security": {}
     }
 ```
@@ -184,8 +185,10 @@ Url|string|The Url of the List Instance, required attribute
 RemoveExistingContentTypes|boolean|The RemoveExistingContentTypes of the List Instance, optional attribute
 ContentTypeBindings|Array<[ContentTypeBinding](#contenttypebinding)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
 FieldRefs|Array<[FieldRef](#listinstancefieldref)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
+Fields|Array<[Field](#field)>|The Fields entries of the List Instance, optional collection of elements
 Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optional collection of elements
 Views|Array<[View](#view)>|The Views entries of the List Instance, optional collection of elements
+DataRows|Array<Object>|The DataRows entries of the List Instance, optional collection of elements
 Security|[Security](#security)|The Security entrie of the List Instance, optional elemenet
 
 
@@ -500,3 +503,11 @@ Defines a ListInstanceFieldRef element
 Attibute|Type|Description
 --------|----|-----------
 Name|string|The Name of the ListInstanceFieldRef, required attribute
+
+
+##Field
+Defines a Field element
+
+All properties for SP.Field are supported.
+
+https://msdn.microsoft.com/en-us/library/office/aa979575.aspx

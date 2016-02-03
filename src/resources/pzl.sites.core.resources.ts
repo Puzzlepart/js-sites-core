@@ -1,6 +1,10 @@
 module Pzl.Sites.Core.Resources {
+    export var Provisioning_progressbar_id = "js-sites-core-progress";
+    export var Provisioning_progressbar_text_id  = "js-sites-core-progress-text";
+    export var Provisioning_progressbar_markup = `<div class="progress-bar" role="progressbar" aria-valuenow="{0}" aria-valuemin="0" aria-valuemax="100" style="width:{0}%">{0}%</div>`;
     export var Provisioning_started = "Starting at URL {0}";
     export var Provisioning_ended = "Done in {0} seconds";
+    export var Provisioning_timeout = "Timeout for {0} seconds";
     export var WaitMessage_header = "Applying template";
     export var WaitMessage_content = "This might take a moment.";
     export var Code_execution_started = "Code execution scope started";
@@ -18,6 +22,8 @@ module Pzl.Sites.Core.Resources {
     export var Lists_adding_list_view = "Adding view {0} for list {1}";
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
+    export var Lists_adding_field = "Adding field '{0}' to list '{1}'";
+    export var Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";
     export var WebSettings_setting_welcomePage = "Setting welcome page to {0}";    
     export var WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";    
     export var WebSettings_setting_masterUrl = "Setting master url to {0}";    
@@ -38,4 +44,15 @@ module Pzl.Sites.Core.Resources {
     export var Navigation_adding_children_node = "Adding navigation node with Url {0} and Title {1}, under parent {2}";
     export var CustomAction_already_exists = "A custom action with Title '{0}' already exists";
     export var CustomAction_creating = "Creating custom action with Title '{0}'";
+    export var Files_retrieving_xml_for_webpart = "Retrieving XML for webpart '{0}' from file";
+    export var Files_removing_existing_webparts = "Removing existing webparts for file with URL '{0}'";
+    export var Files_adding_webpart = "Adding web part '{0}' to zone '{1}' for file with URL '{2}'";
+    export var Files_setting_properties = "Setting properties for file with URL {0}";
+    export var Files_setting_property = "Setting property '{0}' = '{1}' for file with URL '{2}'";
+    export var Files_retrieved_file_contents = "Retrieved content for file with Url '{0}' from source file";
+    export var Files_creating_file = "Creating file with Url '{0}'"
+    export var Files_skipping_form_file = "File with Url {0} is a form file. Skipping creation.";
+    export var Files_modifying_list_views = "Modifying list views for list '{0}'";
+    export var Files_modifying_list_view = "Modifying list view with Url '{0}' for list '{1}'";
+    
 }

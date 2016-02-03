@@ -3,6 +3,7 @@
 /// <reference path="ISecurity.ts" />
 /// <reference path="IView.ts" />
 /// <reference path="IListInstanceFieldRef.ts" />
+/// <reference path="IField.ts" />
 module Pzl.Sites.Core.Schema {
     export interface IListInstance {
         Title: string;
@@ -18,8 +19,10 @@ module Pzl.Sites.Core.Schema {
         RemoveExistingContentTypes: boolean;
         ContentTypeBindings: Array<IContentTypeBinding>;
         FieldRefs: Array<IListInstanceFieldRef>;
+        Fields: Array<IField>;
         Folders: Array<IFolder>;
         Views: Array<IView>;
+        DataRows: Array<Object>;
         Security: ISecurity;
     }
 }

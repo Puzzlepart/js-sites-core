@@ -3,6 +3,7 @@
 /// <reference path="..\schema\IListInstance.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
 /// <reference path="..\resources\pzl.sites.core.resources.ts" />
+/// <reference path="..\utilities\RestHelper.ts" />
 "use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -85,7 +86,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                     var obj = objects[index];
                     if (!obj.ContentTypeBindings) return;
                     var listContentTypes = listCts[index];
-                    //Cannot remove content types before we have added others
                     var existingContentTypes = new Array<SP.ContentType>();
                     if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                         listContentTypes.get_data().forEach(ct => {
@@ -96,8 +96,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                         Core.Log.Information("Lists Content Types", String.format(Resources.Lists_adding_content_type, ctb.ContentTypeId, list.get_title()));
                         listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                     });
-                    
-                    //Content types can now be removed
                     if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
                         for (var j = 0; j < existingContentTypes.length; j++) {
                             var ect = existingContentTypes[j];
@@ -110,12 +108,12 @@ module Pzl.Sites.Core.ObjectHandlers {
 
                 clientContext.executeQueryAsync(def.resolve,
                     (sender, args) => {
-                        Core.Log.Error("Lists Content Types", `Error: ${args.get_message()}`);
+                        Core.Log.Error("Lists Content Types", args.get_message());
                         def.resolve(sender, args);
                     });
             },
             (sender, args) => {
-                Core.Log.Error("Lists Content Types", `Error: ${args.get_message()}`);
+                Core.Log.Error("Lists Content Types", args.get_message());
                 def.resolve(sender, args);
             });
 
@@ -137,9 +135,35 @@ module Pzl.Sites.Core.ObjectHandlers {
         });
         clientContext.executeQueryAsync(def.resolve,
             (sender, args) => {
-                Core.Log.Error("Lists Field Refs", `Error: ${args.get_message()}`);
+                Core.Log.Error("Lists Field Refs", args.get_message());
                 def.resolve(sender, args);
             });
+        return def.promise();
+    }
+    function ApplyFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        var def = jQuery.Deferred();
+
+        lists.forEach((l, index) => {
+            var obj = objects[index];
+            if (obj.Fields) {
+                obj.Fields.forEach(f => {
+                    Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field, f.ID, l.get_title()));
+                    var properties = [];
+                    for (var prop in f) {
+                        properties.push(`${prop}="${f[prop]}"`);
+                    }
+                    var fieldXml = `<Field ${properties.join(" ")}></Field>`;
+                    l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
+                });
+                l.update();
+            }
+        });
+        clientContext.executeQueryAsync(def.resolve,
+            (sender, args) => {
+                Core.Log.Error("Lists Fields", args.get_message());
+                def.resolve(sender, args);
+            });
+
         return def.promise();
     }
     function ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
@@ -201,12 +225,6 @@ module Pzl.Sites.Core.ObjectHandlers {
             });
         return def.promise();
     }
-    function GetViewFromCollectionByUrl(viewCollection: SP.ViewCollection, url: string) {
-        var view = jQuery.grep(viewCollection.get_data(), (v) => {
-            return v.get_serverRelativeUrl() == `${_spPageContextInfo.siteServerRelativeUrl}/${url}`;
-        });
-        return view ? view[0] : null;
-    }
     function CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         Core.Log.Information("Lists Views", Resources.Code_execution_started);
         var def = jQuery.Deferred();
@@ -266,12 +284,43 @@ module Pzl.Sites.Core.ObjectHandlers {
                 });
                 clientContext.executeQueryAsync(def.resolve,
                     (sender, args) => {
-                        Core.Log.Error("Lists Views", `Error: ${args.get_message()}`);
+                        Core.Log.Error("Lists Views", args.get_message());
                         def.resolve(sender, args);
                     });
             },
             (sender, args) => {
-                Core.Log.Error("Lists Views", `Error: ${args.get_message()}`);
+                Core.Log.Error("Lists Views", args.get_message());
+                def.resolve(sender, args);
+            });
+
+        return def.promise();
+    }
+    function InsertDataRows(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        Core.Log.Information("Lists Data Rows", Resources.Code_execution_started);
+        var def = jQuery.Deferred();
+
+        var promises = [];
+        lists.forEach((l, index) => {
+            var obj = objects[index];
+            if (obj.DataRows) {
+                obj.DataRows.forEach((r, index) => {
+                    Core.Log.Information("Lists Data Rows", String.format(Resources.Lists_inserting_data_row, (index + 1), obj.DataRows.length, l.get_title()));
+                    var item = l.addItem(new SP.ListItemCreationInformation());
+                    for (var key in r) {
+                        item.set_item(key, r[key]);
+                    }
+                    item.update();
+                    clientContext.load(item);
+                });
+            }
+        }); 
+        clientContext.executeQueryAsync(
+            () => {
+                Core.Log.Information("Lists Data Rows", Resources.Code_execution_ended);
+                def.resolve();
+            },
+            (sender, args) => {
+                Core.Log.Error("Lists Data Rows", args.get_message());
                 def.resolve(sender, args);
             });
 
@@ -306,8 +355,8 @@ module Pzl.Sites.Core.ObjectHandlers {
                             Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
                             var objCreationInformation = new SP.ListCreationInformation();
                             if (obj.Description) { objCreationInformation.set_description(obj.Description); }
-                            if (obj.OnQuickLaunch != undefined) { 
-                                objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off); 
+                            if (obj.OnQuickLaunch != undefined) {
+                                objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off);
                             }
                             if (obj.TemplateType) { objCreationInformation.set_templateType(obj.TemplateType); }
                             if (obj.Title) { objCreationInformation.set_title(obj.Title); }
@@ -316,34 +365,31 @@ module Pzl.Sites.Core.ObjectHandlers {
                             clientContext.load(listInstances[index]);
                         }
                     });
-
-                    if (!clientContext.get_hasPendingRequest()) {
-                        Core.Log.Information(this.name, Resources.Code_execution_ended);
-                        def.resolve();
-                        return def.promise();
-                    }
-
                     clientContext.executeQueryAsync(
                         () => {
                             ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
                                 ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
-                                    ApplyListSecurity(clientContext, listInstances, objects).then(() => {
-                                        CreateViews(clientContext, listInstances, objects).then(() => {
-                                            var promises = [];
-                                            objects.forEach((obj, index) => {
-                                                if (obj.Folders && obj.Folders.length > 0) {
-                                                    promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
-                                                }
-                                            });
-                                            jQuery.when.apply(jQuery, promises).done(() => {
-                                                clientContext.executeQueryAsync(() => {
-                                                    Core.Log.Information(this.name, Resources.Code_execution_ended);
-                                                    def.resolve();
-                                                },
-                                                (sender, args) => {
-                                                    Core.Log.Error(this.name, `Error: ${args.get_message()}`);
-                                                    def.resolve(sender, args);
-                                                });
+                                    ApplyFields(clientContext, listInstances, objects).then(() => {
+                                        ApplyListSecurity(clientContext, listInstances, objects).then(() => {
+                                            CreateViews(clientContext, listInstances, objects).then(() => {
+                                                InsertDataRows(clientContext, listInstances, objects).then(() => {
+                                                  var promises = [];
+                                                  objects.forEach((obj, index) => {
+                                                      if (obj.Folders && obj.Folders.length > 0) {
+                                                          promises.push(CreateFolders(clientContext, listInstances[index], obj.Url, obj.Folders));
+                                                      }
+                                                  });
+                                                  jQuery.when.apply(jQuery, promises).done(() => {
+                                                      clientContext.executeQueryAsync(() => {
+                                                          Core.Log.Information(this.name, Resources.Code_execution_ended);
+                                                          def.resolve();
+                                                      },
+                                                      (sender, args) => {
+                                                          Core.Log.Error(this.name, args.get_message());
+                                                          def.resolve(sender, args);
+                                                      });
+                                                  });
+                                              });
                                             });
                                         });
                                     });
@@ -351,12 +397,12 @@ module Pzl.Sites.Core.ObjectHandlers {
                             });
                         },
                         (sender, args) => {
-                            Core.Log.Error(this.name, `Error: ${args.get_message()}`);
+                            Core.Log.Error(this.name, args.get_message());
                             def.resolve(sender, args);
                         });
                 },
                 (sender, args) => {
-                    Core.Log.Error(this.name, `Error: ${args.get_message()}`);
+                    Core.Log.Error(this.name, args.get_message());
                     def.resolve(sender, args);
                 });
 

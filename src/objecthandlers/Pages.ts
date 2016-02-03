@@ -35,7 +35,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 def.resolve(sender, args);
             }
         );    
-        aa
+        
         return def.promise();
     }
     

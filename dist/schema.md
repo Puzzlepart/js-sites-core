@@ -17,7 +17,8 @@ Here follows the list of root elements available in the JS Sites Core Schema.
     "Lists": [],
     "CustomActions": [],
     "Navigation": {},
-    "ComposedLook": {}
+    "ComposedLook": {},
+    "Features": []
 }
 ```
 
@@ -33,6 +34,7 @@ Lists|[Lists](#lists)|Lists on a SharePoint Web site.
 CustomActions|[CustomActions](#customactions)|Custom actions associated with a SharePoint list, Web site, or subsite.
 Navigation|[Navigation](#navigation)|Navigation settings
 ComposedLook|[ComposedLook](#composedlook)|Composed Look, a package containing a .spcolor and a .spfont file
+Features|[Features](#features)|The web features to activate or deactivate
 
 
 ###Parameters
@@ -83,6 +85,13 @@ PropertyBagEntries|Array<[PropertyBagEntry](#propertybagentry)>|The PropertyBagE
 Attibute|Type|Description
 --------|----|-----------
 Files|Array<[File](#file)>|The File entries of the Files, optional collection of elements
+
+###Features
+The Web Features to activate or deactivate
+
+```json
+     "Features": []
+```
 
 
 
@@ -540,9 +549,6 @@ Defines a Field element
 
 All properties for SP.Field are supported.
 
-<<<<<<< HEAD
-https://msdn.microsoft.com/en-us/library/office/aa979575.aspx
-=======
 https://msdn.microsoft.com/en-us/library/office/aa979575.aspx
 
 
@@ -563,4 +569,24 @@ Attibute|Type|Description
 Key|string|The Key of the PropertyBagEntry, required attribute
 Value|string|The Value of the PropertyBagEntry, required attribute
 Indexed|boolean|The Indexed of the PropertyBagEntry, optional attribute
->>>>>>> dev
+
+###Feature
+Defines a single Web Feature, which will be activated or deactivated
+
+```json
+    {
+      "ID": "",
+      "Deactivate": false,
+      "Description": ""
+    }
+```
+
+
+Here follow the available attributes for the Feature element.
+
+
+Attibute|Type|Description
+--------|----|-----------
+ID|string|The unique ID of the Feature, required attribute
+Deactivate|boolean|Defines if the feature has to be deactivated or activated
+Description|string|The Description of the feature, optional attribute

@@ -57,5 +57,7 @@ module Pzl.Sites.Core.Resources {
     export var Files_skipping_form_file = "File with Url {0} is a form file. Skipping creation.";
     export var Files_modifying_list_views = "Modifying list views for list '{0}'";
     export var Files_modifying_list_view = "Modifying list view with Url '{0}' for list '{1}'";
-    
+    export var Features_activating_feature = "Activating feature with ID '{0}'";
+    export var Features_deactivating_feature = "Deactivating feature with ID '{0}'";
+    export var ComposedLook_applying_theme = "Applying theme. Color file '{0}' and font file '{1}'."
 }

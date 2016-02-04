@@ -5,15 +5,6 @@
 /// <reference path="..\schema\IPropertyBagEntry.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
-    function EncodePropertyKey(propKey) {
-        var bytes = [];
-        for (var i = 0; i < propKey.length; ++i) {
-            bytes.push(propKey.charCodeAt(i));
-            bytes.push(0);
-        }
-        var b64encoded = window.btoa(String.fromCharCode.apply(null, bytes));
-        return b64encoded;
-    }
     export class PropertyBagEntries extends Model.ObjectHandlerBase {
         constructor() {
             super("PropertyBagEntries")
@@ -30,9 +21,9 @@ module Pzl.Sites.Core.ObjectHandlers {
             objects.forEach(o => {
                 Core.Log.Information(this.name, String.format(Resources.PropertyBagEntries_setting_property, o.Key, o.Value));
                 allProperties.set_item(o.Key, o.Value);
-                if(o.Indexed) {
+                if (o.Indexed) {
                     Core.Log.Information(this.name, String.format(Resources.PropertyBagEntries_setting_indexed_property, o.Key));
-                    indexedProperties.push(EncodePropertyKey(o.Key));
+                    indexedProperties.push(this.EncodePropertyKey(o.Key));
                 }
             });
 
@@ -40,7 +31,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             clientContext.load(allProperties);
             clientContext.executeQueryAsync(
                 () => {
-                    if(indexedProperties.length > 0) {
+                    if (indexedProperties.length > 0) {
                         allProperties.set_item("vti_indexedpropertykeys", indexedProperties.join("|"));
                         web.update();
                         clientContext.executeQueryAsync(def.resolve, def.resolve);
@@ -56,6 +47,15 @@ module Pzl.Sites.Core.ObjectHandlers {
             )
 
             return def.promise();
+        }
+        private EncodePropertyKey(propKey) {
+            var bytes = [];
+            for (var i = 0; i < propKey.length; ++i) {
+                bytes.push(propKey.charCodeAt(i));
+                bytes.push(0);
+            }
+            var b64encoded = window.btoa(String.fromCharCode.apply(null, bytes));
+            return b64encoded;
         }
     }
 }

@@ -7,7 +7,105 @@
 "use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
-    function EnsureLocationBasedMetadataDefaultsReceiver(clientContext: SP.ClientContext, list: SP.List) {
+    export class Lists extends Model.ObjectHandlerBase {
+        constructor() {
+            super("Lists")
+        }
+        ProvisionObjects(objects: Array<Schema.IListInstance>) {
+            Core.Log.Information(this.name, Resources.Code_execution_started);
+            var def = jQuery.Deferred();
+
+            var clientContext = SP.ClientContext.get_current();
+            var lists = clientContext.get_web().get_lists();
+            var listInstances: Array<SP.List> = [];
+
+            clientContext.load(lists);
+            clientContext.executeQueryAsync(
+                () => {
+                    objects.forEach((obj, index) => {
+                        var existingObj: SP.List = jQuery.grep(lists.get_data(), (list) => {
+                            return list.get_title() == obj.Title;
+                        })[0];
+
+                        if (existingObj) {
+                            Core.Log.Information(this.name, String.format(Resources.Lists_list_already_exists, obj.Title, obj.Url));
+                            obj.Description && existingObj.set_description(obj.Description);
+                            obj.EnableVersioning != undefined && existingObj.set_enableVersioning(obj.EnableVersioning);
+                            obj.EnableMinorVersions != undefined && existingObj.set_enableMinorVersions(obj.EnableMinorVersions);
+                            obj.EnableModeration != undefined && existingObj.set_enableModeration(obj.EnableModeration);
+                            obj.EnableFolderCreation != undefined && existingObj.set_enableFolderCreation(obj.EnableFolderCreation);
+                            obj.EnableAttachments != undefined && existingObj.set_enableAttachments(obj.EnableAttachments);
+                            obj.NoCrawl != undefined && existingObj.set_noCrawl(obj.NoCrawl);
+                            obj.DefaultDisplayFormUrl && existingObj.set_defaultDisplayFormUrl(obj.DefaultDisplayFormUrl);
+                            obj.DefaultEditFormUrl && existingObj.set_defaultEditFormUrl(obj.DefaultEditFormUrl);
+                            obj.DefaultNewFormUrl && existingObj.set_defaultNewFormUrl(obj.DefaultNewFormUrl);
+                            obj.DraftVersionVisibility && existingObj.set_draftVersionVisibility(SP.DraftVisibilityType[obj.DraftVersionVisibility]);
+                            obj.ImageUrl && existingObj.set_imageUrl(obj.ImageUrl);
+                            obj.Hidden != undefined && existingObj.set_hidden(obj.Hidden);
+                            obj.ForceCheckout != undefined && existingObj.set_forceCheckout(obj.ForceCheckout);
+                            existingObj.update();
+                            listInstances.push(existingObj);
+                            clientContext.load(listInstances[index]);
+                        } else {
+                            Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
+                            var objCreationInformation = new SP.ListCreationInformation();
+                            obj.Description && objCreationInformation.set_description(obj.Description);
+                            obj.OnQuickLaunch != undefined && objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off);
+                            obj.TemplateType && objCreationInformation.set_templateType(obj.TemplateType);
+                            obj.Title && objCreationInformation.set_title(obj.Title);
+                            obj.Url && objCreationInformation.set_url(obj.Url);
+                            var createdList = lists.add(objCreationInformation);
+                            obj.EnableVersioning != undefined && createdList.set_enableVersioning(obj.EnableVersioning);
+                            obj.EnableMinorVersions != undefined && createdList.set_enableMinorVersions(obj.EnableMinorVersions);
+                            obj.EnableModeration != undefined && createdList.set_enableModeration(obj.EnableModeration);
+                            obj.EnableFolderCreation != undefined && createdList.set_enableFolderCreation(obj.EnableFolderCreation);
+                            obj.EnableAttachments != undefined && createdList.set_enableAttachments(obj.EnableAttachments);
+                            obj.NoCrawl != undefined && createdList.set_noCrawl(obj.NoCrawl);
+                            obj.DefaultDisplayFormUrl && createdList.set_defaultDisplayFormUrl(obj.DefaultDisplayFormUrl);
+                            obj.DefaultEditFormUrl && createdList.set_defaultEditFormUrl(obj.DefaultEditFormUrl);
+                            obj.DefaultNewFormUrl && createdList.set_defaultNewFormUrl(obj.DefaultNewFormUrl);
+                            obj.DraftVersionVisibility && createdList.set_draftVersionVisibility(SP.DraftVisibilityType[obj.DraftVersionVisibility.toLocaleLowerCase()]);
+                            obj.ImageUrl && createdList.set_imageUrl(obj.ImageUrl);
+                            obj.Hidden != undefined && createdList.set_hidden(obj.Hidden);
+                            obj.ForceCheckout != undefined && createdList.set_forceCheckout(obj.ForceCheckout);
+                            listInstances.push(createdList);
+                            clientContext.load(listInstances[index]);
+                        }
+                    });
+                    clientContext.executeQueryAsync(
+                        () => {
+                            this.ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
+                                this.ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
+                                    this.ApplyFields(clientContext, listInstances, objects).then(() => {
+                                        this.ApplyListSecurity(clientContext, listInstances, objects).then(() => {
+                                            this.CreateViews(clientContext, listInstances, objects).then(() => {
+                                                this.InsertDataRows(clientContext, listInstances, objects).then(() => {
+                                                    this.CreateFolders(clientContext, listInstances, objects).then(() => {
+                                                        Core.Log.Information(this.name, Resources.Code_execution_ended);
+                                                        def.resolve();
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        },
+                        (sender, args) => {
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                            Core.Log.Error(this.name, args.get_message());
+                            def.resolve(sender, args);
+                        });
+                },
+                (sender, args) => {
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
+                    Core.Log.Error(this.name, args.get_message());
+                    def.resolve(sender, args);
+                });
+
+            return def.promise();
+        }
+           private EnsureLocationBasedMetadataDefaultsReceiver(clientContext: SP.ClientContext, list: SP.List) {
         var eventReceivers = list.get_eventReceivers();
         Core.Log.Information("Lists Event Receivers", String.format(Resources.Lists_adding_eventreceiver, "LocationBasedMetadataDefaultsReceiver ItemAdded", list.get_title()));
         var eventRecCreationInfo = new SP.EventReceiverDefinitionCreationInformation();
@@ -20,7 +118,7 @@ module Pzl.Sites.Core.ObjectHandlers {
         eventReceivers.add(eventRecCreationInfo);
         list.update();
     }
-    function CreateFolders(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private CreateFolders(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
 
         lists.forEach((l, index) => {
@@ -39,9 +137,9 @@ module Pzl.Sites.Core.ObjectHandlers {
                     var keys = Object.keys(f.DefaultValues).length;
                     if (keys > 0) {
                         metadataDefaults += `<a href='${folderUrl}'>`;
-                        Object.keys(f.DefaultValues).forEach(key => { 
-                            Core.Log.Information("Lists Folders", String.format(Resources.Lists_setting_default_value_for_folder, key, f.DefaultValues[key], folderUrl));                            
-                            metadataDefaults += `<DefaultValue FieldName="${key}">${f.DefaultValues[key]}</DefaultValue>`; 
+                        Object.keys(f.DefaultValues).forEach(key => {
+                            Core.Log.Information("Lists Folders", String.format(Resources.Lists_setting_default_value_for_folder, key, f.DefaultValues[key], folderUrl));
+                            metadataDefaults += `<DefaultValue FieldName="${key}">${f.DefaultValues[key]}</DefaultValue>`;
                         });
                         metadataDefaults += "</a>";
                     }
@@ -59,7 +157,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     metadataDefaultsFileCreateInfo.get_content().append(metadataDefaults.charCodeAt(i));
                 }
                 rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
-                EnsureLocationBasedMetadataDefaultsReceiver(clientContext, l);
+                this.EnsureLocationBasedMetadataDefaultsReceiver(clientContext, l);
             }
         });
 
@@ -71,7 +169,7 @@ module Pzl.Sites.Core.ObjectHandlers {
 
         return def.promise();
     }
-    function ApplyContentTypeBindings(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private ApplyContentTypeBindings(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
         var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
         var listCts: Array<SP.ContentTypeCollection> = [];
@@ -124,7 +222,7 @@ module Pzl.Sites.Core.ObjectHandlers {
 
         return def.promise();
     }
-    function ApplyListInstanceFieldRefs(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private ApplyListInstanceFieldRefs(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
         var siteFields = clientContext.get_site().get_rootWeb().get_fields();
         lists.forEach((l, index) => {
@@ -143,9 +241,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                 Core.Log.Error("Lists Field Refs", args.get_message());
                 def.resolve(sender, args);
             });
+
         return def.promise();
     }
-    function ApplyFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private ApplyFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
 
         lists.forEach((l, index) => {
@@ -156,22 +255,22 @@ module Pzl.Sites.Core.ObjectHandlers {
                     var properties = [];
                     for (var prop in f) {
                         var value = f[prop];
-                        if(prop == "List") {
+                        if (prop == "List") {
                             var targetList = jQuery.grep(lists, v => {
-                               return v.get_title() === value; 
+                                return v.get_title() === value;
                             });
-                            if(targetList.length > 0) {
+                            if (targetList.length > 0) {
                                 value = `{${targetList[0].get_id().toString()}}`;
                             } else {
                                 Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
                                 return;
                             }
                         }
-                        if(prop == "Formula") continue;
+                        if (prop == "Formula") continue;
                         properties.push(`${prop}="${value}"`);
                     }
                     var fieldXml = `<Field ${properties.join(" ")}>`;
-                    if(f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
+                    if (f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
                     fieldXml += "</Field>";
                     l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
                 });
@@ -186,7 +285,7 @@ module Pzl.Sites.Core.ObjectHandlers {
 
         return def.promise();
     }
-    function ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         var def = jQuery.Deferred();
         lists.forEach((l, index) => {
             var obj = objects[index];
@@ -245,7 +344,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             });
         return def.promise();
     }
-    function CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         Core.Log.Information("Lists Views", Resources.Code_execution_started);
         var def = jQuery.Deferred();
         var listViewCollections: Array<SP.ViewCollection> = [];
@@ -315,7 +414,7 @@ module Pzl.Sites.Core.ObjectHandlers {
 
         return def.promise();
     }
-    function InsertDataRows(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+    private InsertDataRows(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
         Core.Log.Information("Lists Data Rows", Resources.Code_execution_started);
         var def = jQuery.Deferred();
 
@@ -346,105 +445,5 @@ module Pzl.Sites.Core.ObjectHandlers {
 
         return def.promise();
     }
-
-    export class Lists extends Model.ObjectHandlerBase {
-        constructor() {
-            super("Lists")
-        }
-        ProvisionObjects(objects: Array<Schema.IListInstance>) {
-            Core.Log.Information(this.name, Resources.Code_execution_started);
-            var def = jQuery.Deferred();
-
-            var clientContext = SP.ClientContext.get_current();
-            var lists = clientContext.get_web().get_lists();
-            var listInstances: Array<SP.List> = [];
-
-            clientContext.load(lists);
-            clientContext.executeQueryAsync(
-                () => {
-                    objects.forEach((obj, index) => {
-                        var existingObj: SP.List = jQuery.grep(lists.get_data(), (list) => {
-                            return list.get_title() == obj.Title;
-                        })[0];
-
-                        if (existingObj) {
-                            Core.Log.Information(this.name, String.format(Resources.Lists_list_already_exists, obj.Title, obj.Url));     
-                            obj.Description                             && existingObj.set_description(obj.Description);                        
-                            obj.EnableVersioning != undefined           && existingObj.set_enableVersioning(obj.EnableVersioning);
-                            obj.EnableMinorVersions != undefined        && existingObj.set_enableMinorVersions(obj.EnableMinorVersions);
-                            obj.EnableModeration != undefined           && existingObj.set_enableModeration(obj.EnableModeration);
-                            obj.EnableFolderCreation != undefined       && existingObj.set_enableFolderCreation(obj.EnableFolderCreation);
-                            obj.EnableAttachments != undefined          && existingObj.set_enableAttachments(obj.EnableAttachments);
-                            obj.NoCrawl != undefined                    && existingObj.set_noCrawl(obj.NoCrawl);
-                            obj.DefaultDisplayFormUrl                   && existingObj.set_defaultDisplayFormUrl(obj.DefaultDisplayFormUrl);
-                            obj.DefaultEditFormUrl                      && existingObj.set_defaultEditFormUrl(obj.DefaultEditFormUrl);
-                            obj.DefaultNewFormUrl                       && existingObj.set_defaultNewFormUrl(obj.DefaultNewFormUrl);
-                            obj.DraftVersionVisibility                  && existingObj.set_draftVersionVisibility(SP.DraftVisibilityType[obj.DraftVersionVisibility]);
-                            obj.ImageUrl                                && existingObj.set_imageUrl(obj.ImageUrl);
-                            obj.Hidden != undefined                     && existingObj.set_hidden(obj.Hidden);
-                            obj.ForceCheckout != undefined              && existingObj.set_forceCheckout(obj.ForceCheckout);
-                            existingObj.update();
-                            listInstances.push(existingObj);
-                            clientContext.load(listInstances[index]);
-                        } else {
-                            Core.Log.Information(this.name, String.format(Resources.Lists_creating_list, obj.Title, obj.Url));
-                            var objCreationInformation = new SP.ListCreationInformation();
-                            obj.Description                             && objCreationInformation.set_description(obj.Description); 
-                            obj.OnQuickLaunch != undefined              && objCreationInformation.set_quickLaunchOption(obj.OnQuickLaunch ? SP.QuickLaunchOptions.on : SP.QuickLaunchOptions.off);
-                            obj.TemplateType                            && objCreationInformation.set_templateType(obj.TemplateType); 
-                            obj.Title                                   && objCreationInformation.set_title(obj.Title); 
-                            obj.Url                                     && objCreationInformation.set_url(obj.Url);
-                            var createdList = lists.add(objCreationInformation);
-                            obj.EnableVersioning != undefined           && createdList.set_enableVersioning(obj.EnableVersioning);
-                            obj.EnableMinorVersions != undefined        && createdList.set_enableMinorVersions(obj.EnableMinorVersions);
-                            obj.EnableModeration != undefined           && createdList.set_enableModeration(obj.EnableModeration);
-                            obj.EnableFolderCreation != undefined       && createdList.set_enableFolderCreation(obj.EnableFolderCreation);
-                            obj.EnableAttachments != undefined          && createdList.set_enableAttachments(obj.EnableAttachments);
-                            obj.NoCrawl != undefined                    && createdList.set_noCrawl(obj.NoCrawl);
-                            obj.DefaultDisplayFormUrl                   && createdList.set_defaultDisplayFormUrl(obj.DefaultDisplayFormUrl);
-                            obj.DefaultEditFormUrl                      && createdList.set_defaultEditFormUrl(obj.DefaultEditFormUrl);
-                            obj.DefaultNewFormUrl                       && createdList.set_defaultNewFormUrl(obj.DefaultNewFormUrl);
-                            obj.DraftVersionVisibility                  && createdList.set_draftVersionVisibility(SP.DraftVisibilityType[obj.DraftVersionVisibility.toLocaleLowerCase()]);
-                            obj.ImageUrl                                && createdList.set_imageUrl(obj.ImageUrl);
-                            obj.Hidden != undefined                     && createdList.set_hidden(obj.Hidden);
-                            obj.ForceCheckout != undefined              && createdList.set_forceCheckout(obj.ForceCheckout);
-                            listInstances.push(createdList);
-
-                            clientContext.load(listInstances[index]);
-                        }
-                    });
-                    clientContext.executeQueryAsync(
-                        () => {
-                            ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
-                                ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
-                                    ApplyFields(clientContext, listInstances, objects).then(() => {
-                                        ApplyListSecurity(clientContext, listInstances, objects).then(() => {
-                                            CreateViews(clientContext, listInstances, objects).then(() => {
-                                                InsertDataRows(clientContext, listInstances, objects).then(() => {
-                                                    CreateFolders(clientContext, listInstances, objects).then(() => {
-                                                        Core.Log.Information(this.name, Resources.Code_execution_ended);
-                                                        def.resolve();
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        },
-                        (sender, args) => {
-                            Core.Log.Information(this.name, Resources.Code_execution_ended);
-                            Core.Log.Error(this.name, args.get_message());
-                            def.resolve(sender, args);
-                        });
-                },
-                (sender, args) => {
-                    Core.Log.Information(this.name, Resources.Code_execution_ended);
-                    Core.Log.Error(this.name, args.get_message());
-                    def.resolve(sender, args);
-                });
-
-            return def.promise();
-        }
-    }
+}
 }

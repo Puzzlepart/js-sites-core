@@ -1,6 +1,8 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\schema\IComposedLook.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {    
      module Helpers {
@@ -17,7 +19,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             super("ComposedLook")
         }
         ProvisionObjects(object : Schema.IComposedLook) {
-            Core.Log.Information(this.name, `Code execution scope started`);
+            Core.Log.Information(this.name, Resources.Code_execution_started);
             
             var def = jQuery.Deferred();     
             var clientContext = SP.ClientContext.get_current();
@@ -25,15 +27,16 @@ module Pzl.Sites.Core.ObjectHandlers {
             var colorPaletteUrl = object.ColorPaletteUrl ? Helpers.GetUrlWithoutTokens(object.ColorPaletteUrl) : "";
             var fontSchemeUrl = object.FontSchemeUrl ? Helpers.GetUrlWithoutTokens(object.FontSchemeUrl) : "";
             var backgroundImageUrl = object.BackgroundImageUrl ? Helpers.GetUrlWithoutTokens(object.BackgroundImageUrl) : null;
+            Core.Log.Information(this.name, String.format(Resources.ComposedLook_applying_theme, colorPaletteUrl, fontSchemeUrl));
             web.applyTheme(colorPaletteUrl, fontSchemeUrl, backgroundImageUrl, true);         
             web.update();
             clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                     def.resolve();
                 },
                 (sender, args) => {
-                    Core.Log.Information(this.name, `Code execution scope ended`);
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);
                     Core.Log.Information(this.name, args.get_message());
                     def.resolve(sender, args);
                 }

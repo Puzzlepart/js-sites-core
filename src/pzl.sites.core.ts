@@ -9,8 +9,9 @@
 /// <reference path="objecthandlers/WebSettings.ts" />
 /// <reference path="objecthandlers/Security.ts" />
 /// <reference path="objecthandlers/Navigation.ts" />
+/// <reference path="objecthandlers/Features.ts" />
 /// <reference path="utilities/Logger.ts" />
-/// <reference path="model/TemplateQueueItem.ts" />
+/// <reference path="model/ProvisioningStep.ts" />
 /// <reference path="model/IOptions.ts" />
 /// <reference path="resources\pzl.sites.core.resources.ts" />
 
@@ -18,7 +19,7 @@ module Pzl.Sites.Core {
     export var Log: Logger;
     var options : Model.IOptions;
     var startTime = null;    
-    var queueItems : Array<Model.TemplateQueueItem>;
+    var queueItems : Array<Model.ProvisioningStep>;
     
     var setupWebDialog : SP.UI.ModalDialog;
     function ShowWaitMessage(options : Model.IWaitMessageOptions) {
@@ -56,7 +57,7 @@ module Pzl.Sites.Core {
         queueItems = [];
         queue.forEach((q, index) => {
             if(!ObjectHandlers[q]) return;
-            queueItems.push(new Model.TemplateQueueItem(q, index, json[q], json["Parameters"], new ObjectHandlers[q]().ProvisionObjects));
+            queueItems.push(new Model.ProvisioningStep(q, index, json[q], json["Parameters"], ObjectHandlers[q]));
         });    
         var promises = [];
         promises.push(jQuery.Deferred());

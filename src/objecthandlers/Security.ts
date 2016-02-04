@@ -40,14 +40,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         }
                         var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
                         roleBindings.add(roleDef);
-                        var principal = null;
-                        if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
-                            var token = ra.Principal.substring(1, ra.Principal.length - 1);
-                            var groupId = rootSiteProperties.get_fieldValues()[`vti_${token}`];
-                            principal = rootSiteGroups.getById(groupId);
-                        } else {
-                            principal = rootSiteGroups.getByName(principal);
-                        }
+                        var principal = this.ParseGroupPrincipal(rootSiteGroups, rootSiteProperties, ra.Principal);
                         web.get_roleAssignments().add(principal, roleBindings); 
                     });
                     web.update();
@@ -56,19 +49,29 @@ module Pzl.Sites.Core.ObjectHandlers {
                             Core.Log.Information(this.name, Resources.Code_execution_ended);
                             def.resolve();
                         },
-                        (sender, args) => {     
-                            Core.Log.Error(this.name, `${args.get_message()}`);                                             
-                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                        (sender, args) => {                                             
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);          
+                            Core.Log.Error(this.name, args.get_message());        
                             def.resolve(sender, args);
                         });
                 },
-                (sender, args) => {                    
-                    Core.Log.Error(this.name, `${args.get_message()}`);                      
-                    Core.Log.Information(this.name, Resources.Code_execution_ended);
+                (sender, args) => {                 
+                    Core.Log.Information(this.name, Resources.Code_execution_ended);                 
+                    Core.Log.Error(this.name, args.get_message());        
                     def.resolve(sender, args);
                 });
             
             return def.promise();
+        }
+        
+        private ParseGroupPrincipal(siteGroups : SP.GroupCollection, properties: any, principal: any) {
+            if (principal.match(/\{[A-Za-z]*\}+/g)) {
+                var token = principal.substring(1, principal.length - 1);
+                var groupId = properties.get_fieldValues()[`vti_${token}`];
+                return siteGroups.getById(groupId);
+            } else {
+                return siteGroups.getByName(principal);
+            }
         }
     } 
 }

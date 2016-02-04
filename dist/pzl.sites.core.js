@@ -1056,15 +1056,6 @@ var Pzl;
         (function (Core) {
             var ObjectHandlers;
             (function (ObjectHandlers) {
-                function EncodePropertyKey(propKey) {
-                    var bytes = [];
-                    for (var i = 0; i < propKey.length; ++i) {
-                        bytes.push(propKey.charCodeAt(i));
-                        bytes.push(0);
-                    }
-                    var b64encoded = window.btoa(String.fromCharCode.apply(null, bytes));
-                    return b64encoded;
-                }
                 var PropertyBagEntries = (function (_super) {
                     __extends(PropertyBagEntries, _super);
                     function PropertyBagEntries() {

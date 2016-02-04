@@ -1,14 +1,14 @@
 # JS Sites Core
 SharePoint Provisioning engine with pure JavaScript inspired by https://github.com/OfficeDev/PnP-Sites-Core/
 
-*Size:* 105 kB (58 kB minified)
+*Size:* 105 kB (43 kB minified)
 
 # Using js-sites-core
 Can be as simple as
 ```
 jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
     Pzl.Sites.Core.init(siteTemplateConfig, { "Logging": { "On": true } }).then(() => {               
-        
+
     })
 });
 ```
@@ -18,7 +18,7 @@ or with logging to file
 ```
 jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
     Pzl.Sites.Core.init(siteTemplateConfig, { "Logging": { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" } }).then(() => {               
-        
+
     })
 });
 ```
@@ -27,13 +27,13 @@ with customized wait message
 
 ```
 jQuery.getScript(`${_spPageContextInfo.siteAbsoluteUrl}/SiteAssets/js/pzl.sites.core.js`, () => {
-    Pzl.Sites.Core.init(siteTemplateConfig, 
-    { 
+    Pzl.Sites.Core.init(siteTemplateConfig,
+    {
         "WaitMessage": { "Header": "Working on it..", "Content": "Won't take long mate!" },  
-        "Logging": { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" } 
+        "Logging": { "On": true, "LoggingFolder": _spPageContextInfo.siteServerRelativeUrl + "/SiteAssets/logs" }
     }
     ).then(() => {               
-        
+
     })
 });
 ```

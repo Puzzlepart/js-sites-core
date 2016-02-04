@@ -1,6 +1,8 @@
 # JS Sites Core
 SharePoint Provisioning engine with pure JavaScript inspired by https://github.com/OfficeDev/PnP-Sites-Core/
 
+*Size:* 105 kB (58 kB minified)
+
 # Using js-sites-core
 Can be as simple as
 ```

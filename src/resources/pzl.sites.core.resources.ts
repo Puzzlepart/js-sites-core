@@ -12,6 +12,7 @@ module Pzl.Sites.Core.Resources {
     export var Lists_list_already_exists = "A list with the specified title {0} already exists in this Web site at Url {1}";
     export var Lists_creating_list = "Creating list with title {0} at Url {1}";
     export var Lists_creating_folder = "Creating folder {0}";
+    export var Lists_setting_default_value_for_folder = "Setting default value '{0}' = '{1}' for folder '{2}'";
     export var Lists_setting_default_metadata = "Setting default metadata for folder {0}";
     export var Lists_enabled_content_types = "Enabled content types for list {0}";
     export var Lists_removing_content_type = "Removing content type {0} from list {1}";
@@ -22,7 +23,8 @@ module Pzl.Sites.Core.Resources {
     export var Lists_adding_list_view = "Adding view {0} for list {1}";
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
-    export var Lists_adding_field = "Adding field '{0}' to list '{1}'";
+    export var Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
+    export var Lists_invalid_lookup_field = "The lookup field '{0}' for list '{1}' is invalid";
     export var Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";
     export var WebSettings_setting_welcomePage = "Setting welcome page to {0}";    
     export var WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";    
@@ -32,7 +34,8 @@ module Pzl.Sites.Core.Resources {
     export var WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";    
     export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";    
     export var WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
-    export var PropertyBagEntries_setting_propety = "Setting property '{0}' = '{1}' on web";
+    export var PropertyBagEntries_setting_property = "Setting property '{0}' = '{1}' on web";
+    export var PropertyBagEntries_setting_indexed_property = "Setting property '{0}' as indexed";
     export var Pages_creating_page = "Creating wiki page with Url {0}";
     export var Pages_creating_page_failed = "Failed to create wiki page with Url {0}";
     export var Navigation_setting_shared = "Setting useShared to {0}";

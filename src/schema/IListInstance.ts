@@ -10,13 +10,22 @@ module Pzl.Sites.Core.Schema {
         Url: string;
         Description: string,
         DocumentTemplate: string;
-        OnQuickLaunch: Boolean;
+        OnQuickLaunch: boolean;
         TemplateType: number;
-        EnableVersioning: Boolean;
-        MinorVersionLimit: number;
-        MaxVersionLimit: number;
-        DraftVersionVisibility: number;
+        EnableVersioning: boolean;
+        EnableMinorVersions: boolean;
+        EnableModeration: boolean;
+        EnableFolderCreation: boolean;
+        EnableAttachments: boolean;
         RemoveExistingContentTypes: boolean;
+        NoCrawl: boolean;        
+        DefaultDisplayFormUrl: string;
+        DefaultEditFormUrl: string;
+        DefaultNewFormUrl: string;
+        DraftVersionVisibility: string;
+        ImageUrl: string;
+        Hidden: boolean;
+        ForceCheckout: boolean;
         ContentTypeBindings: Array<IContentTypeBinding>;
         FieldRefs: Array<IListInstanceFieldRef>;
         Fields: Array<IField>;

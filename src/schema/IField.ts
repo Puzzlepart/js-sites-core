@@ -27,5 +27,7 @@ module Pzl.Sites.Core.Schema {
         TypeShortDescription: string;
         ValidationFormula: string;
         ValidationMessage: string;
+        Type: string;
+        Formula: string;
     }
 }

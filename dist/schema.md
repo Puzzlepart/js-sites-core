@@ -66,10 +66,12 @@ QuickLaunchEnabled|boolean|The QuickLaunchEnabled attribute of the WebSettings
 
 ###PropertyBagEntries
 ```json
-     "PropertyBagEntries": {}
+     "PropertyBagEntries": []
 ```
 
-An Object of key value pairs
+Attibute|Type|Description
+--------|----|-----------
+PropertyBagEntries|Array<[PropertyBagEntry](#propertybagentry)>|The PropertyBagEntries entries of the PropertyBagEntries, optional collection of elements
 
 
 
@@ -166,6 +168,20 @@ Defines a ListInstance element
       "Description": "",
       "Url": "",
       "TemplateType": 000,
+      "EnableVersioning": false,
+      "EnableMinorVersions": false,
+      "EnableModeration": false,
+      "EnableFolderCreation": false,
+      "EnableAttachments": false,
+      "RemoveExistingContentTypes": false,
+      "NoCrawl": false,
+      "DefaultDisplayFormUrl": "",
+      "DefaultEditFormUrl": "",
+      "DefaultNewFormUrl": "",
+      "DraftVersionVisibility": "",
+      "ImageUrl": "",
+      "Hidden": false,
+      "ForceCheckout": false,
       "Folders": [],
       "ContentTypeBindings": [],
       "FieldRefs": [],
@@ -182,6 +198,20 @@ Title|string|The Title of the List Instance, required attribute
 Description|string|The Description of the List Instance, optional attribute
 TemplateType|number|The TemplateType of the List Instance, required attribute Values available here: https://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.listtemplatetype.aspx
 Url|string|The Url of the List Instance, required attribute
+EnableVersioning|boolean|The EnableVersioning of the List Instance, optional attribute
+EnableMinorVersions|boolean|The EnableMinorVersions of the List Instance, optional attribute
+EnableModeration|boolean|The EnableModeration of the List Instance, optional attribute
+EnableFolderCreation|boolean|The EnableFolderCreation of the List Instance, optional attribute
+EnableAttachments|boolean|The EnableAttachments of the List Instance, optional attribute
+RemoveExistingContentTypes|boolean|The RemoveExistingContentTypes of the List Instance, optional attribute
+NoCrawl|boolean|The NoCrawl of the List Instance, optional attribute|
+DefaultDisplayFormUrl|string|The DefaultDisplayFormUrl of the List Instance, optional attribute
+DefaultEditFormUrl|string|The DefaultEditFormUrl of the List Instance, optional attribute
+DefaultNewFormUrl|string|The DefaultNewFormUrl of the List Instance, optional attribute
+DraftVersionVisibility|string|The DraftVersionVisibility of the List Instance, optional attribute
+ImageUrl|string|The ImageUrl of the List Instance, optional attribute
+Hidden|boolean|The Hidden of the List Instance, optional attribute
+ForceCheckout|boolean|The ForceCheckout of the List Instance, optional attribute
 RemoveExistingContentTypes|boolean|The RemoveExistingContentTypes of the List Instance, optional attribute
 ContentTypeBindings|Array<[ContentTypeBinding](#contenttypebinding)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
 FieldRefs|Array<[FieldRef](#listinstancefieldref)>|The ContentTypeBindings entries of the List Instance, optional collection of elements
@@ -510,4 +540,27 @@ Defines a Field element
 
 All properties for SP.Field are supported.
 
+<<<<<<< HEAD
 https://msdn.microsoft.com/en-us/library/office/aa979575.aspx
+=======
+https://msdn.microsoft.com/en-us/library/office/aa979575.aspx
+
+
+##PropertyBagEntry
+Defines a PropertyBagEntry element
+
+```json
+    {
+      "Key": "",
+      "Value": "",
+      "Indexed": true
+    }
+```
+
+
+Attibute|Type|Description
+--------|----|-----------
+Key|string|The Key of the PropertyBagEntry, required attribute
+Value|string|The Value of the PropertyBagEntry, required attribute
+Indexed|boolean|The Indexed of the PropertyBagEntry, optional attribute
+>>>>>>> dev

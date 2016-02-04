@@ -2,38 +2,60 @@
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
 /// <reference path="..\resources\pzl.sites.core.resources.ts" />
+/// <reference path="..\schema\IPropertyBagEntry.ts" />
 
-module Pzl.Sites.Core.ObjectHandlers {    
+module Pzl.Sites.Core.ObjectHandlers {
+    function EncodePropertyKey(propKey) {
+        var bytes = [];
+        for (var i = 0; i < propKey.length; ++i) {
+            bytes.push(propKey.charCodeAt(i));
+            bytes.push(0);
+        }
+        var b64encoded = window.btoa(String.fromCharCode.apply(null, bytes));
+        return b64encoded;
+    }
     export class PropertyBagEntries extends Model.ObjectHandlerBase {
         constructor() {
             super("PropertyBagEntries")
         }
-        ProvisionObjects(object : Object) {
+        ProvisionObjects(objects: Array<Schema.IPropertyBagEntry>) {
             Core.Log.Information(this.name, Resources.Code_execution_started);
-            
-            var def = jQuery.Deferred();     
+
+            var def = jQuery.Deferred();
             var clientContext = SP.ClientContext.get_current();
-            var web = clientContext.get_web();     
+            var web = clientContext.get_web();
             var allProperties = web.get_allProperties();
-            
-            for(var key in object) {                
-                Core.Log.Information(this.name, String.format(Resources.PropertyBagEntries_setting_propety, key, object[key]));
-                allProperties.set_item(key, object[key]);
-            }
-         
+            var indexedProperties = [];
+
+            objects.forEach(o => {
+                Core.Log.Information(this.name, String.format(Resources.PropertyBagEntries_setting_property, o.Key, o.Value));
+                allProperties.set_item(o.Key, o.Value);
+                if(o.Indexed) {
+                    Core.Log.Information(this.name, String.format(Resources.PropertyBagEntries_setting_indexed_property, o.Key));
+                    indexedProperties.push(EncodePropertyKey(o.Key));
+                }
+            });
+
             web.update();
+            clientContext.load(allProperties);
             clientContext.executeQueryAsync(
                 () => {
-                    Core.Log.Information(this.name, Resources.Code_execution_ended);
-                    def.resolve();
+                    if(indexedProperties.length > 0) {
+                        allProperties.set_item("vti_indexedpropertykeys", indexedProperties.join("|"));
+                        web.update();
+                        clientContext.executeQueryAsync(def.resolve, def.resolve);
+                    } else {
+                        Core.Log.Information(this.name, Resources.Code_execution_ended);
+                        def.resolve();
+                    }
                 },
                 (sender, args) => {
                     Core.Log.Information(this.name, Resources.Code_execution_ended);
                     def.resolve(sender, args);
                 }
             )
-              
+
             return def.promise();
         }
-    } 
+    }
 }

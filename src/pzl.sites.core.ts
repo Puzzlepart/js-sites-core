@@ -75,7 +75,7 @@ module Pzl.Sites.Core {
     export function UpdateProgress(index:number, name:string) {
         if(!options.WaitMessage) return;        
         if(!options.WaitMessage.ShowProgress === true) return;
-        var progress = ((index)/queueItems.length)*100;
+        var progress = Math.floor(((index)/queueItems.length)*100);
         var text = options.WaitMessage.ProgressOverrides ? (options.WaitMessage.ProgressOverrides[name] || name) : name;
         document.getElementById(Resources.Provisioning_progressbar_id).innerHTML = String.format(Resources.Provisioning_progressbar_markup, progress);
         document.getElementById(Resources.Provisioning_progressbar_text_id).innerHTML = text;

@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface ICustomAction {
+declare module Pzl.Sites.Core.Schema {
+    interface ICustomAction {
         CommandUIExtension : any;
         Description: string;
         Group: string;

@@ -1,5 +1,5 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="../model/ILoggingOptions.ts" />
+/// <reference path="../model/model.d.ts" />
 
 module Pzl.Sites.Core {
     export class Logger  {
@@ -37,8 +37,7 @@ module Pzl.Sites.Core {
             if(!this.loggingOptions || !this.loggingOptions.LoggingFolder) {
                 def.resolve();
                 return def.promise();
-            }            
-            
+            }                        
             var clientContext = SP.ClientContext.get_current();
             var web = clientContext.get_site().get_rootWeb();
             var fileName = `${new Date().getTime()}.txt`;
@@ -46,22 +45,17 @@ module Pzl.Sites.Core {
             fileCreateInfo.set_url(fileName);
             fileCreateInfo.set_content(new SP.Base64EncodedByteArray());
             var fileContent = this.array.join("\n");
-
-            for (var i = 0; i < fileContent.length; i++) {
-                
+            for (var i = 0; i < fileContent.length; i++) {                
                 fileCreateInfo.get_content().append(fileContent.charCodeAt(i));
             }
-
-            clientContext.load(web.getFolderByServerRelativeUrl(this.loggingOptions.LoggingFolder).get_files().add(fileCreateInfo));
-            clientContext.executeQueryAsync(
-              () => {
-                  def.resolve();
-              },
-              (sender, args) => {
-                  def.resolve(sender, args);
-              }
-            );
+            clientContext.load(web.getFolderByServerRelativeUrl(this.ReplaceSiteTokens(this.loggingOptions.LoggingFolder)).get_files().add(fileCreateInfo));
+            clientContext.executeQueryAsync(def.resolve, def.resolve);
             return def.promise();
+        }
+        
+        private ReplaceSiteTokens(url: string) {
+            return url.replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)
+                .replace(/{sitecollection}/g, _spPageContextInfo.siteServerRelativeUrl);
         }
     } 
 }

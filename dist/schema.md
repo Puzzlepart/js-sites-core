@@ -196,6 +196,7 @@ Defines a ListInstance element
       "FieldRefs": [],
       "Views": [],
       "DataRows": [],
+      "RibbonActions": [],
       "Security": {}
     }
 ```
@@ -228,6 +229,7 @@ Fields|Array<[Field](#field)>|The Fields entries of the List Instance, optional 
 Folders|Array<[Folder](#folder)>|The Folders entries of the List Instance, optional collection of elements
 Views|Array<[View](#view)>|The Views entries of the List Instance, optional collection of elements
 DataRows|Array<Object>|The DataRows entries of the List Instance, optional collection of elements
+RibbonActions|Array<[RibbonAction](#ribbonaction)>|The RibbonActions entries of the List Instance, optional collection of elements
 Security|[Security](#security)|The Security entrie of the List Instance, optional elemenet
 
 
@@ -590,3 +592,38 @@ Attibute|Type|Description
 ID|string|The unique ID of the Feature, required attribute
 Deactivate|boolean|Defines if the feature has to be deactivated or activated
 Description|string|The Description of the feature, optional attribute
+
+###RibbonAction
+Defines a RibbonAction element
+
+```json
+    {
+        "Location": "",
+        "Control": "",
+        "Name": "",
+        "Description": "",
+        "Sequence": 5,
+        "Group": "",
+        "LabelText": "",
+        "Image16by16": "",
+        "Image32by32": "",
+        "LoadScript": ""
+    }
+```
+
+
+Here follow the available attributes for the RibbonAction element.
+
+
+Attibute|Type|Description
+--------|----|-----------
+Location|string||The Location of the RibbonAction, required attribute
+Control|string||The Control of the RibbonAction, required attribute
+Name|string||The Name of the RibbonAction, required attribute
+Description|string||The Description of the RibbonAction, required attribute
+Sequence|number||The Sequence of the RibbonAction, required attribute
+Group|string||The Group of the RibbonAction, required attribute
+LabelText|string||The LabelText of the RibbonAction, required attribute
+Image16by16|string||The Image16by16 of the RibbonAction, optional attribute
+Image32by32|string||The Image32by32 of the RibbonAction, optional attribute
+LoadScript|string||The LoadScript of the RibbonAction, required attribute

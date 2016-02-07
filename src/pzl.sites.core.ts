@@ -1,19 +1,5 @@
 /// <reference path="..\typings\tsd.d.ts" />
-/// <reference path="schema/ISiteSchema.ts" />
-/// <reference path="objecthandlers/Lists.ts" />
-/// <reference path="objecthandlers/ComposedLook.ts" />
-/// <reference path="objecthandlers/Files.ts" />
-/// <reference path="objecthandlers/Pages.ts" />
-/// <reference path="objecthandlers/CustomActions.ts" />
-/// <reference path="objecthandlers/PropertyBagEntries.ts" />
-/// <reference path="objecthandlers/WebSettings.ts" />
-/// <reference path="objecthandlers/Security.ts" />
-/// <reference path="objecthandlers/Navigation.ts" />
-/// <reference path="objecthandlers/Features.ts" />
-/// <reference path="utilities/Logger.ts" />
-/// <reference path="model/ProvisioningStep.ts" />
-/// <reference path="model/IOptions.ts" />
-/// <reference path="resources\pzl.sites.core.resources.ts" />
+/// <reference path="pzl.sites.core.d.ts" />
 
 module Pzl.Sites.Core {    
     export var Log: Logger;
@@ -73,7 +59,7 @@ module Pzl.Sites.Core {
         
         return def.promise();   
     }
-    export function UpdateProgress(index:number, name:string) {
+    export function UpdateProgress(index: number, name: string) {
         if(!options.WaitMessage) return;        
         if(!options.WaitMessage.ShowProgress === true) return;
         var progress = Math.floor(((index)/queueItems.length)*100);
@@ -89,7 +75,7 @@ module Pzl.Sites.Core {
         var queue = getSetupQueue(template);
         start(template, queue).then(() => {
             var elapsedTime = ((new Date().getTime()) - startTime)/1000;
-            Log.Information("Provisioning", String.format(Resources.Code_execution_ended, elapsedTime));
+            Log.Information("Provisioning", String.format(Resources.Provisioning_ended, elapsedTime));
             Log.SaveToFile().then(() => {
                 setupWebDialog.close(null);
                 def.resolve();

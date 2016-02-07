@@ -1,6 +1,5 @@
-/// <reference path="IContents.ts" />
-
-module Pzl.Sites.Core.Schema {
+/// <reference path="schema.d.ts"" />
+declare module Pzl.Sites.Core.Schema {
     export interface IWebPart {
         Title: string;
         Order: number;

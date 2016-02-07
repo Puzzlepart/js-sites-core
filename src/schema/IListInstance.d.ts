@@ -1,11 +1,6 @@
-/// <reference path="IContentTypeBinding.ts" />
-/// <reference path="IFolder.ts" />
-/// <reference path="ISecurity.ts" />
-/// <reference path="IView.ts" />
-/// <reference path="IListInstanceFieldRef.ts" />
-/// <reference path="IField.ts" />
-module Pzl.Sites.Core.Schema {
-    export interface IListInstance {
+/// <reference path="schema.d.ts" />
+declare module Pzl.Sites.Core.Schema {
+    interface IListInstance {
         Title: string;
         Url: string;
         Description: string,
@@ -32,6 +27,7 @@ module Pzl.Sites.Core.Schema {
         Folders: Array<IFolder>;
         Views: Array<IView>;
         DataRows: Array<Object>;
+        RibbonActions: Array<IRibbonAction>;
         Security: ISecurity;
     }
 }

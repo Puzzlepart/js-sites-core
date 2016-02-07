@@ -1,8 +1,6 @@
-/// <reference path="IRoleDefinition.ts" />
-/// <reference path="IRoleAssignment.ts" />
-
-module Pzl.Sites.Core.Schema {
-    export interface ISecurity {
+/// <reference path="schema.d.ts" />
+declare module Pzl.Sites.Core.Schema {
+    interface ISecurity {
         BreakRoleInheritance: boolean;
         CopyRoleAssignments : boolean;
         ClearSubscopes : boolean;

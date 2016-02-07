@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface IView {
+declare module Pzl.Sites.Core.Schema {
+    interface IView {
         Title: string;
         Paged: boolean;
         PersonalView: boolean;

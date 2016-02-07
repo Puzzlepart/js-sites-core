@@ -1,7 +1,6 @@
 /// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\IFile.ts" />
-/// <reference path="..\schema\IWebPart.ts" />
+/// <reference path="..\model\model.d.ts" />
+/// <reference path="..\schema\schema.d.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
 /// <reference path="..\resources\pzl.sites.core.resources.ts" />
 "use strict";
@@ -222,7 +221,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 () => {
                     Object.keys(mapping).forEach((l, index) => {
                         Core.Log.Information("Hidden Views", String.format(Resources.Files_modifying_list_views, l));
-                        var views: Array<Schema.HiddenView> = mapping[l];
+                        var views: Array<Schema.IHiddenView> = mapping[l];
                         var list = lists[index];
                         var viewCollection = listViewCollections[index];
                         views.forEach((v) => {

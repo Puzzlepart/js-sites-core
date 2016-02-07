@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface IPropertyBagEntry {
+declare module Pzl.Sites.Core.Schema {
+    interface IPropertyBagEntry {
         Key: string;
         Value: string;
         Indexed: boolean;

@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface IWebSettings {
+declare module Pzl.Sites.Core.Schema {
+    interface IWebSettings {
         WelcomePage: string;
         AlternateCssUrl: string;
         SaveSiteAsTemplateEnabled: boolean;

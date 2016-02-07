@@ -1,7 +1,6 @@
-/// <reference path="IWebPart.ts" />
-
-module Pzl.Sites.Core.Schema {
-    export interface IPage {
+/// <reference path="schema.d.ts" />
+declare module Pzl.Sites.Core.Schema {
+    interface IPage {
         Overwrite: string;
         Url: string;
         Layout: string;

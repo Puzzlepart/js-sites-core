@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface IField {
+declare module Pzl.Sites.Core.Schema {
+    interface IField {
         ShowInDisplayForm: boolean;
         ShowInEditForm: boolean;
         ShowInNewForm: boolean;

@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface IComposedLook {
+declare module Pzl.Sites.Core.Schema {
+    interface IComposedLook {
         ColorPaletteUrl: string;
         FontSchemeUrl: string;
         BackgroundImageUrl: string;

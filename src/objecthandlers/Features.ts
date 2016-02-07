@@ -2,7 +2,7 @@
 /// <reference path="..\model\ObjectHandlerBase.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
 /// <reference path="..\resources\pzl.sites.core.resources.ts" />
-/// <reference path="..\schema\IFeature.ts" />
+/// <reference path="..\schema\schema.d.ts" />
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class Features extends Model.ObjectHandlerBase {

@@ -1,5 +1,4 @@
-/// <reference path="IObjectHandler.ts" />
-
+/// <reference path="model.d.ts" />
 module Pzl.Sites.Core.Model {
     export class ObjectHandlerBase implements IObjectHandler {
         name: string;

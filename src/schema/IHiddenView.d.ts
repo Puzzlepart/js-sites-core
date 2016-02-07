@@ -1,5 +1,5 @@
-module Pzl.Sites.Core.Schema {
-    export interface HiddenView {
+declare module Pzl.Sites.Core.Schema {
+    interface IHiddenView {
         List: string;
         Url: string;
         Paged: boolean;

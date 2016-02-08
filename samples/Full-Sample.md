@@ -3,11 +3,20 @@
   "Parameters": {
     "_JsSitesCore_Template": "Full_Sample_Template"
   },
-  "PropertyBagEntries": {
-    "_JsSitesCore_Template": "Full_Sample_Template"
-  },
+  "PropertyBagEntries": [
+    {
+      "Key": "_JsSitesCore_Template",
+      "Value": "Full_Sample_Template",
+      "Indexed": true
+    },
+    {
+      "Key": "_JsSitesCore_Template",
+      "Value": "0.1.0.0",
+      "Indexed": true
+    }
+  ],
   "WebSettings": {
-      "WelcomePage": "SitePages/Homepage.aspx"
+    "WelcomePage": "SitePages/Homepage.aspx"
   },
   "Files": [
     {
@@ -94,6 +103,20 @@
         {
           "ContentTypeId": "0x010100B3337B3CDC314FF2B8BC5F38977EDBF0"
         }
+      ],
+      "RibbonActions": [
+        {
+          "Location": "CommandUI.Ribbon",
+          "Control": "Ribbon.Documents",
+          "Name": "ArchiveDocs",
+          "Description": "",
+          "Sequence": 5,
+          "Group": "Archiving",
+          "LabelText": "Archive documents",
+          "Image16by16": "",
+          "Image32by32": "",
+          "LoadScript": "~sitecollection/siteasset/js"
+        }
       ]
     }
   ],
@@ -109,18 +132,18 @@
   "Navigation": {
     "UseShared": "true",
     "QuickLaunch": [
-        {
-            "Url": "",
-            "Title": "Home"
-        },
-        {
-            "Url": "",
-            "Title": "Notebook"
-        },
-        {
-            "Url": "Documents",
-            "Title": "Documents"
-        }
+      {
+        "Url": "",
+        "Title": "Home"
+      },
+      {
+        "Url": "",
+        "Title": "Notebook"
+      },
+      {
+        "Url": "Documents",
+        "Title": "Documents"
+      }
     ]
   },
   "ComposedLook": {

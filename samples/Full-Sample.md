@@ -3,9 +3,18 @@
   "Parameters": {
     "_JsSitesCore_Template": "Full_Sample_Template"
   },
-  "PropertyBagEntries": {
-    "_JsSitesCore_Template": "Full_Sample_Template"
-  },
+  "PropertyBagEntries": [
+    {
+      "Key": "_JsSitesCore_Template",
+      "Value": "Full_Sample_Template",
+      "Indexed": true
+    },
+    {
+      "Key": "_JsSitesCore_Template",
+      "Value": "0.1.0.0",
+      "Indexed": true
+    }
+  ],
   "WebSettings": {
     "WelcomePage": "SitePages/Homepage.aspx"
   },

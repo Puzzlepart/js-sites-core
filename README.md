@@ -56,6 +56,7 @@ Schema is inspired by https://github.com/OfficeDev/PnP-Provisioning-Schema
 Most of the differences are due to the available CSOM attributes and functions.
 
 [Schema Documentation](dist/schema.md)
+
 [Schema](dist/schema.json)
 
 Your template can be tested here: http://jsonschemalint.com/draft4/

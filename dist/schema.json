@@ -1,0 +1,362 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://jsonschema.net",
+  "type": "object",
+  "properties": {
+    "PropertyBagEntries": {
+      "id": "http://jsonschema.net/PropertyBagEntries",
+      "type": "array",
+      "items": {
+        "id": "http://jsonschema.net/PropertyBagEntries/PropertyBagEntry",
+        "type": "object",
+        "properties": {
+          "Key": {
+            "id": "http://jsonschema.net/PropertyBagEntries/PropertyBagEntry/Key",
+            "type": "string"
+          },
+          "Value": {
+            "id": "http://jsonschema.net/PropertyBagEntries/PropertyBagEntry/Value",
+            "type": "string"
+          },
+          "Indexed": {
+            "id": "http://jsonschema.net/PropertyBagEntries/PropertyBagEntry/Indexed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "Key",
+          "Value"
+        ]
+      }
+    },
+    "Security": {
+      "id": "http://jsonschema.net/Security",
+      "type": "object",
+      "properties": {
+        "RoleAssignments": {
+          "id": "http://jsonschema.net/Security/RoleAssignments",
+          "type": "array",
+          "items": {
+            "id": "http://jsonschema.net/Security/RoleAssignments/RoleAssignment",
+            "type": "object",
+            "properties": {
+              "Principal": {
+                "id": "http://jsonschema.net/Security/RoleAssignments/RoleAssignment/Principal",
+                "type": "string"
+              },
+              "RoleDefinition": {
+                "id": "http://jsonschema.net/Security/RoleAssignments/RoleAssignment/RoleDefinition",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "Principal",
+              "RoleDefinition"
+            ]
+          }
+        }
+      }
+    },
+    "Lists": {
+      "id": "http://jsonschema.net/Lists",
+      "type": "array",
+      "items": {
+        "id": "http://jsonschema.net/Lists/List",
+        "type": "object",
+        "properties": {
+          "Title": {
+            "id": "http://jsonschema.net/Lists/List/Title",
+            "type": "string"
+          },
+          "Description": {
+            "id": "http://jsonschema.net/Lists/List/Description",
+            "type": "string"
+          },
+          "DocumentTemplate": {
+            "id": "http://jsonschema.net/Lists/List/DocumentTemplate",
+            "type": "string"
+          },
+          "TemplateType": {
+            "id": "http://jsonschema.net/Lists/List/TemplateType",
+            "type": "number"
+          },
+          "Url": {
+            "id": "http://jsonschema.net/Lists/List/Url",
+            "type": "string"
+          },
+          "RemoveExistingContentTypes": {
+            "id": "http://jsonschema.net/Lists/List/RemoveExistingContentTypes",
+            "type": "boolean"
+          },
+          "EnableVersioning": {
+            "id": "http://jsonschema.net/Lists/List/EnableVersioning",
+            "type": "boolean"
+          },
+          "EnableMinorVersions": {
+            "id": "http://jsonschema.net/Lists/List/EnableMinorVersions",
+            "type": "boolean"
+          },
+          "EnableModeration": {
+            "id": "http://jsonschema.net/Lists/List/EnableModeration",
+            "type": "boolean"
+          },
+          "EnableFolderCreation": {
+            "id": "http://jsonschema.net/Lists/List/EnableFolderCreation",
+            "type": "boolean"
+          },
+          "EnableAttachments": {
+            "id": "http://jsonschema.net/Lists/List/EnableAttachments",
+            "type": "boolean"
+          },
+          "NoCrawl": {
+            "id": "http://jsonschema.net/Lists/List/NoCrawl",
+            "type": "boolean"
+          },
+          "DefaultDisplayFormUrl": {
+            "id": "http://jsonschema.net/Lists/List/DefaultDisplayFormUrl",
+            "type": "string"
+          },
+          "DefaultEditFormUrl": {
+            "id": "http://jsonschema.net/Lists/List/DefaultEditFormUrl",
+            "type": "string"
+          },
+          "DefaultNewFormUrl": {
+            "id": "http://jsonschema.net/Lists/List/DefaultNewFormUrl",
+            "type": "string"
+          },
+          "ImageUrl": {
+            "id": "http://jsonschema.net/Lists/List/ImageUrl",
+            "type": "string"
+          },
+          "Hidden": {
+            "id": "http://jsonschema.net/Lists/List/Hidden",
+            "type": "boolean"
+          },
+          "ForceCheckout": {
+            "id": "http://jsonschema.net/Lists/List/ForceCheckout",
+            "type": "boolean"
+          },
+          "ContentTypeBindings": {
+            "id": "http://jsonschema.net/Lists/List/ContentTypeBindings",
+            "type": "array"
+          },
+          "FieldRefs": {
+            "id": "http://jsonschema.net/Lists/List/FieldRefs",
+            "type": "array"
+          },
+          "Fields": {
+            "id": "http://jsonschema.net/Lists/List/Fields",
+            "type": "array"
+          },
+          "Folders": {
+            "id": "http://jsonschema.net/Lists/List/Folders",
+            "type": "array"
+          },
+          "Views": {
+            "id": "http://jsonschema.net/Lists/List/Views",
+            "type": "array"
+          },
+          "DataRows": {
+            "id": "http://jsonschema.net/Lists/List/DataRows",
+            "type": "array"
+          },
+          "RibbonActions": {
+            "id": "http://jsonschema.net/Lists/List/RibbonActions",
+            "type": "array"
+          },
+          "Security": {
+            "id": "http://jsonschema.net/Lists/List/Security",
+            "type": "object"
+          }
+        },
+        "required": [
+          "Title",
+          "Url",
+          "TemplateType"
+        ]
+      }
+    },
+    "CustomActions": {
+      "id": "http://jsonschema.net/CustomActions",
+      "type": "array",
+      "items": {
+        "id": "http://jsonschema.net/CustomActions/CustomAction",
+        "type": "object",
+        "properties": {
+          "Location": {
+            "id": "http://jsonschema.net/CustomActions/0/Location",
+            "type": "string"
+          },
+          "Sequence": {
+            "id": "http://jsonschema.net/CustomActions/0/Sequence",
+            "type": "integer"
+          },
+          "ScriptBlock": {
+            "id": "http://jsonschema.net/CustomActions/0/ScriptBlock",
+            "type": "string"
+          },
+          "Name": {
+            "id": "http://jsonschema.net/CustomActions/0/Name",
+            "type": "string"
+          },
+          "Title": {
+            "id": "http://jsonschema.net/CustomActions/0/Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "Title",
+          "Location",
+          "Sequence",
+          "Name"
+        ]
+      }
+    },
+    "Files": {
+      "id": "http://jsonschema.net/Files",
+      "type": "array",
+      "items": {
+        "id": "http://jsonschema.net/Files/File",
+        "type": "object",
+        "properties": {
+          "Dest": {
+            "id": "http://jsonschema.net/Files/File/Dest",
+            "type": "string"
+          },
+          "Overwrite": {
+            "id": "http://jsonschema.net/Files/File/Overwrite",
+            "type": "boolean"
+          },
+          "Src": {
+            "id": "http://jsonschema.net/Files/File/Src",
+            "type": "string"
+          },
+          "RemoveExistingWebParts": {
+            "id": "http://jsonschema.net/Files/File/RemoveExistingWebParts",
+            "type": "boolean"
+          },
+          "Properties": {
+            "id": "http://jsonschema.net/Files/File/Properties",
+            "type": "object"
+          },
+          "WebParts": {
+            "id": "http://jsonschema.net/Files/File/WebParts",
+            "type": "array",
+            "items": {
+              "id": "http://jsonschema.net/Files/WebParts/WebPart",
+              "type": "object",
+              "properties": {
+                "Title": {
+                  "id": "http://jsonschema.net/Files/WebParts/WebPart/Title",
+                  "type": "string"
+                },
+                "Zone": {
+                  "id": "http://jsonschema.net/Files/WebParts/WebPart/Zone",
+                  "type": "string"
+                },
+                "Order": {
+                  "id": "http://jsonschema.net/Files/WebParts/WebPart/Order",
+                  "type": "integer"
+                },
+                "Contents": {
+                  "id": "http://jsonschema.net/Files/WebParts/WebPart/Contents",
+                  "type": "object",
+                  "properties": {
+                    "Title": {
+                      "id": "http://jsonschema.net/Files/WebParts/WebPart/Contents/FileUrl",
+                      "type": "string"
+                    },
+                    "Xml": {
+                      "id": "http://jsonschema.net/Files/WebParts/WebPart/Contents/Xml",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "Views": {
+            "id": "http://jsonschema.net/Files/File/Views",
+            "type": "array",
+            "items": {
+              "id": "http://jsonschema.net/Files/File/Views/View",
+              "type": "object",
+              "properties": {
+                "List": {
+                  "id": "http://jsonschema.net/Files/File/Views/View/RowLimit",
+                  "type": "string"
+                },
+                "ViewFields": {
+                  "id": "http://jsonschema.net/Files/File/Views/View/ViewFields",
+                  "type": "array",
+                  "items": {
+                    "id": "http://jsonschema.net/Files/File/Views/View/ViewFields/ViewField",
+                    "type": "string"
+                  }
+                },
+                "Query": {
+                  "id": "http://jsonschema.net/Files/File/Views/View/Query",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "Dest",
+          "Src"
+        ]
+      }
+    },
+    "Navigation": {
+      "id": "http://jsonschema.net/Navigation",
+      "type": "object",
+      "properties": {
+        "UseShared": {
+          "id": "http://jsonschema.net/Navigation/UseShared",
+          "type": "boolean"
+        },
+        "QuickLaunch": {
+          "id": "http://jsonschema.net/Navigation/QuickLaunch",
+          "type": "array",
+          "items": {
+            "id": "http://jsonschema.net/Navigation/NavigationNode",
+            "type": "object",
+            "properties": {
+              "Title": {
+                "id": "http://jsonschema.net/Navigation/NavigationNode/Title",
+                "type": "string"
+              },
+              "Url": {
+                "id": "http://jsonschema.net/Navigation/NavigationNode/Url",
+                "type": "string"
+              },
+              "Children": {
+                "id": "http://jsonschema.net/Navigation/NavigationNode/Children",
+                "type": "array"
+              }
+            },
+            "required": [
+              "Title",
+              "Url"
+            ]
+          }
+        }
+      }
+    },
+    "ComposedLook": {
+      "id": "http://jsonschema.net/ComposedLook",
+      "type": "object",
+      "properties": {
+        "ColorPaletteUrl": {
+          "id": "http://jsonschema.net/ComposedLook/ColorPaletteUrl",
+          "type": "string"
+        },
+        "FontSchemeUrl": {
+          "id": "http://jsonschema.net/ComposedLook/FontSchemeUrl",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

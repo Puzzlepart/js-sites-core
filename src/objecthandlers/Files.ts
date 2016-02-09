@@ -257,12 +257,11 @@ module Pzl.Sites.Core.ObjectHandlers {
             return def.promise();
         }
         private GetFileUrlWithoutTokens(fileUrl: string) {
-            return fileUrl.replace(/{resources}/g, `${_spPageContextInfo.siteServerRelativeUrl}/resources`)
-                .replace(/{webpartgallery}/g, `${_spPageContextInfo.siteServerRelativeUrl}/_catalogs/wp`);
+            return fileUrl.replace(/{resources}/g, `${_spPageContextInfo.siteAbsoluteUrl}/resources`)
+                .replace(/{webpartgallery}/g, `${_spPageContextInfo.siteAbsoluteUrl}/_catalogs/wp`);
         }
         private GetWebPartXmlWithoutTokens(xml: string) {
-            return xml.replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)
-                .replace(/{sitecollection}/g, _spPageContextInfo.siteServerRelativeUrl);
+            return xml.replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl);
         }
         private GetFolderFromFilePath(filePath: string) {
             var split = filePath.split("/");

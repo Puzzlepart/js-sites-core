@@ -117,14 +117,8 @@ module Pzl.Sites.Core.ObjectHandlers {
             return def.promise();
         }
         private GetUrlWithoutTokens(url: string) {
-            return url.replace("{Site}", _spPageContextInfo.webAbsoluteUrl)
-                .replace("{SiteRelativeUrl}", _spPageContextInfo.webServerRelativeUrl)
-                .replace("{SiteUrl}", _spPageContextInfo.webAbsoluteUrl)
-                .replace("{SiteUrlEncoded}", encodeURIComponent(_spPageContextInfo.webAbsoluteUrl))
-                .replace("{SiteCollection}", _spPageContextInfo.siteAbsoluteUrl)
-                .replace("{SiteCollectionRelativeUrl}", _spPageContextInfo.siteServerRelativeUrl)
-                .replace("{SiteCollectionEncoded}", encodeURIComponent(_spPageContextInfo.siteAbsoluteUrl))
-                .replace("{WebApp}", window.location.protocol + "//" + window.location.host);
+            return url.replace("{site}", _spPageContextInfo.webAbsoluteUrl)
+                .replace("{sitecollection}", _spPageContextInfo.siteAbsoluteUrl);
         }
 
         private GetNodeFromQuickLaunchByTitle(nodeCollection, title) {

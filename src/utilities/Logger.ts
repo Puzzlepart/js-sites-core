@@ -54,8 +54,8 @@ module Pzl.Sites.Core {
         }
         
         private ReplaceSiteTokens(url: string) {
-            return url.replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)
-                .replace(/{sitecollection}/g, _spPageContextInfo.siteServerRelativeUrl);
+            return url.replace(/{site}/g, _spPageContextInfo.webAbsoluteUrl)
+                .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
         }
     } 
 }

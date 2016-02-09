@@ -119,7 +119,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         action.set_title(`${ra.Control}.${ra.Name}`);
                         action.set_location(ra.Location);
                         action.set_sequence(5);
-                        var scriptSrc = `${ra.LoadScript}/${ra.Control}.${ra.Group}.${ra.Name}.js`.replace("~sitecollection", _spPageContextInfo.siteServerRelativeUrl);
+                        var scriptSrc = `${ra.LoadScript}/${ra.Control}.${ra.Group}.${ra.Name}.js`.replace("~sitecollection", _spPageContextInfo.siteAbsoluteUrl);
                         action.set_commandUIExtension(decodeURIComponent(String.format(this.ribbonActionTemplate, ra.Control, ra.Group, ra.Name, ra.LabelText, ra.Image16by16, ra.Image32by32, ra.Description, ra.Sequence, scriptSrc)));
                         action.update();                        
                     });

@@ -21,6 +21,7 @@ module Pzl.Sites.Core.Resources {
     export var Lists_role_assignments_applied = "Role assignements applied for list {0}";
     export var Lists_updating_list_view = "Updating existing view {0} for list {1}";
     export var Lists_adding_list_view = "Adding view {0} for list {1}";
+    export var Lists_removing_existing_list_view = "Removing existing view {0} for list {1}";
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
     export var Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";

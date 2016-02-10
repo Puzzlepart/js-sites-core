@@ -12,7 +12,7 @@ var Pzl;
                     }
                     ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
                     return ObjectHandlerBase;
-                }());
+                })();
                 Model.ObjectHandlerBase = ObjectHandlerBase;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -48,6 +48,7 @@ var Pzl;
                 Resources.Lists_role_assignments_applied = "Role assignements applied for list {0}";
                 Resources.Lists_updating_list_view = "Updating existing view {0} for list {1}";
                 Resources.Lists_adding_list_view = "Adding view {0} for list {1}";
+                Resources.Lists_removing_existing_list_view = "Removing existing view {0} for list {1}";
                 Resources.Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
                 Resources.Lists_adding_field_ref = "Adding field {0} to list {1}";
                 Resources.Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
@@ -123,7 +124,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ProvisioningStep;
-                }());
+                })();
                 Model.ProvisioningStep = ProvisioningStep;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -178,7 +179,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -277,7 +278,7 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -326,7 +327,7 @@ var Pzl;
                         return def.promise();
                     };
                     return Features;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Features = Features;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -591,7 +592,7 @@ var Pzl;
                         return array[array.length - 1];
                     };
                     return Files;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -616,7 +617,7 @@ var Pzl;
                         return jQuery.ajax({ url: url, type: 'get', headers: this.headers });
                     };
                     return RestHelper;
-                }());
+                })();
                 Utilities.RestHelper = RestHelper;
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -807,271 +808,304 @@ var Pzl;
                                 _this.EnsureLocationBasedMetadataDefaultsReceiver(clientContext, l);
                             }
                         });
-                        web.update();
-                        clientContext.load(webFeatures);
-                        clientContext.executeQueryAsync(function () {
-                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                            def.resolve();
-                        }, function (sender, args) {
-                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                            Core.Log.Error(_this.name, args.get_message());
-                            def.resolve(sender, args);
-                        });
-                        return def.promise();
-                    };
-                    return Features;
-                }(Core.Model.ObjectHandlerBase));
-                ObjectHandlers.Features = Features;
-            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
-        })(Core = Sites.Core || (Sites.Core = {}));
-    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
-})(Pzl || (Pzl = {}));
-"use strict";
-var Pzl;
-(function (Pzl) {
-    var Sites;
-    (function (Sites) {
-        var Core;
-        (function (Core) {
-            var ObjectHandlers;
-            (function (ObjectHandlers) {
-                var Files = (function (_super) {
-                    __extends(Files, _super);
-                    function Files() {
-                        _super.call(this, "Files");
-                    }
-                    Files.prototype.ProvisionObjects = function (objects) {
-                        var _this = this;
-                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
-                        var def = jQuery.Deferred();
-                        var clientContext = SP.ClientContext.get_current();
-                        var web = clientContext.get_web();
-                        var fileInfos = [];
-                        var promises = [];
-                        objects.forEach(function (obj, index) {
-                            var filename = _this.GetFilenameFromFilePath(obj.Dest);
-                            var folder = web.getFolderByServerRelativeUrl(_spPageContextInfo.webServerRelativeUrl + "/" + _this.GetFolderFromFilePath(obj.Dest));
-                            promises.push(jQuery.get(_this.GetFileUrlWithoutTokens(obj.Src), function (fileContents) {
-                                var f = {};
-                                jQuery.extend(f, obj, { "Filename": filename, "Folder": folder, "Contents": fileContents });
-                                fileInfos.push(f);
-                                Core.Log.Information(_this.name, String.format(Core.Resources.Files_retrieved_file_contents, f.Dest));
-                            }));
-                        });
-                        jQuery.when.apply(jQuery, promises).done(function () {
-                            fileInfos.forEach(function (f, index) {
-                                if (f.Filename.indexOf("Form.aspx") != -1) {
-                                    Core.Log.Information(_this.name, String.format(Core.Resources.Files_skipping_form_file, f.Dest));
-                                    return;
-                                }
-                                Core.Log.Information(_this.name, String.format(Core.Resources.Files_creating_file, f.Dest));
-                                var objCreationInformation = new SP.FileCreationInformation();
-                                objCreationInformation.set_overwrite(f.Overwrite != undefined ? f.Overwrite : false);
-                                objCreationInformation.set_url(f.Filename);
-                                objCreationInformation.set_content(new SP.Base64EncodedByteArray());
-                                for (var i = 0; i < f.Contents.length; i++) {
-                                    objCreationInformation.get_content().append(f.Contents.charCodeAt(i));
-                                }
-                                clientContext.load(f.Folder.get_files().add(objCreationInformation));
-                            });
-                            clientContext.executeQueryAsync(function () {
-                                var promises = [];
-                                objects.forEach(function (obj) {
-                                    if (obj.Properties && Object.keys(obj.Properties).length > 0) {
-                                        promises.push(_this.ApplyFileProperties(obj.Dest, obj.Properties));
-                                    }
-                                    if (obj.WebParts && obj.WebParts.length > 0) {
-                                        promises.push(_this.AddWebPartsToWebPartPage(obj.Dest, obj.Src, obj.WebParts, obj.RemoveExistingWebParts));
-                                    }
-                                });
-                                jQuery.when.apply(jQuery, promises).done(function () {
-                                    _this.ModifyHiddenViews(objects).then(function () {
-                                        Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                        def.resolve();
-                                    });
-                                });
-                            }, function (sender, args) {
-                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                Core.Log.Error(_this.name, args.get_message());
-                                def.resolve(sender, args);
-                            });
-                        });
-                        return def.promise();
-                    };
-                    Files.prototype.RemoveWebPartsFromFileIfSpecified = function (clientContext, limitedWebPartManager, shouldRemoveExisting) {
-                        var def = jQuery.Deferred();
-                        if (!shouldRemoveExisting) {
-                            def.resolve();
-                            return def.promise();
-                        }
-                        var existingWebParts = limitedWebPartManager.get_webParts();
-                        clientContext.load(existingWebParts);
-                        clientContext.executeQueryAsync(function () {
-                            existingWebParts.get_data().forEach(function (wp) {
-                                wp.deleteWebPart();
-                            });
-                            clientContext.load(existingWebParts);
-                            clientContext.executeQueryAsync(def.resolve, def.resolve);
-                        }, def.resolve);
-                        return def.promise();
-                    };
-                    Files.prototype.GetWebPartXml = function (webParts) {
-                        var _this = this;
-                        var def = jQuery.Deferred();
-                        var promises = [];
-                        webParts.forEach(function (wp, index) {
-                            if (wp.Contents.FileUrl) {
-                                promises.push((function () {
-                                    var def = jQuery.Deferred();
-                                    var fileUrl = _this.GetFileUrlWithoutTokens(wp.Contents.FileUrl);
-                                    jQuery.get(fileUrl, function (xml) {
-                                        webParts[index].Contents.Xml = xml;
-                                        def.resolve();
-                                    }).fail(function (sender, args) {
-                                        def.resolve(sender, args);
-                                    });
-                                    return def.promise();
-                                })());
-                            }
-                        });
-                        jQuery.when.apply(jQuery, promises).done(function () {
-                            def.resolve(webParts);
-                        });
-                        return def.promise();
-                    };
-                    Files.prototype.AddWebPartsToWebPartPage = function (dest, src, webParts, shouldRemoveExisting) {
-                        var _this = this;
-                        var def = jQuery.Deferred();
-                        var clientContext = SP.ClientContext.get_current();
-                        var web = clientContext.get_web();
-                        var fileUrl = this.LastItemInArray(src.split("/"));
-                        var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + dest;
-                        var file = web.getFileByServerRelativeUrl(fileServerRelativeUrl);
-                        clientContext.load(file);
-                        clientContext.executeQueryAsync(function () {
-                            var limitedWebPartManager = file.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
-                            _this.RemoveWebPartsFromFileIfSpecified(clientContext, limitedWebPartManager, shouldRemoveExisting).then(function () {
-                                _this.GetWebPartXml(webParts).then(function (webParts) {
-                                    webParts.forEach(function (wp) {
-                                        if (!wp.Contents.Xml)
-                                            return;
-                                        Core.Log.Information("Files Web Parts", String.format(Core.Resources.Files_adding_webpart, wp.Title, wp.Zone, dest));
-                                        var oWebPartDefinition = limitedWebPartManager.importWebPart(_this.GetWebPartXmlWithoutTokens(wp.Contents.Xml));
-                                        var oWebPart = oWebPartDefinition.get_webPart();
-                                        limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
-                                    });
-                                    clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                                        Core.Log.Error("Files Web Parts", args.get_message());
-                                        def.resolve(sender, args);
-                                    });
-                                });
-                            });
-                        }, function (sender, args) {
-                            Core.Log.Error("Files Web Parts", args.get_message());
-                            def.resolve(sender, args);
-                        });
-                        return def.promise();
-                    };
-                    Files.prototype.ApplyFileProperties = function (dest, fileProperties) {
-                        var def = jQuery.Deferred();
-                        var clientContext = SP.ClientContext.get_current();
-                        var web = clientContext.get_web();
-                        var fileServerRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + dest;
-                        var file = web.getFileByServerRelativeUrl(fileServerRelativeUrl);
-                        var listItemAllFields = file.get_listItemAllFields();
-                        Core.Log.Information("Files Properties", String.format(Core.Resources.Files_setting_properties, dest));
-                        for (var key in fileProperties) {
-                            Core.Log.Information("Files Properties", String.format(Core.Resources.Files_setting_property, key, fileProperties[key], dest));
-                            listItemAllFields.set_item(key, fileProperties[key]);
-                        }
-                        listItemAllFields.update();
                         clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                            Core.Log.Error("Files Properties", args.get_message());
+                            Core.Log.Error("Lists Folders", args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
-                    Files.prototype.GetViewFromCollectionByUrl = function (viewCollection, url) {
-                        var serverRelativeUrl = _spPageContextInfo.webServerRelativeUrl + "/" + url;
-                        var viewCollectionEnumerator = viewCollection.getEnumerator();
-                        while (viewCollectionEnumerator.moveNext()) {
-                            var view = viewCollectionEnumerator.get_current();
-                            if (view.get_serverRelativeUrl().toString().toLowerCase() === serverRelativeUrl.toLowerCase()) {
-                                return view;
-                            }
-                        }
-                        return null;
-                    };
-                    Files.prototype.ModifyHiddenViews = function (objects) {
-                        var _this = this;
+                    Lists.prototype.ApplyContentTypeBindings = function (clientContext, lists, objects) {
                         var def = jQuery.Deferred();
-                        var clientContext = SP.ClientContext.get_current();
-                        var web = clientContext.get_web();
-                        var mapping = {};
-                        var lists = [];
-                        var listViewCollections = [];
-                        objects.forEach(function (obj) {
-                            if (!obj.Views)
-                                return;
-                            obj.Views.forEach(function (v) {
-                                mapping[v.List] = mapping[v.List] || [];
-                                mapping[v.List].push(jQuery.extend(v, { "Url": obj.Dest }));
-                            });
+                        var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
+                        var listCts = [];
+                        lists.forEach(function (l, index) {
+                            listCts.push(l.get_contentTypes());
+                            clientContext.load(listCts[index], 'Include(Name,Id)');
+                            if (objects[index].ContentTypeBindings) {
+                                Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_enabled_content_types, l.get_title()));
+                                l.set_contentTypesEnabled(true);
+                                l.update();
+                            }
                         });
-                        Object.keys(mapping).forEach(function (l, index) {
-                            lists.push(web.get_lists().getByTitle(l));
-                            listViewCollections.push(web.get_lists().getByTitle(l).get_views());
-                            clientContext.load(lists[index]);
-                            clientContext.load(listViewCollections[index]);
-                        });
+                        clientContext.load(webCts);
                         clientContext.executeQueryAsync(function () {
-                            Object.keys(mapping).forEach(function (l, index) {
-                                Core.Log.Information("Hidden Views", String.format(Core.Resources.Files_modifying_list_views, l));
-                                var views = mapping[l];
-                                var list = lists[index];
-                                var viewCollection = listViewCollections[index];
-                                views.forEach(function (v) {
-                                    var view = _this.GetViewFromCollectionByUrl(viewCollection, v.Url);
-                                    if (view == null)
-                                        return;
-                                    Core.Log.Information("Hidden Views", String.format(Core.Resources.Files_modifying_list_view, v.Url, l));
-                                    if (v.Paged) {
-                                        view.set_paged(v.Paged);
-                                    }
-                                    if (v.Query) {
-                                        view.set_viewQuery(v.Query);
-                                    }
-                                    if (v.RowLimit) {
-                                        view.set_rowLimit(v.RowLimit);
-                                    }
-                                    if (v.ViewFields && v.ViewFields.length > 0) {
-                                        var columns = view.get_viewFields();
-                                        columns.removeAll();
-                                        v.ViewFields.forEach(function (vf) {
-                                            columns.add(vf);
-                                        });
-                                    }
-                                    view.update();
+                            lists.forEach(function (list, index) {
+                                var obj = objects[index];
+                                if (!obj.ContentTypeBindings)
+                                    return;
+                                var listContentTypes = listCts[index];
+                                var existingContentTypes = new Array();
+                                if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
+                                    listContentTypes.get_data().forEach(function (ct) {
+                                        existingContentTypes.push(ct);
+                                    });
+                                }
+                                obj.ContentTypeBindings.forEach(function (ctb) {
+                                    Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_adding_content_type, ctb.ContentTypeId, list.get_title()));
+                                    listContentTypes.addExistingContentType(webCts.getById(ctb.ContentTypeId));
                                 });
-                                clientContext.load(viewCollection);
+                                if (obj.RemoveExistingContentTypes && obj.ContentTypeBindings.length > 0) {
+                                    for (var j = 0; j < existingContentTypes.length; j++) {
+                                        var ect = existingContentTypes[j];
+                                        Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_removing_content_type, ect.get_id().get_stringValue(), list.get_title()));
+                                        ect.deleteObject();
+                                    }
+                                }
                                 list.update();
                             });
                             clientContext.executeQueryAsync(def.resolve, function (sender, args) {
-                                Core.Log.Error("Hidden Views", args.get_message());
+                                Core.Log.Error("Lists Content Types", args.get_message());
                                 def.resolve(sender, args);
                             });
                         }, function (sender, args) {
-                            Core.Log.Error("Hidden Views", args.get_message());
+                            Core.Log.Error("Lists Content Types", args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
-                    Files.prototype.GetFileUrlWithoutTokens = function (fileUrl) {
-                        return fileUrl.replace(/{resources}/g, _spPageContextInfo.siteServerRelativeUrl + "/resources")
-                            .replace(/{webpartgallery}/g, _spPageContextInfo.siteServerRelativeUrl + "/_catalogs/wp");
+                    Lists.prototype.ApplyListInstanceFieldRefs = function (clientContext, lists, objects) {
+                        var def = jQuery.Deferred();
+                        var siteFields = clientContext.get_site().get_rootWeb().get_fields();
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (obj.FieldRefs) {
+                                obj.FieldRefs.forEach(function (fr) {
+                                    Core.Log.Information("Lists Field Refs", String.format(Core.Resources.Lists_adding_field_ref, fr.Name, l.get_title()));
+                                    var field = siteFields.getByInternalNameOrTitle(fr.Name);
+                                    l.get_fields().add(field);
+                                });
+                                l.update();
+                            }
+                        });
+                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            Core.Log.Error("Lists Field Refs", args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    Lists.prototype.ApplyFields = function (clientContext, lists, objects) {
+                        var def = jQuery.Deferred();
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (obj.Fields) {
+                                obj.Fields.forEach(function (f) {
+                                    Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
+                                    var properties = [];
+                                    for (var prop in f) {
+                                        var value = f[prop];
+                                        if (prop == "List") {
+                                            var targetList = jQuery.grep(lists, function (v) {
+                                                return v.get_title() === value;
+                                            });
+                                            if (targetList.length > 0) {
+                                                value = "{" + targetList[0].get_id().toString() + "}";
+                                            }
+                                            else {
+                                                Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
+                                                return;
+                                            }
+                                        }
+                                        if (prop == "Formula")
+                                            continue;
+                                        properties.push(prop + "=\"" + value + "\"");
+                                    }
+                                    var fieldXml = "<Field " + properties.join(" ") + ">";
+                                    if (f.Type == "Calculated")
+                                        fieldXml += "<Formula>" + f.Formula + "</Formula>";
+                                    fieldXml += "</Field>";
+                                    l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
+                                });
+                                l.update();
+                            }
+                        });
+                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            Core.Log.Error("Lists Fields", args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    Lists.prototype.ApplyListSecurity = function (clientContext, lists, objects) {
+                        var def = jQuery.Deferred();
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (!obj.Security)
+                                return;
+                            if (obj.Security.BreakRoleInheritance) {
+                                Core.Log.Information("Lists Security", String.format(Core.Resources.Lists_breaking_role_inheritance, l.get_title()));
+                                l.breakRoleInheritance(obj.Security.CopyRoleAssignments, obj.Security.ClearSubscopes);
+                                l.update();
+                                clientContext.load(l.get_roleAssignments());
+                            }
+                        });
+                        var web = clientContext.get_web();
+                        var allProperties = web.get_allProperties();
+                        var siteGroups = web.get_siteGroups();
+                        var roleDefinitions = web.get_roleDefinitions();
+                        clientContext.load(allProperties);
+                        clientContext.load(roleDefinitions);
+                        clientContext.executeQueryAsync(function () {
+                            lists.forEach(function (l, index) {
+                                var obj = objects[index];
+                                if (!obj.Security)
+                                    return;
+                                obj.Security.RoleAssignments.forEach(function (ra) {
+                                    var roleDef = null;
+                                    if (typeof ra.RoleDefinition == "number") {
+                                        roleDef = roleDefinitions.getById(ra.RoleDefinition);
+                                    }
+                                    else {
+                                        roleDef = roleDefinitions.getByName(ra.RoleDefinition);
+                                    }
+                                    var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                                    roleBindings.add(roleDef);
+                                    var principal = null;
+                                    if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
+                                        var token = ra.Principal.substring(1, ra.Principal.length - 1);
+                                        var groupId = allProperties.get_fieldValues()[("vti_" + token)];
+                                        principal = siteGroups.getById(groupId);
+                                    }
+                                    else {
+                                        principal = siteGroups.getByName(principal);
+                                    }
+                                    l.get_roleAssignments().add(principal, roleBindings);
+                                });
+                                l.update();
+                                Core.Log.Information("Lists Security", String.format(Core.Resources.Lists_role_assignments_applied, l.get_title()));
+                            });
+                            clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                                Core.Log.Error("Lists Security", "Error: " + args.get_message());
+                                def.resolve(sender, args);
+                            });
+                        }, function (sender, args) {
+                            Core.Log.Error("Lists Security", "Error: " + args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    Lists.prototype.CreateViews = function (clientContext, lists, objects) {
+                        Core.Log.Information("Lists Views", Core.Resources.Code_execution_started);
+                        var def = jQuery.Deferred();
+                        var listViewCollections = [];
+                        lists.forEach(function (l, index) {
+                            listViewCollections.push(l.get_views());
+                            clientContext.load(listViewCollections[index]);
+                        });
+                        clientContext.executeQueryAsync(function () {
+                            lists.forEach(function (l, index) {
+                                var obj = objects[index];
+                                if (!obj.Views)
+                                    return;
+                                listViewCollections.push(l.get_views());
+                                clientContext.load(listViewCollections[index]);
+                                obj.Views.forEach(function (v) {
+                                    var viewExists = jQuery.grep(listViewCollections[index].get_data(), function (ev) {
+                                        if (obj.RemoveExistingViews && obj.Views.length > 0) {
+                                            Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_removing_existing_list_view, v.Title, l.get_title()));
+                                            ev.deleteObject();
+                                            return false;
+                                        }
+                                        return ev.get_title() == v.Title;
+                                    }).length > 0;
+                                    if (viewExists) {
+                                        var view = listViewCollections[index].getByTitle(v.Title);
+                                        Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_updating_list_view, v.Title, l.get_title()));
+                                        if (v.Paged) {
+                                            view.set_paged(v.Paged);
+                                        }
+                                        if (v.Query) {
+                                            view.set_viewQuery(v.Query);
+                                        }
+                                        if (v.RowLimit) {
+                                            view.set_rowLimit(v.RowLimit);
+                                        }
+                                        if (v.ViewFields && v.ViewFields.length > 0) {
+                                            var columns = view.get_viewFields();
+                                            columns.removeAll();
+                                            v.ViewFields.forEach(function (vf) {
+                                                columns.add(vf);
+                                            });
+                                        }
+                                        if (v.Scope) {
+                                            view.set_scope(v.Scope);
+                                        }
+                                        view.update();
+                                    }
+                                    else {
+                                        Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_adding_list_view, v.Title, l.get_title()));
+                                        var viewCreationInformation = new SP.ViewCreationInformation();
+                                        if (v.Title) {
+                                            viewCreationInformation.set_title(v.Title);
+                                        }
+                                        if (v.PersonalView) {
+                                            viewCreationInformation.set_personalView(v.PersonalView);
+                                        }
+                                        if (v.Paged) {
+                                            viewCreationInformation.set_paged(v.Paged);
+                                        }
+                                        if (v.Query) {
+                                            viewCreationInformation.set_query(v.Query);
+                                        }
+                                        if (v.RowLimit) {
+                                            viewCreationInformation.set_rowLimit(v.RowLimit);
+                                        }
+                                        if (v.SetAsDefaultView) {
+                                            viewCreationInformation.set_setAsDefaultView(v.SetAsDefaultView);
+                                        }
+                                        if (v.ViewFields) {
+                                            viewCreationInformation.set_viewFields(v.ViewFields);
+                                        }
+                                        if (v.ViewTypeKind) {
+                                            viewCreationInformation.set_viewTypeKind(SP.ViewType.html);
+                                        }
+                                        var view = l.get_views().add(viewCreationInformation);
+                                        if (v.Scope) {
+                                            view.set_scope(v.Scope);
+                                            view.update();
+                                        }
+                                        l.update();
+                                    }
+                                    clientContext.load(l.get_views());
+                                });
+                            });
+                            clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                                Core.Log.Error("Lists Views", args.get_message());
+                                def.resolve(sender, args);
+                            });
+                        }, function (sender, args) {
+                            Core.Log.Error("Lists Views", args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    Lists.prototype.InsertDataRows = function (clientContext, lists, objects) {
+                        Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_started);
+                        var def = jQuery.Deferred();
+                        var promises = [];
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (obj.DataRows) {
+                                obj.DataRows.forEach(function (r, index) {
+                                    Core.Log.Information("Lists Data Rows", String.format(Core.Resources.Lists_inserting_data_row, (index + 1), obj.DataRows.length, l.get_title()));
+                                    var item = l.addItem(new SP.ListItemCreationInformation());
+                                    for (var key in r) {
+                                        item.set_item(key, r[key]);
+                                    }
+                                    item.update();
+                                    clientContext.load(item);
+                                });
+                            }
+                        });
+                        clientContext.executeQueryAsync(function () {
+                            Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_ended);
+                            def.resolve();
+                        }, function (sender, args) {
+                            Core.Log.Error("Lists Data Rows", args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
                     };
                     return Lists;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1203,7 +1237,7 @@ var Pzl;
                         return f[0] || null;
                     };
                     return Navigation;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Navigation = Navigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1258,7 +1292,7 @@ var Pzl;
                         return split.splice(0, split.length - 1);
                     };
                     return Pages;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1321,7 +1355,7 @@ var Pzl;
                         return b64encoded;
                     };
                     return PropertyBagEntries;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.PropertyBagEntries = PropertyBagEntries;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1401,7 +1435,7 @@ var Pzl;
                         }
                     };
                     return Security;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Security = Security;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1472,7 +1506,7 @@ var Pzl;
                         return def.promise();
                     };
                     return WebSettings;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1535,7 +1569,7 @@ var Pzl;
                         .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                 };
                 return Logger;
-            }());
+            })();
             Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));

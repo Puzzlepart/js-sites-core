@@ -13,6 +13,7 @@ declare module Pzl.Sites.Core.Schema {
         EnableFolderCreation: boolean;
         EnableAttachments: boolean;
         RemoveExistingContentTypes: boolean;
+        RemoveExistingViews: boolean;
         NoCrawl: boolean;        
         DefaultDisplayFormUrl: string;
         DefaultEditFormUrl: string;

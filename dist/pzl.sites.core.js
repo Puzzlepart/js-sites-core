@@ -4,6 +4,29 @@ var Pzl;
     (function (Sites) {
         var Core;
         (function (Core) {
+<<<<<<< HEAD
+=======
+            var Model;
+            (function (Model) {
+                var ObjectHandlerBase = (function () {
+                    function ObjectHandlerBase(name) {
+                        this.name = name;
+                    }
+                    ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
+                    return ObjectHandlerBase;
+                })();
+                Model.ObjectHandlerBase = ObjectHandlerBase;
+            })(Model = Core.Model || (Core.Model = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
             var Resources;
             (function (Resources) {
                 Resources.Provisioning_progressbar_id = "js-sites-core-progress";
@@ -28,6 +51,7 @@ var Pzl;
                 Resources.Lists_role_assignments_applied = "Role assignements applied for list {0}";
                 Resources.Lists_updating_list_view = "Updating existing view {0} for list {1}";
                 Resources.Lists_adding_list_view = "Adding view {0} for list {1}";
+                Resources.Lists_removing_existing_list_view = "Removing existing view {0} for list {1}";
                 Resources.Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
                 Resources.Lists_adding_field_ref = "Adding field {0} to list {1}";
                 Resources.Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
@@ -187,7 +211,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ProvisioningStep;
-                }());
+                })();
                 Model.ProvisioningStep = ProvisioningStep;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -264,7 +288,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -363,7 +387,7 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -413,7 +437,7 @@ var Pzl;
                         return def.promise();
                     };
                     return Features;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Features = Features;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -671,12 +695,40 @@ var Pzl;
                         return array[array.length - 1];
                     };
                     return Files;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+<<<<<<< HEAD
+=======
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var Utilities;
+            (function (Utilities) {
+                var RestHelper = (function () {
+                    function RestHelper() {
+                        this.headers = { accept: 'application/json;odata=verbose' };
+                    }
+                    RestHelper.prototype.getListData = function (baseUrl, listTitle) {
+                        return this.get(baseUrl + "/_api/web/lists/getByTitle('" + listTitle + "')/Items");
+                    };
+                    RestHelper.prototype.get = function (url) {
+                        return jQuery.ajax({ url: url, type: 'get', headers: this.headers });
+                    };
+                    return RestHelper;
+                })();
+                Utilities.RestHelper = RestHelper;
+            })(Utilities = Core.Utilities || (Core.Utilities = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -938,12 +990,16 @@ var Pzl;
                         return def.promise();
                     };
                     Lists.prototype.ApplyFields = function (clientContext, lists, objects) {
+<<<<<<< HEAD
                         var _this = this;
+=======
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
                         var def = jQuery.Deferred();
                         lists.forEach(function (l, index) {
                             var obj = objects[index];
                             if (obj.Fields) {
                                 obj.Fields.forEach(function (f) {
+<<<<<<< HEAD
                                     var fieldXml = "";
                                     if (!f.SchemaXml) {
                                         Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
@@ -976,6 +1032,33 @@ var Pzl;
                                         fieldXml = _this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
                                     }
                                     l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+=======
+                                    Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
+                                    var properties = [];
+                                    for (var prop in f) {
+                                        var value = f[prop];
+                                        if (prop == "List") {
+                                            var targetList = jQuery.grep(lists, function (v) {
+                                                return v.get_title() === value;
+                                            });
+                                            if (targetList.length > 0) {
+                                                value = "{" + targetList[0].get_id().toString() + "}";
+                                            }
+                                            else {
+                                                Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
+                                                return;
+                                            }
+                                        }
+                                        if (prop == "Formula")
+                                            continue;
+                                        properties.push(prop + "=\"" + value + "\"");
+                                    }
+                                    var fieldXml = "<Field " + properties.join(" ") + ">";
+                                    if (f.Type == "Calculated")
+                                        fieldXml += "<Formula>" + f.Formula + "</Formula>";
+                                    fieldXml += "</Field>";
+                                    l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
                                 });
                                 l.update();
                             }
@@ -1061,6 +1144,14 @@ var Pzl;
                                 clientContext.load(listViewCollections[index]);
                                 obj.Views.forEach(function (v) {
                                     var viewExists = jQuery.grep(listViewCollections[index].get_data(), function (ev) {
+<<<<<<< HEAD
+=======
+                                        if (obj.RemoveExistingViews && obj.Views.length > 0) {
+                                            Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_removing_existing_list_view, v.Title, l.get_title()));
+                                            ev.deleteObject();
+                                            return false;
+                                        }
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
                                         return ev.get_title() == v.Title;
                                     }).length > 0;
                                     if (viewExists) {
@@ -1086,6 +1177,7 @@ var Pzl;
                                             view.set_scope(v.Scope);
                                         }
                                         view.update();
+<<<<<<< HEAD
                                     }
                                     else {
                                         Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_adding_list_view, v.Title, l.get_title()));
@@ -1121,6 +1213,43 @@ var Pzl;
                                         }
                                         l.update();
                                     }
+=======
+                                    }
+                                    else {
+                                        Core.Log.Information("Lists Views", String.format(Core.Resources.Lists_adding_list_view, v.Title, l.get_title()));
+                                        var viewCreationInformation = new SP.ViewCreationInformation();
+                                        if (v.Title) {
+                                            viewCreationInformation.set_title(v.Title);
+                                        }
+                                        if (v.PersonalView) {
+                                            viewCreationInformation.set_personalView(v.PersonalView);
+                                        }
+                                        if (v.Paged) {
+                                            viewCreationInformation.set_paged(v.Paged);
+                                        }
+                                        if (v.Query) {
+                                            viewCreationInformation.set_query(v.Query);
+                                        }
+                                        if (v.RowLimit) {
+                                            viewCreationInformation.set_rowLimit(v.RowLimit);
+                                        }
+                                        if (v.SetAsDefaultView) {
+                                            viewCreationInformation.set_setAsDefaultView(v.SetAsDefaultView);
+                                        }
+                                        if (v.ViewFields) {
+                                            viewCreationInformation.set_viewFields(v.ViewFields);
+                                        }
+                                        if (v.ViewTypeKind) {
+                                            viewCreationInformation.set_viewTypeKind(SP.ViewType.html);
+                                        }
+                                        var view = l.get_views().add(viewCreationInformation);
+                                        if (v.Scope) {
+                                            view.set_scope(v.Scope);
+                                            view.update();
+                                        }
+                                        l.update();
+                                    }
+>>>>>>> 376a10115f20a2ada937fcb5209d354aab07dad7
                                     clientContext.load(l.get_views());
                                 });
                             });
@@ -1162,7 +1291,7 @@ var Pzl;
                         return def.promise();
                     };
                     return Lists;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1291,7 +1420,7 @@ var Pzl;
                         return f[0] || null;
                     };
                     return Navigation;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Navigation = Navigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1347,7 +1476,7 @@ var Pzl;
                         return split.splice(0, split.length - 1);
                     };
                     return Pages;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1411,7 +1540,7 @@ var Pzl;
                         return b64encoded;
                     };
                     return PropertyBagEntries;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.PropertyBagEntries = PropertyBagEntries;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1492,7 +1621,7 @@ var Pzl;
                         }
                     };
                     return Security;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Security = Security;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1563,7 +1692,7 @@ var Pzl;
                         return def.promise();
                     };
                     return WebSettings;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1626,7 +1755,7 @@ var Pzl;
                         .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                 };
                 return Logger;
-            }());
+            })();
             Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));

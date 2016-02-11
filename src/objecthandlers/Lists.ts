@@ -391,12 +391,19 @@ module Pzl.Sites.Core.ObjectHandlers {
                     lists.forEach((l, index) => {
                         var obj = objects[index];
                         if (!obj.Views) return;
+                 
                         listViewCollections.push(l.get_views());
                         clientContext.load(listViewCollections[index]);
                         obj.Views.forEach((v) => {
                             var viewExists = jQuery.grep(listViewCollections[index].get_data(), (ev) => {
+                                if(obj.RemoveExistingViews && obj.Views.length > 0) {
+                                    Core.Log.Information("Lists Views", String.format(Resources.Lists_removing_existing_list_view, v.Title, l.get_title()))
+                                    ev.deleteObject();
+                                    return false;  
+                                } 
                                 return ev.get_title() == v.Title;
                             }).length > 0;
+                           
                             if (viewExists) {
                                 var view = listViewCollections[index].getByTitle(v.Title);
                                 Core.Log.Information("Lists Views", String.format(Resources.Lists_updating_list_view, v.Title, l.get_title()));

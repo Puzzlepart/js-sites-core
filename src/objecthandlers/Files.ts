@@ -1,8 +1,4 @@
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\model.d.ts" />
-/// <reference path="..\schema\schema.d.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 
 module Pzl.Sites.Core.ObjectHandlers {
@@ -15,6 +11,8 @@ module Pzl.Sites.Core.ObjectHandlers {
     }
 
     export class Files extends Model.ObjectHandlerBase {
+        
+        
         constructor() {
             super("Files")
         }
@@ -29,7 +27,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             objects.forEach((obj, index) => {
                 var filename = this.GetFilenameFromFilePath(obj.Dest);
                 var folder = web.getFolderByServerRelativeUrl(`${_spPageContextInfo.webServerRelativeUrl}/${this.GetFolderFromFilePath(obj.Dest)}`);
-                promises.push(jQuery.get(this.GetFileUrlWithoutTokens(obj.Src), (fileContents) => {
+                promises.push(jQuery.get(this.tokenParser.ReplaceUrlTokens(obj.Src), (fileContents) => {
                     var f: any = {};
                     jQuery.extend(f, obj, { "Filename": filename, "Folder": folder, "Contents": fileContents })
                     fileInfos.push(f);
@@ -105,7 +103,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 if (wp.Contents.FileUrl) {
                     promises.push((() => {
                         var def = jQuery.Deferred();
-                        var fileUrl = this.GetFileUrlWithoutTokens(wp.Contents.FileUrl);
+                        var fileUrl = this.tokenParser.ReplaceUrlTokens(wp.Contents.FileUrl);
                         jQuery.get(fileUrl, (xml) => {
                             webParts[index].Contents.Xml = xml;
                             def.resolve();
@@ -139,7 +137,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                             webParts.forEach(wp => {
                                 if (!wp.Contents.Xml) return;
                                 Core.Log.Information("Files Web Parts", String.format(Resources.Files_adding_webpart, wp.Title, wp.Zone, dest));
-                                var oWebPartDefinition = limitedWebPartManager.importWebPart(this.GetWebPartXmlWithoutTokens(wp.Contents.Xml));
+                                var oWebPartDefinition = limitedWebPartManager.importWebPart(this.tokenParser.ReplaceUrlTokens(wp.Contents.Xml));
                                 var oWebPart = oWebPartDefinition.get_webPart();
                                 limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
                             });
@@ -255,13 +253,6 @@ module Pzl.Sites.Core.ObjectHandlers {
                 }
             );
             return def.promise();
-        }
-        private GetFileUrlWithoutTokens(fileUrl: string) {
-            return fileUrl.replace(/{resources}/g, `${_spPageContextInfo.siteAbsoluteUrl}/resources`)
-                .replace(/{webpartgallery}/g, `${_spPageContextInfo.siteAbsoluteUrl}/_catalogs/wp`);
-        }
-        private GetWebPartXmlWithoutTokens(xml: string) {
-            return xml.replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl);
         }
         private GetFolderFromFilePath(filePath: string) {
             var split = filePath.split("/");

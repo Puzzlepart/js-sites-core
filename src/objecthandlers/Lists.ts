@@ -1,10 +1,6 @@
-/// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\schema.d.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
-/// <reference path="..\utilities\RestHelper.ts" />
 "use strict";
+
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class Lists extends Model.ObjectHandlerBase {
@@ -115,17 +111,17 @@ module Pzl.Sites.Core.ObjectHandlers {
                     obj.RibbonActions.forEach(ra => {
                         Core.Log.Information("Lists Ribbon Actions", String.format(Resources.Lists_adding_ribbon_action, ra.Name, l.get_title()));
                         var action = l.get_userCustomActions().add();
-                        action.set_name(`${ra.Control}.${ra.Name}`);                        
+                        action.set_name(`${ra.Control}.${ra.Name}`);
                         action.set_title(`${ra.Control}.${ra.Name}`);
                         action.set_location(ra.Location);
                         action.set_sequence(5);
                         var scriptSrc = `${ra.LoadScript}/${ra.Control}.${ra.Group}.${ra.Name}.js`.replace("~sitecollection", _spPageContextInfo.siteAbsoluteUrl);
                         action.set_commandUIExtension(decodeURIComponent(String.format(this.ribbonActionTemplate, ra.Control, ra.Group, ra.Name, ra.LabelText, ra.Image16by16, ra.Image32by32, ra.Description, ra.Sequence, scriptSrc)));
-                        action.update();                        
+                        action.update();
                     });
                 }
             });
-            
+
             clientContext.executeQueryAsync(def.resolve,
             (sender, args) => {
                 Core.Log.Error("Lists Ribbon Actions", args.get_message());
@@ -280,28 +276,35 @@ module Pzl.Sites.Core.ObjectHandlers {
                 var obj = objects[index];
                 if (obj.Fields) {
                     obj.Fields.forEach(f => {
-                        Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
-                        var properties = [];
-                        for (var prop in f) {
-                            var value = f[prop];
-                            if (prop == "List") {
-                                var targetList = jQuery.grep(lists, v => {
-                                    return v.get_title() === value;
-                                });
-                                if (targetList.length > 0) {
-                                    value = `{${targetList[0].get_id().toString()}}`;
-                                } else {
-                                    Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
-                                    return;
+                        var fieldXml = "";
+                        if (!f.SchemaXml) {
+                            Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
+                            var properties = [];
+                            for (var prop in f) {
+                                var value = f[prop];
+                                if (prop == "List") {
+                                    var targetList = jQuery.grep(lists, v => {
+                                        return v.get_title() === value;
+                                    });
+                                    if (targetList.length > 0) {
+                                        value = `{${targetList[0].get_id().toString()}}`;
+                                    } else {
+                                        Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
+                                        return;
+                                    }
                                 }
+                                if (prop == "Formula") continue;
+                                properties.push(`${prop}="${value}"`);
                             }
-                            if (prop == "Formula") continue;
-                            properties.push(`${prop}="${value}"`);
+                            fieldXml = `<Field ${properties.join(" ")}>`;
+                            if (f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
+                            fieldXml += "</Field>";
+                        } else {
+                            Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field_schema_xml, l.get_title()));
+                            fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
                         }
-                        var fieldXml = `<Field ${properties.join(" ")}>`;
-                        if (f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
-                        fieldXml += "</Field>";
-                        l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToDefaultContentType);
+
+                        l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
                     });
                     l.update();
                 }

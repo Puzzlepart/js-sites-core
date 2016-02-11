@@ -24,17 +24,18 @@ module Pzl.Sites.Core.Resources {
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
     export var Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
+    export var Lists_adding_field_schema_xml = "Adding field to list '{0}', using Schema XML";
     export var Lists_invalid_lookup_field = "The lookup field '{0}' for list '{1}' is invalid";
     export var Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";
     export var Lists_adding_ribbon_action = "Adding ribbon action '{0}' to list '{1}'";
     export var Lists_adding_ribbon_action_dependency = "Adding custom action for dependency for ribbon action '{0}' for list '{1}'"
-    export var WebSettings_setting_welcomePage = "Setting welcome page to {0}";    
-    export var WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";    
-    export var WebSettings_setting_masterUrl = "Setting master url to {0}";    
-    export var WebSettings_setting_customMasterUrl = "Setting custom master url to {0}";    
-    export var WebSettings_setting_saveSiteAsTemplateEnabled = "Setting save site as template enabled to {0}";    
-    export var WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";    
-    export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";    
+    export var WebSettings_setting_welcomePage = "Setting welcome page to {0}";
+    export var WebSettings_setting_alternateCssUrl = "Setting alternate css url to {0}";
+    export var WebSettings_setting_masterUrl = "Setting master url to {0}";
+    export var WebSettings_setting_customMasterUrl = "Setting custom master url to {0}";
+    export var WebSettings_setting_saveSiteAsTemplateEnabled = "Setting save site as template enabled to {0}";
+    export var WebSettings_setting_quickLaunchEnabled = "Setting quicklaunch enabled to {0}";
+    export var WebSettings_setting_recycleBinEnabled= "Setting recyclebin enabled to {0}";
     export var WebSettings_setting_treeViewEnabled = "Setting treeview enabled to {0}";
     export var PropertyBagEntries_setting_property = "Setting property '{0}' = '{1}' on web";
     export var PropertyBagEntries_setting_indexed_property = "Setting property '{0}' as indexed";

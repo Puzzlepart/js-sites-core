@@ -1,8 +1,6 @@
-/// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\ObjectHandlerBase.ts" />
-/// <reference path="..\schema\schema.d.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+"use strict";
+
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class Navigation extends Model.ObjectHandlerBase {
@@ -67,7 +65,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 const existingNode = this.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, obj.Title);
                                 const newNode = new SP.NavigationNodeCreationInformation();
                                 newNode.set_title(obj.Title);
-                                newNode.set_url(existingNode ? existingNode.get_url() : this.GetUrlWithoutTokens(obj.Url));
+                                newNode.set_url(existingNode ? existingNode.get_url() : this.tokenParser.ReplaceUrlTokens(obj.Url));
                                 newNode.set_asLastNode(true);
                                 quickLaunchNodeCollection.add(newNode);
                             });
@@ -89,7 +87,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                                                 var existingNode = this.GetNodeFromQuickLaunchByTitle(temporaryQuickLaunch, c.Title);
                                                 const newNode = new SP.NavigationNodeCreationInformation();
                                                 newNode.set_title(c.Title);
-                                                newNode.set_url(existingNode ? existingNode.get_url() : this.GetUrlWithoutTokens(c.Url));
+                                                newNode.set_url(existingNode ? existingNode.get_url() : this.tokenParser.ReplaceUrlTokens(c.Url));
                                                 newNode.set_asLastNode(true);
                                                 childrenNodeCollection.add(newNode);
                                                 Core.Log.Information("QuickLaunch", String.format(Resources.Navigation_adding_children_node, c.Url, c.Title, n.Title));
@@ -116,11 +114,6 @@ module Pzl.Sites.Core.ObjectHandlers {
             }
             return def.promise();
         }
-        private GetUrlWithoutTokens(url: string) {
-            return url.replace("{site}", _spPageContextInfo.webAbsoluteUrl)
-                .replace("{sitecollection}", _spPageContextInfo.siteAbsoluteUrl);
-        }
-
         private GetNodeFromQuickLaunchByTitle(nodeCollection, title) {
             const f = jQuery.grep(nodeCollection, (val: SP.NavigationNode) => {
                 return val.get_title() === title;

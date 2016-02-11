@@ -1,8 +1,6 @@
-/// <reference path="..\..\typings\tsd.d.ts" />
-/// <reference path="..\model\model.d.ts" />
-/// <reference path="..\pzl.sites.core.d.ts" />
-/// <reference path="..\resources\pzl.sites.core.resources.ts" />
-/// <reference path="..\schema\schema.d.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
+"use strict";
+
 
 module Pzl.Sites.Core.ObjectHandlers {
     export class PropertyBagEntries extends Model.ObjectHandlerBase {

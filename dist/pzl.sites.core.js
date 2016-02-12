@@ -200,6 +200,45 @@ var Pzl;
     (function (Sites) {
         var Core;
         (function (Core) {
+            var Helpers;
+            (function (Helpers) {
+                function IsPublishingEnabled() {
+                    var def = jQuery.Deferred();
+                    ExecuteOrDelayUntilScriptLoaded(function () {
+                        var clientContext = SP.ClientContext.get_current();
+                        var site = clientContext.get_site();
+                        var features = site.get_features();
+                        clientContext.load(features);
+                        clientContext.executeQueryAsync(function () {
+                            var find = jQuery.grep(features.get_data(), function (f) {
+                                return f.get_definitionId() == 'f6924d36-2fa8-4f0b-b16d-06b7250180fa';
+                            });
+                            if (find.length > 0) {
+                                SP.SOD.registerSod("sp.publishing.js", _spPageContextInfo.siteAbsoluteUrl + "/_layouts/15/sp.publishing.js");
+                                EnsureScriptFunc("sp.publishing.js", null, function () {
+                                    def.resolve(true);
+                                });
+                            }
+                            else {
+                                def.resolve(false);
+                            }
+                        }, function () {
+                            def.resolve(false);
+                        });
+                    }, "SP.js");
+                    return def.promise();
+                }
+                Helpers.IsPublishingEnabled = IsPublishingEnabled;
+            })(Helpers = Core.Helpers || (Core.Helpers = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
             var Model;
             (function (Model) {
                 var ObjectHandlerBase = (function () {
@@ -1194,25 +1233,36 @@ var Pzl;
                         var clientContext = SP.ClientContext.get_current();
                         var web = clientContext.get_web();
                         Core.Log.Information(this.name, Core.Resources.Code_execution_started);
-                        var navigation = web.get_navigation();
-                        if (object.UseShared != undefined) {
-                            Core.Log.Information(this.name, String.format(Core.Resources.Navigation_setting_shared, object.UseShared));
-                            navigation.set_useShared(object.UseShared);
-                        }
-                        clientContext.executeQueryAsync(function () {
-                            if (!object.QuickLaunch || object.QuickLaunch.length == 0) {
-                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                def.resolve();
-                                return def.promise();
+                        Core.Helpers.IsPublishingEnabled().then(function (publishingEnabled) {
+                            var navigation = web.get_navigation();
+                            if (object.UseShared == true) {
+                                Core.Log.Information(_this.name, String.format(Core.Resources.Navigation_setting_shared, object.UseShared));
+                                if (publishingEnabled) {
+                                    var navSettings = new SP.Publishing.Navigation.WebNavigationSettings(clientContext, web);
+                                    var publishingNavigation = navSettings.get_globalNavigation();
+                                    publishingNavigation.set_source(3);
+                                    navSettings.update();
+                                }
+                                else {
+                                    navigation.set_useShared(object.UseShared);
+                                }
+                                web.update();
                             }
-                            _this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(function () {
+                            clientContext.executeQueryAsync(function () {
+                                if (!object.QuickLaunch || object.QuickLaunch.length == 0) {
+                                    Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                    def.resolve();
+                                    return def.promise();
+                                }
+                                _this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(function () {
+                                    Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                    def.resolve();
+                                });
+                            }, function (sender, args) {
                                 Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                Core.Log.Error(_this.name, "Error: " + args.get_message());
                                 def.resolve();
                             });
-                        }, function (sender, args) {
-                            Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                            Core.Log.Error(_this.name, "Error: " + args.get_message());
-                            def.resolve();
                         });
                         return def.promise();
                     };

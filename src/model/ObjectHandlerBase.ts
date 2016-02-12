@@ -1,6 +1,7 @@
 /// <reference path="..\resources\pzl.sites.core.resources.ts" />
 /// <reference path="..\..\typings\tsd.d.ts" />
 /// <reference path="..\model\model.d.ts" />
+/// <reference path="..\helpers\helpers.d.ts" />
 /// <reference path="..\schema\schema.d.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
 module Pzl.Sites.Core.Model {

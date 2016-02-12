@@ -14,27 +14,39 @@ module Pzl.Sites.Core.ObjectHandlers {
             var web = clientContext.get_web();
 
             Core.Log.Information(this.name, Resources.Code_execution_started);
-            const navigation = web.get_navigation();
-            if (object.UseShared != undefined) {
-                Core.Log.Information(this.name, String.format(Resources.Navigation_setting_shared, object.UseShared));
-                navigation.set_useShared(object.UseShared);
-            }
-            clientContext.executeQueryAsync(
-                () => {
-                    if (!object.QuickLaunch || object.QuickLaunch.length == 0) {
-                        Core.Log.Information(this.name, Resources.Code_execution_ended);
-                        def.resolve();
-                        return def.promise();
+
+            Helpers.IsPublishingEnabled().then(publishingEnabled => {
+                const navigation = web.get_navigation();
+                if (object.UseShared == true) {
+                    Core.Log.Information(this.name, String.format(Resources.Navigation_setting_shared, object.UseShared));
+                    if (publishingEnabled) {
+                        const navSettings = new SP.Publishing.Navigation.WebNavigationSettings(clientContext, web);
+                        const publishingNavigation = navSettings.get_globalNavigation();
+                        publishingNavigation.set_source(3);
+                        navSettings.update();
                     }
-                    this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
+                    else {
+                        navigation.set_useShared(object.UseShared);
+                    }
+                    web.update();
+                }
+                clientContext.executeQueryAsync(
+                    () => {
+                        if (!object.QuickLaunch || object.QuickLaunch.length == 0) {
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                            def.resolve();
+                            return def.promise();
+                        }
+                        this.ConfigureQuickLaunch(object.QuickLaunch, clientContext, navigation).then(() => {
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                            def.resolve();
+                        });
+                    }, (sender, args) => {
                         Core.Log.Information(this.name, Resources.Code_execution_ended);
+                        Core.Log.Error(this.name, `Error: ${args.get_message()}`);
                         def.resolve();
                     });
-                }, (sender, args) => {
-                    Core.Log.Information(this.name, Resources.Code_execution_ended);
-                    Core.Log.Error(this.name, `Error: ${args.get_message()}`);
-                    def.resolve();
-                });
+            });
 
             return def.promise();
         }

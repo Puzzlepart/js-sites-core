@@ -987,39 +987,8 @@ var Pzl;
                             var obj = objects[index];
                             if (obj.Fields) {
                                 obj.Fields.forEach(function (f) {
-                                    var fieldXml = "";
-                                    if (!f.SchemaXml) {
-                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, f.Type, f.ID, l.get_title()));
-                                        var properties = [];
-                                        for (var prop in f) {
-                                            var value = f[prop];
-                                            if (prop == "List") {
-                                                var targetList = jQuery.grep(lists, function (v) {
-                                                    return v.get_title() === value;
-                                                });
-                                                if (targetList.length > 0) {
-                                                    value = "{" + targetList[0].get_id().toString() + "}";
-                                                }
-                                                else {
-                                                    Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
-                                                    return;
-                                                }
-                                            }
-                                            if (prop == "Formula")
-                                                continue;
-                                            properties.push(prop + "=\"" + value + "\"");
-                                        }
-                                        fieldXml = "<Field " + properties.join(" ") + ">";
-                                        if (f.Type == "Calculated")
-                                            fieldXml += "<Formula>" + f.Formula + "</Formula>";
-                                        fieldXml += "</Field>";
-                                    }
-                                    else {
-                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field_schema_xml, l.get_title()));
-                                        fieldXml = _this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
-                                    }
-                                    var fieldXmlDoc = jQuery.parseXML(fieldXml);
-                                    var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                                    var fieldXml = _this.GetFieldXml(f, lists, l);
+                                    var fieldType = _this.GetFieldXmlType(fieldXml);
                                     if (fieldType != "Lookup" && fieldType != "LookupMulti") {
                                         l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
                                     }
@@ -1040,39 +1009,8 @@ var Pzl;
                             var obj = objects[index];
                             if (obj.Fields) {
                                 obj.Fields.forEach(function (f) {
-                                    var fieldXml = "";
-                                    if (!f.SchemaXml) {
-                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_lookup_field, f.Type, f.ID, l.get_title()));
-                                        var properties = [];
-                                        for (var prop in f) {
-                                            var value = f[prop];
-                                            if (prop == "List") {
-                                                var targetList = jQuery.grep(lists, function (v) {
-                                                    return v.get_title() === value;
-                                                });
-                                                if (targetList.length > 0) {
-                                                    value = "{" + targetList[0].get_id().toString() + "}";
-                                                }
-                                                else {
-                                                    Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
-                                                    return;
-                                                }
-                                            }
-                                            if (prop == "Formula")
-                                                continue;
-                                            properties.push(prop + "=\"" + value + "\"");
-                                        }
-                                        fieldXml = "<Field " + properties.join(" ") + ">";
-                                        if (f.Type == "Calculated")
-                                            fieldXml += "<Formula>" + f.Formula + "</Formula>";
-                                        fieldXml += "</Field>";
-                                    }
-                                    else {
-                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field_schema_xml, l.get_title()));
-                                        fieldXml = _this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
-                                    }
-                                    var fieldXmlDoc = jQuery.parseXML(fieldXml);
-                                    var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                                    var fieldXml = _this.GetFieldXml(f, lists, l);
+                                    var fieldType = _this.GetFieldXmlType(fieldXml);
                                     if (fieldType == "Lookup" || fieldType == "LookupMulti") {
                                         l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
                                     }
@@ -1085,6 +1023,45 @@ var Pzl;
                             def.resolve(sender, args);
                         });
                         return def.promise();
+                    };
+                    Lists.prototype.GetFieldXmlType = function (fieldXml) {
+                        return $(jQuery.parseXML(fieldXml)).find("Field").attr("Type");
+                    };
+                    Lists.prototype.GetFieldXml = function (field, lists, list) {
+                        var fieldXml = "";
+                        if (!field.SchemaXml) {
+                            Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field, field.Type, field.ID, list.get_title()));
+                            var properties = [];
+                            for (var prop in field) {
+                                var value = field[prop];
+                                if (prop == "List") {
+                                    var targetList = jQuery.grep(lists, function (v) {
+                                        return v.get_title() === value;
+                                    });
+                                    if (targetList.length > 0) {
+                                        value = "{" + targetList[0].get_id().toString() + "}";
+                                    }
+                                    else {
+                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, field.ID, list.get_title()));
+                                        return;
+                                    }
+                                }
+                                if (prop == "Formula")
+                                    continue;
+                                properties.push(prop + "=\"" + value + "\"");
+                            }
+                            fieldXml = "<Field " + properties.join(" ") + ">";
+                            if (field.Type == "Calculated")
+                                fieldXml += "<Formula>" + field.Formula + "</Formula>";
+                            fieldXml += "</Field>";
+                            return fieldXml;
+                        }
+                        else {
+                            Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field_schema_xml, list.get_title()));
+                            fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(field.SchemaXml, lists);
+                            return fieldXml;
+                        }
+                        return fieldXml;
                     };
                     Lists.prototype.ApplyListSecurity = function (clientContext, lists, objects) {
                         var def = jQuery.Deferred();

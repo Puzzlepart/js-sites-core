@@ -73,13 +73,15 @@ module Pzl.Sites.Core.ObjectHandlers {
                             this.ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
                                 this.ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
                                     this.ApplyFields(clientContext, listInstances, objects).then(() => {
-                                        this.ApplyListSecurity(clientContext, listInstances, objects).then(() => {
-                                            this.CreateViews(clientContext, listInstances, objects).then(() => {
-                                                this.InsertDataRows(clientContext, listInstances, objects).then(() => {
-                                                    this.CreateFolders(clientContext, listInstances, objects).then(() => {
-                                                        this.AddRibbonActions(clientContext, listInstances, objects).then(() => {
-                                                            Core.Log.Information(this.name, Resources.Code_execution_ended);
-                                                            def.resolve();
+                                        this.ApplyLookupFields(clientContext, listInstances, objects).then(() => {
+                                            this.ApplyListSecurity(clientContext, listInstances, objects).then(() => {
+                                                this.CreateViews(clientContext, listInstances, objects).then(() => {
+                                                    this.InsertDataRows(clientContext, listInstances, objects).then(() => {
+                                                        this.CreateFolders(clientContext, listInstances, objects).then(() => {
+                                                            this.AddRibbonActions(clientContext, listInstances, objects).then(() => {
+                                                                Core.Log.Information(this.name, Resources.Code_execution_ended);
+                                                                def.resolve();
+                                                            });
                                                         });
                                                     });
                                                 });
@@ -292,19 +294,76 @@ module Pzl.Sites.Core.ObjectHandlers {
                                         Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
                                         return;
                                     }
-                                }
+                                } 
                                 if (prop == "Formula") continue;
                                 properties.push(`${prop}="${value}"`);
                             }
                             fieldXml = `<Field ${properties.join(" ")}>`;
                             if (f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
                             fieldXml += "</Field>";
+                        
+                        } else {
+                            
+                            Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field_schema_xml, l.get_title())); 
+                            fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
+                            
+                        }
+                        var fieldXmlDoc = jQuery.parseXML(fieldXml);
+                        var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                        if(fieldType != "Lookup" && fieldType != "LookupMulti" ){
+                             l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes); 
+                        }
+                    });
+                    l.update();
+                }
+            });
+            clientContext.executeQueryAsync(def.resolve,
+                (sender, args) => {
+                    Core.Log.Error("Lists Fields", args.get_message());
+                    def.resolve(sender, args);
+                });
+
+            return def.promise();
+        }
+        private ApplyLookupFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+            var def = jQuery.Deferred();
+
+            lists.forEach((l, index) => {
+                var obj = objects[index];
+                if (obj.Fields) {
+                    obj.Fields.forEach(f => { 
+                        var fieldXml = "";
+                        if (!f.SchemaXml) {
+                            Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_lookup_field, f.Type, f.ID, l.get_title()));
+                            var properties = [];
+                            for (var prop in f) {
+                                var value = f[prop];
+                                if (prop == "List") {
+                                    var targetList = jQuery.grep(lists, v => {
+                                        return v.get_title() === value; 
+                                    });
+                                    if (targetList.length > 0) {
+                                        value = `{${targetList[0].get_id().toString()}}`
+                                    } else {
+                                        Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
+                                        return;
+                                    }
+                                }
+                                if (prop == "Formula") continue;
+                                properties.push(`${prop}="${value}"`);
+                            }
+                            fieldXml = `<Field ${properties.join(" ")}>`; 
+                            if (f.Type == "Calculated") fieldXml += `<Formula>${f.Formula}</Formula>`;
+                            fieldXml += "</Field>";
                         } else {
                             Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field_schema_xml, l.get_title()));
                             fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
                         }
-
-                        l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+                        var fieldXmlDoc = jQuery.parseXML(fieldXml);
+                        var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                        if(fieldType == "Lookup" || fieldType == "LookupMulti"){
+                            l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+                        }
                     });
                     l.update();
                 }

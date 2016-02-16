@@ -32,6 +32,7 @@ var Pzl;
                 Resources.Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
                 Resources.Lists_adding_field_ref = "Adding field {0} to list {1}";
                 Resources.Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
+                Resources.Lists_adding_lookup_field = "Adding {0} lookup field '{1}' to list '{2}'";
                 Resources.Lists_adding_field_schema_xml = "Adding field to list '{0}', using Schema XML";
                 Resources.Lists_invalid_lookup_field = "The lookup field '{0}' for list '{1}' is invalid";
                 Resources.Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";
@@ -94,7 +95,7 @@ var Pzl;
                         return jQuery.ajax({ url: url, type: 'get', headers: this.headers });
                     };
                     return RestHelper;
-                }());
+                })();
                 Utilities.RestHelper = RestHelper;
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -152,7 +153,7 @@ var Pzl;
                             .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                     };
                     return TokenParser;
-                }());
+                })();
                 Utilities.TokenParser = TokenParser;
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -188,7 +189,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ProvisioningStep;
-                }());
+                })();
                 Model.ProvisioningStep = ProvisioningStep;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -248,7 +249,7 @@ var Pzl;
                     }
                     ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
                     return ObjectHandlerBase;
-                }());
+                })();
                 Model.ObjectHandlerBase = ObjectHandlerBase;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -304,7 +305,7 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -403,7 +404,7 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -453,7 +454,7 @@ var Pzl;
                         return def.promise();
                     };
                     return Features;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Features = Features;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -711,7 +712,7 @@ var Pzl;
                         return array[array.length - 1];
                     };
                     return Files;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -795,13 +796,15 @@ var Pzl;
                                 _this.ApplyContentTypeBindings(clientContext, listInstances, objects).then(function () {
                                     _this.ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(function () {
                                         _this.ApplyFields(clientContext, listInstances, objects).then(function () {
-                                            _this.ApplyListSecurity(clientContext, listInstances, objects).then(function () {
-                                                _this.CreateViews(clientContext, listInstances, objects).then(function () {
-                                                    _this.InsertDataRows(clientContext, listInstances, objects).then(function () {
-                                                        _this.CreateFolders(clientContext, listInstances, objects).then(function () {
-                                                            _this.AddRibbonActions(clientContext, listInstances, objects).then(function () {
-                                                                Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                                                def.resolve();
+                                            _this.ApplyLookupFields(clientContext, listInstances, objects).then(function () {
+                                                _this.ApplyListSecurity(clientContext, listInstances, objects).then(function () {
+                                                    _this.CreateViews(clientContext, listInstances, objects).then(function () {
+                                                        _this.InsertDataRows(clientContext, listInstances, objects).then(function () {
+                                                            _this.CreateFolders(clientContext, listInstances, objects).then(function () {
+                                                                _this.AddRibbonActions(clientContext, listInstances, objects).then(function () {
+                                                                    Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                                                    def.resolve();
+                                                                });
                                                             });
                                                         });
                                                     });
@@ -1015,7 +1018,64 @@ var Pzl;
                                         Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field_schema_xml, l.get_title()));
                                         fieldXml = _this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
                                     }
-                                    l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+                                    var fieldXmlDoc = jQuery.parseXML(fieldXml);
+                                    var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                                    if (fieldType != "Lookup" && fieldType != "LookupMulti") {
+                                        l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+                                    }
+                                });
+                                l.update();
+                            }
+                        });
+                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            Core.Log.Error("Lists Fields", args.get_message());
+                            def.resolve(sender, args);
+                        });
+                        return def.promise();
+                    };
+                    Lists.prototype.ApplyLookupFields = function (clientContext, lists, objects) {
+                        var _this = this;
+                        var def = jQuery.Deferred();
+                        lists.forEach(function (l, index) {
+                            var obj = objects[index];
+                            if (obj.Fields) {
+                                obj.Fields.forEach(function (f) {
+                                    var fieldXml = "";
+                                    if (!f.SchemaXml) {
+                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_lookup_field, f.Type, f.ID, l.get_title()));
+                                        var properties = [];
+                                        for (var prop in f) {
+                                            var value = f[prop];
+                                            if (prop == "List") {
+                                                var targetList = jQuery.grep(lists, function (v) {
+                                                    return v.get_title() === value;
+                                                });
+                                                if (targetList.length > 0) {
+                                                    value = "{" + targetList[0].get_id().toString() + "}";
+                                                }
+                                                else {
+                                                    Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_invalid_lookup_field, f.ID, l.get_title()));
+                                                    return;
+                                                }
+                                            }
+                                            if (prop == "Formula")
+                                                continue;
+                                            properties.push(prop + "=\"" + value + "\"");
+                                        }
+                                        fieldXml = "<Field " + properties.join(" ") + ">";
+                                        if (f.Type == "Calculated")
+                                            fieldXml += "<Formula>" + f.Formula + "</Formula>";
+                                        fieldXml += "</Field>";
+                                    }
+                                    else {
+                                        Core.Log.Information("Lists Fields", String.format(Core.Resources.Lists_adding_field_schema_xml, l.get_title()));
+                                        fieldXml = _this.tokenParser.ReplaceListTokensFromListCollection(f.SchemaXml, lists);
+                                    }
+                                    var fieldXmlDoc = jQuery.parseXML(fieldXml);
+                                    var fieldType = $(fieldXmlDoc).find("Field").attr("Type");
+                                    if (fieldType == "Lookup" || fieldType == "LookupMulti") {
+                                        l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
+                                    }
                                 });
                                 l.update();
                             }
@@ -1207,7 +1267,7 @@ var Pzl;
                         return def.promise();
                     };
                     return Lists;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1347,7 +1407,7 @@ var Pzl;
                         return f[0] || null;
                     };
                     return Navigation;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Navigation = Navigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1403,7 +1463,7 @@ var Pzl;
                         return split.splice(0, split.length - 1);
                     };
                     return Pages;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1467,7 +1527,7 @@ var Pzl;
                         return b64encoded;
                     };
                     return PropertyBagEntries;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.PropertyBagEntries = PropertyBagEntries;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1548,7 +1608,7 @@ var Pzl;
                         }
                     };
                     return Security;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Security = Security;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1619,7 +1679,7 @@ var Pzl;
                         return def.promise();
                     };
                     return WebSettings;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
@@ -1682,7 +1742,7 @@ var Pzl;
                         .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                 };
                 return Logger;
-            }());
+            })();
             Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));

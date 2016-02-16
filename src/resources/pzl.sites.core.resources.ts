@@ -25,6 +25,7 @@ module Pzl.Sites.Core.Resources {
     export var Lists_adding_eventreceiver = "Adding eventreceiver {0} to list {1}";
     export var Lists_adding_field_ref = "Adding field {0} to list {1}";
     export var Lists_adding_field = "Adding {0} field '{1}' to list '{2}'";
+    export var Lists_adding_lookup_field = "Adding {0} lookup field '{1}' to list '{2}'";
     export var Lists_adding_field_schema_xml = "Adding field to list '{0}', using Schema XML";
     export var Lists_invalid_lookup_field = "The lookup field '{0}' for list '{1}' is invalid";
     export var Lists_inserting_data_row = "Adding data row {0} of {1} to list '{2}'";

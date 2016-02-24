@@ -209,13 +209,13 @@ var Pzl;
                         this.parameter = parameter;
                         this.scope = scope;
                     }
-                    DeferredObject.prototype.execute = function (dependentPromise) {
+                    DeferredObject.prototype.execute = function (depFunc) {
                         var _this = this;
-                        if (!dependentPromise) {
+                        if (!depFunc) {
                             return this.func.apply(this.scope, [this.parameter]);
                         }
                         var def = jQuery.Deferred();
-                        dependentPromise.done(function () {
+                        depFunc.done(function () {
                             _this.func.apply(_this.scope, [_this.parameter]).done(def.resolve);
                         });
                         return def.promise();

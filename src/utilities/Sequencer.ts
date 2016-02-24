@@ -40,12 +40,12 @@ module Pzl.Sites.Core.Utilities {
             this.parameter = parameter;
             this.scope = scope;
         }
-        execute(dependentPromise?) {
-            if (!dependentPromise) {
+        execute(depFunc?) {
+            if (!depFunc) {
                 return this.func.apply(this.scope, [this.parameter]);
             }
             var def = jQuery.Deferred();
-            dependentPromise.done(() => {
+            depFunc.done(() => {
                 this.func.apply(this.scope, [this.parameter]).done(def.resolve);
             });
             return def.promise();

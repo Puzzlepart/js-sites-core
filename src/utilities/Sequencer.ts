@@ -3,11 +3,11 @@ module Pzl.Sites.Core.Utilities {
     export class Sequencer {
         functions: Array<any>;
         parameter: any;
-        ctx: any;
+        scope: any;
         index = 0;
-        constructor(__functions: Array<any>, __parameter: any, __ctx: any) {
+        constructor(__functions: Array<any>, __parameter: any, __scope: any) {
             this.parameter = __parameter;
-            this.ctx = __ctx;
+            this.scope = __scope;
             this.functions = this.deferredArray(__functions);
         }
         init(callback: Function) {
@@ -26,7 +26,7 @@ module Pzl.Sites.Core.Utilities {
         private deferredArray(__functions: Array<any>) {
             var functions = [];
             __functions.forEach(f => {
-                functions.push(new DeferredObject(f, this.parameter, this.ctx));
+                functions.push(new DeferredObject(f, this.parameter, this.scope));
             });
             return functions;
         }
@@ -34,19 +34,19 @@ module Pzl.Sites.Core.Utilities {
     class DeferredObject {
         func: any;
         parameter: any;
-        ctx: any;
-        constructor(func, parameter, ctx) {
+        scope: any;
+        constructor(func, parameter, scope) {
             this.func = func;
             this.parameter = parameter;
-            this.ctx = ctx;
+            this.scope = scope;
         }
         execute(dependentPromise?) {
             if (!dependentPromise) {
-                return this.func.apply(this.ctx, [this.parameter]);
+                return this.func.apply(this.scope, [this.parameter]);
             }
             var def = jQuery.Deferred();
             dependentPromise.done(() => {
-                this.func.apply(this.ctx, [this.parameter]).done(def.resolve);
+                this.func.apply(this.scope, [this.parameter]).done(def.resolve);
             });
             return def.promise();
         }

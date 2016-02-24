@@ -1,4 +1,4 @@
-/// <reference path="..\utilities\TokenParser.ts" />
+/// <reference path="..\utilities\utilities.d.ts" />
 declare module Pzl.Sites.Core.Model {
     interface IObjectHandler {
         name: string;        

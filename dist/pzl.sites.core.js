@@ -82,6 +82,68 @@ var Pzl;
     (function (Sites) {
         var Core;
         (function (Core) {
+            var Logger = (function () {
+                function Logger(loggingOptions) {
+                    this.array = [];
+                    this.loggingOptions = loggingOptions;
+                }
+                Logger.prototype.loggerEnabled = function () {
+                    return (console && console.log);
+                };
+                Logger.prototype.Information = function (objectHandler, msg) {
+                    if (!this.loggingOptions)
+                        return;
+                    var logMsg = new Date() + " || Information || " + objectHandler + " || " + msg;
+                    if (this.loggerEnabled && this.loggingOptions.On) {
+                        console.log(logMsg);
+                    }
+                    this.array.push(logMsg);
+                };
+                Logger.prototype.Error = function (objectHandler, msg) {
+                    if (!this.loggingOptions)
+                        return;
+                    var logMsg = new Date() + " || Error || " + objectHandler + " || " + msg;
+                    if (this.loggerEnabled && this.loggingOptions.On) {
+                        console.log(logMsg);
+                    }
+                    this.array.push(logMsg);
+                };
+                Logger.prototype.SaveToFile = function () {
+                    var def = jQuery.Deferred();
+                    if (!this.loggingOptions || !this.loggingOptions.LoggingFolder) {
+                        def.resolve();
+                        return def.promise();
+                    }
+                    var clientContext = SP.ClientContext.get_current();
+                    var web = clientContext.get_site().get_rootWeb();
+                    var fileName = new Date().getTime() + ".txt";
+                    var fileCreateInfo = new SP.FileCreationInformation();
+                    fileCreateInfo.set_url(fileName);
+                    fileCreateInfo.set_content(new SP.Base64EncodedByteArray());
+                    var fileContent = this.array.join("\n");
+                    for (var i = 0; i < fileContent.length; i++) {
+                        fileCreateInfo.get_content().append(fileContent.charCodeAt(i));
+                    }
+                    clientContext.load(web.getFolderByServerRelativeUrl(this.ReplaceSiteTokens(this.loggingOptions.LoggingFolder)).get_files().add(fileCreateInfo));
+                    clientContext.executeQueryAsync(def.resolve, def.resolve);
+                    return def.promise();
+                };
+                Logger.prototype.ReplaceSiteTokens = function (url) {
+                    return url.replace(/{site}/g, _spPageContextInfo.webAbsoluteUrl)
+                        .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
+                };
+                return Logger;
+            }());
+            Core.Logger = Logger;
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
             var Utilities;
             (function (Utilities) {
                 var RestHelper = (function () {
@@ -97,6 +159,67 @@ var Pzl;
                     return RestHelper;
                 }());
                 Utilities.RestHelper = RestHelper;
+            })(Utilities = Core.Utilities || (Core.Utilities = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var Utilities;
+            (function (Utilities) {
+                var Sequencer = (function () {
+                    function Sequencer(__functions, __parameter) {
+                        this.index = 0;
+                        this.parameter = __parameter;
+                        this.functions = this.deferredArray(__functions);
+                    }
+                    Sequencer.prototype.init = function (callback) {
+                        var promises = [];
+                        promises.push(jQuery.Deferred());
+                        promises[0].resolve();
+                        promises[0].promise();
+                        var index = 1;
+                        while (this.functions[index - 1] != undefined) {
+                            var i = promises.length - 1;
+                            promises.push(this.functions[index - 1].execute(promises[i]));
+                            index++;
+                        }
+                        ;
+                        jQuery.when.apply(jQuery, promises).done(callback);
+                    };
+                    Sequencer.prototype.deferredArray = function (__functions) {
+                        var _this = this;
+                        var functions = [];
+                        __functions.forEach(function (f) {
+                            functions.push(new DeferredObject(f, _this.parameter));
+                        });
+                        return functions;
+                    };
+                    return Sequencer;
+                }());
+                Utilities.Sequencer = Sequencer;
+                var DeferredObject = (function () {
+                    function DeferredObject(func, parameter) {
+                        this.func = func;
+                        this.parameter = parameter;
+                    }
+                    DeferredObject.prototype.execute = function (dependentPromise) {
+                        var _this = this;
+                        if (!dependentPromise) {
+                            return this.func.apply(null, [this.parameter]);
+                        }
+                        var def = jQuery.Deferred();
+                        dependentPromise.done(function () {
+                            _this.func.apply(null, [_this.parameter]).done(def.resolve);
+                        });
+                        return def.promise();
+                    };
+                    return DeferredObject;
+                }());
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
@@ -793,25 +916,19 @@ var Pzl;
                                 }
                             });
                             clientContext.executeQueryAsync(function () {
-                                _this.ApplyContentTypeBindings(clientContext, listInstances, objects).then(function () {
-                                    _this.ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(function () {
-                                        _this.ApplyFields(clientContext, listInstances, objects).then(function () {
-                                            _this.ApplyLookupFields(clientContext, listInstances, objects).then(function () {
-                                                _this.ApplyListSecurity(clientContext, listInstances, objects).then(function () {
-                                                    _this.CreateViews(clientContext, listInstances, objects).then(function () {
-                                                        _this.InsertDataRows(clientContext, listInstances, objects).then(function () {
-                                                            _this.CreateFolders(clientContext, listInstances, objects).then(function () {
-                                                                _this.AddRibbonActions(clientContext, listInstances, objects).then(function () {
-                                                                    Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
-                                                                    def.resolve();
-                                                                });
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
+                                var sequencer = new Core.Utilities.Sequencer([
+                                    _this.ApplyContentTypeBindings,
+                                    _this.ApplyListInstanceFieldRefs,
+                                    _this.ApplyFields,
+                                    _this.ApplyLookupFields,
+                                    _this.ApplyListSecurity,
+                                    _this.CreateViews,
+                                    _this.InsertDataRows,
+                                    _this.CreateFolders,
+                                    _this.AddRibbonActions
+                                ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }).init(function () {
+                                    Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
+                                    def.resolve();
                                 });
                             }, function (sender, args) {
                                 Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
@@ -825,11 +942,11 @@ var Pzl;
                         });
                         return def.promise();
                     };
-                    Lists.prototype.AddRibbonActions = function (clientContext, lists, objects) {
+                    Lists.prototype.AddRibbonActions = function (params) {
                         var _this = this;
                         var def = jQuery.Deferred();
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (obj.RibbonActions) {
                                 obj.RibbonActions.forEach(function (ra) {
                                     Core.Log.Information("Lists Ribbon Actions", String.format(Core.Resources.Lists_adding_ribbon_action, ra.Name, l.get_title()));
@@ -844,7 +961,7 @@ var Pzl;
                                 });
                             }
                         });
-                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Ribbon Actions", args.get_message());
                             def.resolve(sender, args);
                         });
@@ -863,10 +980,10 @@ var Pzl;
                         eventReceivers.add(eventRecCreationInfo);
                         list.update();
                     };
-                    Lists.prototype.CreateFolders = function (clientContext, lists, objects) {
+                    Lists.prototype.CreateFolders = function (params) {
                         var _this = this;
                         var def = jQuery.Deferred();
-                        lists.forEach(function (l, index) {
+                        params.ListInstances.forEach(function (l, index) {
                             var obj = objects[index];
                             if (!obj.Folders)
                                 return;
@@ -902,32 +1019,32 @@ var Pzl;
                                     metadataDefaultsFileCreateInfo.get_content().append(metadataDefaults.charCodeAt(i));
                                 }
                                 rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
-                                _this.EnsureLocationBasedMetadataDefaultsReceiver(clientContext, l);
+                                _this.EnsureLocationBasedMetadataDefaultsReceiver(params.ClientContext, l);
                             }
                         });
-                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Folders", args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
-                    Lists.prototype.ApplyContentTypeBindings = function (clientContext, lists, objects) {
+                    Lists.prototype.ApplyContentTypeBindings = function (params) {
                         var def = jQuery.Deferred();
-                        var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
+                        var webCts = params.ClientContext.get_site().get_rootWeb().get_contentTypes();
                         var listCts = [];
-                        lists.forEach(function (l, index) {
+                        params.ListInstances.forEach(function (l, index) {
                             listCts.push(l.get_contentTypes());
-                            clientContext.load(listCts[index], 'Include(Name,Id)');
-                            if (objects[index].ContentTypeBindings) {
+                            params.ClientContext.load(listCts[index], 'Include(Name,Id)');
+                            if (params.Objects[index].ContentTypeBindings) {
                                 Core.Log.Information("Lists Content Types", String.format(Core.Resources.Lists_enabled_content_types, l.get_title()));
                                 l.set_contentTypesEnabled(true);
                                 l.update();
                             }
                         });
-                        clientContext.load(webCts);
-                        clientContext.executeQueryAsync(function () {
-                            lists.forEach(function (list, index) {
-                                var obj = objects[index];
+                        params.ClientContext.load(webCts);
+                        params.ClientContext.executeQueryAsync(function () {
+                            params.ListInstances.forEach(function (list, index) {
+                                var obj = params.Objects[index];
                                 if (!obj.ContentTypeBindings)
                                     return;
                                 var listContentTypes = listCts[index];
@@ -950,7 +1067,7 @@ var Pzl;
                                 }
                                 list.update();
                             });
-                            clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                                 Core.Log.Error("Lists Content Types", args.get_message());
                                 def.resolve(sender, args);
                             });
@@ -960,11 +1077,11 @@ var Pzl;
                         });
                         return def.promise();
                     };
-                    Lists.prototype.ApplyListInstanceFieldRefs = function (clientContext, lists, objects) {
+                    Lists.prototype.ApplyListInstanceFieldRefs = function (params) {
                         var def = jQuery.Deferred();
-                        var siteFields = clientContext.get_site().get_rootWeb().get_fields();
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        var siteFields = params.ClientContext.get_site().get_rootWeb().get_fields();
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (obj.FieldRefs) {
                                 obj.FieldRefs.forEach(function (fr) {
                                     Core.Log.Information("Lists Field Refs", String.format(Core.Resources.Lists_adding_field_ref, fr.Name, l.get_title()));
@@ -974,20 +1091,20 @@ var Pzl;
                                 l.update();
                             }
                         });
-                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Field Refs", args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
-                    Lists.prototype.ApplyFields = function (clientContext, lists, objects) {
+                    Lists.prototype.ApplyFields = function (params) {
                         var _this = this;
                         var def = jQuery.Deferred();
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (obj.Fields) {
                                 obj.Fields.forEach(function (f) {
-                                    var fieldXml = _this.GetFieldXml(f, lists, l);
+                                    var fieldXml = _this.GetFieldXml(f, params.ListInstances, l);
                                     var fieldType = _this.GetFieldXmlType(fieldXml);
                                     if (fieldType != "Lookup" && fieldType != "LookupMulti") {
                                         l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
@@ -996,20 +1113,20 @@ var Pzl;
                                 l.update();
                             }
                         });
-                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Fields", args.get_message());
                             def.resolve(sender, args);
                         });
                         return def.promise();
                     };
-                    Lists.prototype.ApplyLookupFields = function (clientContext, lists, objects) {
+                    Lists.prototype.ApplyLookupFields = function (params) {
                         var _this = this;
                         var def = jQuery.Deferred();
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (obj.Fields) {
                                 obj.Fields.forEach(function (f) {
-                                    var fieldXml = _this.GetFieldXml(f, lists, l);
+                                    var fieldXml = _this.GetFieldXml(f, params.ListInstances, l);
                                     var fieldType = _this.GetFieldXmlType(fieldXml);
                                     if (fieldType == "Lookup" || fieldType == "LookupMulti") {
                                         l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
@@ -1018,7 +1135,7 @@ var Pzl;
                                 l.update();
                             }
                         });
-                        clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                        params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                             Core.Log.Error("Lists Fields", args.get_message());
                             def.resolve(sender, args);
                         });
@@ -1063,28 +1180,28 @@ var Pzl;
                         }
                         return fieldXml;
                     };
-                    Lists.prototype.ApplyListSecurity = function (clientContext, lists, objects) {
+                    Lists.prototype.ApplyListSecurity = function (params) {
                         var def = jQuery.Deferred();
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (!obj.Security)
                                 return;
                             if (obj.Security.BreakRoleInheritance) {
                                 Core.Log.Information("Lists Security", String.format(Core.Resources.Lists_breaking_role_inheritance, l.get_title()));
                                 l.breakRoleInheritance(obj.Security.CopyRoleAssignments, obj.Security.ClearSubscopes);
                                 l.update();
-                                clientContext.load(l.get_roleAssignments());
+                                params.ClientContext.load(l.get_roleAssignments());
                             }
                         });
-                        var web = clientContext.get_web();
+                        var web = params.ClientContext.get_web();
                         var allProperties = web.get_allProperties();
                         var siteGroups = web.get_siteGroups();
                         var roleDefinitions = web.get_roleDefinitions();
-                        clientContext.load(allProperties);
-                        clientContext.load(roleDefinitions);
-                        clientContext.executeQueryAsync(function () {
-                            lists.forEach(function (l, index) {
-                                var obj = objects[index];
+                        params.ClientContext.load(allProperties);
+                        params.ClientContext.load(roleDefinitions);
+                        params.ClientContext.executeQueryAsync(function () {
+                            params.ListInstances.forEach(function (l, index) {
+                                var obj = params.Objects[index];
                                 if (!obj.Security)
                                     return;
                                 obj.Security.RoleAssignments.forEach(function (ra) {
@@ -1095,7 +1212,7 @@ var Pzl;
                                     else {
                                         roleDef = roleDefinitions.getByName(ra.RoleDefinition);
                                     }
-                                    var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                                    var roleBindings = SP.RoleDefinitionBindingCollection.newObject(params.ClientContext);
                                     roleBindings.add(roleDef);
                                     var principal = null;
                                     if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
@@ -1111,7 +1228,7 @@ var Pzl;
                                 l.update();
                                 Core.Log.Information("Lists Security", String.format(Core.Resources.Lists_role_assignments_applied, l.get_title()));
                             });
-                            clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                                 Core.Log.Error("Lists Security", "Error: " + args.get_message());
                                 def.resolve(sender, args);
                             });
@@ -1121,21 +1238,21 @@ var Pzl;
                         });
                         return def.promise();
                     };
-                    Lists.prototype.CreateViews = function (clientContext, lists, objects) {
+                    Lists.prototype.CreateViews = function (params) {
                         Core.Log.Information("Lists Views", Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var listViewCollections = [];
-                        lists.forEach(function (l, index) {
+                        params.ListInstances.forEach(function (l, index) {
                             listViewCollections.push(l.get_views());
-                            clientContext.load(listViewCollections[index]);
+                            params.ClientContext.load(listViewCollections[index]);
                         });
-                        clientContext.executeQueryAsync(function () {
-                            lists.forEach(function (l, index) {
-                                var obj = objects[index];
+                        params.ClientContext.executeQueryAsync(function () {
+                            params.ListInstances.forEach(function (l, index) {
+                                var obj = params.Objects[index];
                                 if (!obj.Views)
                                     return;
                                 listViewCollections.push(l.get_views());
-                                clientContext.load(listViewCollections[index]);
+                                params.ClientContext.load(listViewCollections[index]);
                                 obj.Views.forEach(function (v) {
                                     var viewExists = jQuery.grep(listViewCollections[index].get_data(), function (ev) {
                                         if (obj.RemoveExistingViews && obj.Views.length > 0) {
@@ -1203,10 +1320,10 @@ var Pzl;
                                         }
                                         l.update();
                                     }
-                                    clientContext.load(l.get_views());
+                                    params.ClientContext.load(l.get_views());
                                 });
                             });
-                            clientContext.executeQueryAsync(def.resolve, function (sender, args) {
+                            params.ClientContext.executeQueryAsync(def.resolve, function (sender, args) {
                                 Core.Log.Error("Lists Views", args.get_message());
                                 def.resolve(sender, args);
                             });
@@ -1216,12 +1333,12 @@ var Pzl;
                         });
                         return def.promise();
                     };
-                    Lists.prototype.InsertDataRows = function (clientContext, lists, objects) {
+                    Lists.prototype.InsertDataRows = function (params) {
                         Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_started);
                         var def = jQuery.Deferred();
                         var promises = [];
-                        lists.forEach(function (l, index) {
-                            var obj = objects[index];
+                        params.ListInstances.forEach(function (l, index) {
+                            var obj = params.Objects[index];
                             if (obj.DataRows) {
                                 obj.DataRows.forEach(function (r, index) {
                                     Core.Log.Information("Lists Data Rows", String.format(Core.Resources.Lists_inserting_data_row, (index + 1), obj.DataRows.length, l.get_title()));
@@ -1230,11 +1347,11 @@ var Pzl;
                                         item.set_item(key, r[key]);
                                     }
                                     item.update();
-                                    clientContext.load(item);
+                                    params.ClientContext.load(item);
                                 });
                             }
                         });
-                        clientContext.executeQueryAsync(function () {
+                        params.ClientContext.executeQueryAsync(function () {
                             Core.Log.Information("Lists Data Rows", Core.Resources.Code_execution_ended);
                             def.resolve();
                         }, function (sender, args) {
@@ -1665,68 +1782,6 @@ var Pzl;
                 }(Core.Model.ObjectHandlerBase));
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
-        })(Core = Sites.Core || (Sites.Core = {}));
-    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
-})(Pzl || (Pzl = {}));
-var Pzl;
-(function (Pzl) {
-    var Sites;
-    (function (Sites) {
-        var Core;
-        (function (Core) {
-            var Logger = (function () {
-                function Logger(loggingOptions) {
-                    this.array = [];
-                    this.loggingOptions = loggingOptions;
-                }
-                Logger.prototype.loggerEnabled = function () {
-                    return (console && console.log);
-                };
-                Logger.prototype.Information = function (objectHandler, msg) {
-                    if (!this.loggingOptions)
-                        return;
-                    var logMsg = new Date() + " || Information || " + objectHandler + " || " + msg;
-                    if (this.loggerEnabled && this.loggingOptions.On) {
-                        console.log(logMsg);
-                    }
-                    this.array.push(logMsg);
-                };
-                Logger.prototype.Error = function (objectHandler, msg) {
-                    if (!this.loggingOptions)
-                        return;
-                    var logMsg = new Date() + " || Error || " + objectHandler + " || " + msg;
-                    if (this.loggerEnabled && this.loggingOptions.On) {
-                        console.log(logMsg);
-                    }
-                    this.array.push(logMsg);
-                };
-                Logger.prototype.SaveToFile = function () {
-                    var def = jQuery.Deferred();
-                    if (!this.loggingOptions || !this.loggingOptions.LoggingFolder) {
-                        def.resolve();
-                        return def.promise();
-                    }
-                    var clientContext = SP.ClientContext.get_current();
-                    var web = clientContext.get_site().get_rootWeb();
-                    var fileName = new Date().getTime() + ".txt";
-                    var fileCreateInfo = new SP.FileCreationInformation();
-                    fileCreateInfo.set_url(fileName);
-                    fileCreateInfo.set_content(new SP.Base64EncodedByteArray());
-                    var fileContent = this.array.join("\n");
-                    for (var i = 0; i < fileContent.length; i++) {
-                        fileCreateInfo.get_content().append(fileContent.charCodeAt(i));
-                    }
-                    clientContext.load(web.getFolderByServerRelativeUrl(this.ReplaceSiteTokens(this.loggingOptions.LoggingFolder)).get_files().add(fileCreateInfo));
-                    clientContext.executeQueryAsync(def.resolve, def.resolve);
-                    return def.promise();
-                };
-                Logger.prototype.ReplaceSiteTokens = function (url) {
-                    return url.replace(/{site}/g, _spPageContextInfo.webAbsoluteUrl)
-                        .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
-                };
-                return Logger;
-            }());
-            Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));

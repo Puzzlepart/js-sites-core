@@ -3,6 +3,11 @@
 
 
 module Pzl.Sites.Core.ObjectHandlers {
+    interface IFunctionParams {
+        ClientContext: SP.ClientContext;
+        ListInstances: Array<SP.List>;
+        Objects: Array<Schema.IListInstance>;
+    }
     export class Lists extends Model.ObjectHandlerBase {
         constructor() {
             super("Lists")
@@ -70,25 +75,19 @@ module Pzl.Sites.Core.ObjectHandlers {
                     });
                     clientContext.executeQueryAsync(
                         () => {
-                            this.ApplyContentTypeBindings(clientContext, listInstances, objects).then(() => {
-                                this.ApplyListInstanceFieldRefs(clientContext, listInstances, objects).then(() => {
-                                    this.ApplyFields(clientContext, listInstances, objects).then(() => {
-                                        this.ApplyLookupFields(clientContext, listInstances, objects).then(() => {
-                                            this.ApplyListSecurity(clientContext, listInstances, objects).then(() => {
-                                                this.CreateViews(clientContext, listInstances, objects).then(() => {
-                                                    this.InsertDataRows(clientContext, listInstances, objects).then(() => {
-                                                        this.CreateFolders(clientContext, listInstances, objects).then(() => {
-                                                            this.AddRibbonActions(clientContext, listInstances, objects).then(() => {
-                                                                Core.Log.Information(this.name, Resources.Code_execution_ended);
-                                                                def.resolve();
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
+                            var sequencer = new Utilities.Sequencer([
+                                this.ApplyContentTypeBindings, 
+                                this.ApplyListInstanceFieldRefs,
+                                this.ApplyFields,
+                                this.ApplyLookupFields,
+                                this.ApplyListSecurity,
+                                this.CreateViews,
+                                this.InsertDataRows,
+                                this.CreateFolders,
+                                this.AddRibbonActions
+                            ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }).init(() => {
+                                Core.Log.Information(this.name, Resources.Code_execution_ended);
+                                def.resolve();
                             });
                         },
                         (sender, args) => {
@@ -105,10 +104,10 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private AddRibbonActions(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private AddRibbonActions(params : IFunctionParams) {
             var def = jQuery.Deferred();
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (obj.RibbonActions) {
                     obj.RibbonActions.forEach(ra => {
                         Core.Log.Information("Lists Ribbon Actions", String.format(Resources.Lists_adding_ribbon_action, ra.Name, l.get_title()));
@@ -124,7 +123,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                 }
             });
 
-            clientContext.executeQueryAsync(def.resolve,
+            params.ClientContext.executeQueryAsync(def.resolve,
             (sender, args) => {
                 Core.Log.Error("Lists Ribbon Actions", args.get_message());
                 def.resolve(sender, args);
@@ -145,10 +144,10 @@ module Pzl.Sites.Core.ObjectHandlers {
             eventReceivers.add(eventRecCreationInfo);
             list.update();
         }
-        private CreateFolders(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private CreateFolders(params : IFunctionParams) {
             var def = jQuery.Deferred();
 
-            lists.forEach((l, index) => {
+            params.ListInstances.forEach((l, index) => {
                 var obj = objects[index];
                 if (!obj.Folders) return;
                 var folderServerRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${obj.Url}`;
@@ -184,11 +183,11 @@ module Pzl.Sites.Core.ObjectHandlers {
                         metadataDefaultsFileCreateInfo.get_content().append(metadataDefaults.charCodeAt(i));
                     }
                     rootFolder.get_files().add(metadataDefaultsFileCreateInfo);
-                    this.EnsureLocationBasedMetadataDefaultsReceiver(clientContext, l);
+                    this.EnsureLocationBasedMetadataDefaultsReceiver(params.ClientContext, l);
                 }
             });
 
-            clientContext.executeQueryAsync(def.resolve,
+            params.ClientContext.executeQueryAsync(def.resolve,
                 (sender, args) => {
                     Core.Log.Error("Lists Folders", args.get_message());
                     def.resolve(sender, args);
@@ -196,24 +195,24 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private ApplyContentTypeBindings(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private ApplyContentTypeBindings(params : IFunctionParams) {
             var def = jQuery.Deferred();
-            var webCts = clientContext.get_site().get_rootWeb().get_contentTypes();
+            var webCts = params.ClientContext.get_site().get_rootWeb().get_contentTypes();
             var listCts: Array<SP.ContentTypeCollection> = [];
-            lists.forEach((l, index) => {
+            params.ListInstances.forEach((l, index) => {
                 listCts.push(l.get_contentTypes());
-                clientContext.load(listCts[index], 'Include(Name,Id)');
-                if (objects[index].ContentTypeBindings) {
+                params.ClientContext.load(listCts[index], 'Include(Name,Id)');
+                if (params.Objects[index].ContentTypeBindings) {
                     Core.Log.Information("Lists Content Types", String.format(Resources.Lists_enabled_content_types, l.get_title()));
                     l.set_contentTypesEnabled(true);
                     l.update();
                 }
             });
-            clientContext.load(webCts);
-            clientContext.executeQueryAsync(
+            params.ClientContext.load(webCts);
+            params.ClientContext.executeQueryAsync(
                 () => {
-                    lists.forEach((list, index) => {
-                        var obj = objects[index];
+                    params.ListInstances.forEach((list, index) => {
+                        var obj = params.Objects[index];
                         if (!obj.ContentTypeBindings) return;
                         var listContentTypes = listCts[index];
                         var existingContentTypes = new Array<SP.ContentType>();
@@ -236,7 +235,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         list.update();
                     });
 
-                    clientContext.executeQueryAsync(def.resolve,
+                    params.ClientContext.executeQueryAsync(def.resolve,
                         (sender, args) => {
                             Core.Log.Error("Lists Content Types", args.get_message());
                             def.resolve(sender, args);
@@ -249,11 +248,11 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private ApplyListInstanceFieldRefs(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private ApplyListInstanceFieldRefs(params : IFunctionParams) {
             var def = jQuery.Deferred();
-            var siteFields = clientContext.get_site().get_rootWeb().get_fields();
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            var siteFields = params.ClientContext.get_site().get_rootWeb().get_fields();
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (obj.FieldRefs) {
                     obj.FieldRefs.forEach(fr => {
                         Core.Log.Information("Lists Field Refs", String.format(Resources.Lists_adding_field_ref, fr.Name, l.get_title()));
@@ -263,7 +262,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     l.update();
                 }
             });
-            clientContext.executeQueryAsync(def.resolve,
+            params.ClientContext.executeQueryAsync(def.resolve,
                 (sender, args) => {
                     Core.Log.Error("Lists Field Refs", args.get_message());
                     def.resolve(sender, args);
@@ -271,14 +270,14 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private ApplyFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private ApplyFields(params : IFunctionParams) {
             var def = jQuery.Deferred();
 
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (obj.Fields) {
                     obj.Fields.forEach(f => {
-                        var fieldXml = this.GetFieldXml(f, lists, l);
+                        var fieldXml = this.GetFieldXml(f, params.ListInstances, l);
                         var fieldType = this.GetFieldXmlType(fieldXml);
                         if(fieldType != "Lookup" && fieldType != "LookupMulti" ){
                              l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes); 
@@ -287,7 +286,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     l.update();
                 }
             });
-            clientContext.executeQueryAsync(def.resolve,
+            params.ClientContext.executeQueryAsync(def.resolve,
                 (sender, args) => {
                     Core.Log.Error("Lists Fields", args.get_message());
                     def.resolve(sender, args);
@@ -295,14 +294,14 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private ApplyLookupFields(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private ApplyLookupFields(params : IFunctionParams) {
             var def = jQuery.Deferred();
 
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (obj.Fields) {
                     obj.Fields.forEach(f => { 
-                        var fieldXml = this.GetFieldXml(f, lists, l);
+                        var fieldXml = this.GetFieldXml(f, params.ListInstances, l);
                         var fieldType = this.GetFieldXmlType(fieldXml);
                         if(fieldType == "Lookup" || fieldType == "LookupMulti"){
                             l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
@@ -311,7 +310,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                     l.update();
                 } 
             });
-            clientContext.executeQueryAsync(def.resolve,
+            params.ClientContext.executeQueryAsync(def.resolve,
                 (sender, args) => {
                     Core.Log.Error("Lists Fields", args.get_message());
                     def.resolve(sender, args);
@@ -355,30 +354,30 @@ module Pzl.Sites.Core.ObjectHandlers {
             }
             return fieldXml;
         }
-        private ApplyListSecurity(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private ApplyListSecurity(params : IFunctionParams) {
             var def = jQuery.Deferred();
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (!obj.Security) return;
                 if (obj.Security.BreakRoleInheritance) {
                     Core.Log.Information("Lists Security", String.format(Resources.Lists_breaking_role_inheritance, l.get_title()));
                     l.breakRoleInheritance(obj.Security.CopyRoleAssignments, obj.Security.ClearSubscopes);
                     l.update();
-                    clientContext.load(l.get_roleAssignments());
+                    params.ClientContext.load(l.get_roleAssignments());
                 }
             });
 
-            var web = clientContext.get_web();
+            var web = params.ClientContext.get_web();
             var allProperties = web.get_allProperties();
             var siteGroups = web.get_siteGroups();
             var roleDefinitions = web.get_roleDefinitions();
 
-            clientContext.load(allProperties);
-            clientContext.load(roleDefinitions);
-            clientContext.executeQueryAsync(
+            params.ClientContext.load(allProperties);
+            params.ClientContext.load(roleDefinitions);
+            params.ClientContext.executeQueryAsync(
                 () => {
-                    lists.forEach((l, index) => {
-                        var obj = objects[index];
+                    params.ListInstances.forEach((l, index) => {
+                        var obj = params.Objects[index];
                         if (!obj.Security) return;
                         obj.Security.RoleAssignments.forEach(ra => {
                             var roleDef = null;
@@ -387,7 +386,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                             } else {
                                 roleDef = roleDefinitions.getByName(ra.RoleDefinition);
                             }
-                            var roleBindings = SP.RoleDefinitionBindingCollection.newObject(clientContext);
+                            var roleBindings = SP.RoleDefinitionBindingCollection.newObject(params.ClientContext);
                             roleBindings.add(roleDef);
                             var principal = null;
                             if (ra.Principal.match(/\{[A-Za-z]*\}+/g)) {
@@ -402,7 +401,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         l.update();
                         Core.Log.Information("Lists Security", String.format(Resources.Lists_role_assignments_applied, l.get_title()));
                     });
-                    clientContext.executeQueryAsync(def.resolve,
+                    params.ClientContext.executeQueryAsync(def.resolve,
                         (sender, args) => {
                             Core.Log.Error("Lists Security", `Error: ${args.get_message()}`);
                             def.resolve(sender, args);
@@ -414,24 +413,24 @@ module Pzl.Sites.Core.ObjectHandlers {
                 });
             return def.promise();
         }
-        private CreateViews(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private CreateViews(params : IFunctionParams) {
             Core.Log.Information("Lists Views", Resources.Code_execution_started);
             var def = jQuery.Deferred();
             var listViewCollections: Array<SP.ViewCollection> = [];
 
-            lists.forEach((l, index) => {
+            params.ListInstances.forEach((l, index) => {
                 listViewCollections.push(l.get_views());
-                clientContext.load(listViewCollections[index]);
+                params.ClientContext.load(listViewCollections[index]);
             });
 
-            clientContext.executeQueryAsync(
+            params.ClientContext.executeQueryAsync(
                 () => {
-                    lists.forEach((l, index) => {
-                        var obj = objects[index];
+                    params.ListInstances.forEach((l, index) => {
+                        var obj = params.Objects[index];
                         if (!obj.Views) return;
                  
                         listViewCollections.push(l.get_views());
-                        clientContext.load(listViewCollections[index]);
+                        params.ClientContext.load(listViewCollections[index]);
                         obj.Views.forEach((v) => {
                             var viewExists = jQuery.grep(listViewCollections[index].get_data(), (ev) => {
                                 if(obj.RemoveExistingViews && obj.Views.length > 0) {
@@ -475,10 +474,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 }
                                 l.update();
                             }
-                            clientContext.load(l.get_views());
+                            params.ClientContext.load(l.get_views());
                         });
                     });
-                    clientContext.executeQueryAsync(def.resolve,
+                    params.ClientContext.executeQueryAsync(def.resolve,
                         (sender, args) => {
                             Core.Log.Error("Lists Views", args.get_message());
                             def.resolve(sender, args);
@@ -491,13 +490,13 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private InsertDataRows(clientContext: SP.ClientContext, lists: Array<SP.List>, objects: Array<Schema.IListInstance>) {
+        private InsertDataRows(params : IFunctionParams) {
             Core.Log.Information("Lists Data Rows", Resources.Code_execution_started);
             var def = jQuery.Deferred();
 
             var promises = [];
-            lists.forEach((l, index) => {
-                var obj = objects[index];
+            params.ListInstances.forEach((l, index) => {
+                var obj = params.Objects[index];
                 if (obj.DataRows) {
                     obj.DataRows.forEach((r, index) => {
                         Core.Log.Information("Lists Data Rows", String.format(Resources.Lists_inserting_data_row, (index + 1), obj.DataRows.length, l.get_title()));
@@ -506,11 +505,11 @@ module Pzl.Sites.Core.ObjectHandlers {
                             item.set_item(key, r[key]);
                         }
                         item.update();
-                        clientContext.load(item);
+                        params.ClientContext.load(item);
                     });
                 }
             });
-            clientContext.executeQueryAsync(
+            params.ClientContext.executeQueryAsync(
                 () => {
                     Core.Log.Information("Lists Data Rows", Resources.Code_execution_ended);
                     def.resolve();

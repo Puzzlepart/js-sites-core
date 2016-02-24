@@ -32,7 +32,14 @@ module Pzl.Sites.Core.ObjectHandlers {
                     if (indexedProperties.length > 0) {
                         allProperties.set_item("vti_indexedpropertykeys", indexedProperties.join("|"));
                         web.update();
-                        clientContext.executeQueryAsync(def.resolve, def.resolve);
+                        clientContext.executeQueryAsync(() => {
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                            def.resolve();
+                        },
+                        () => {
+                            Core.Log.Information(this.name, Resources.Code_execution_ended);
+                            def.resolve();
+                        });
                     } else {
                         Core.Log.Information(this.name, Resources.Code_execution_ended);
                         def.resolve();

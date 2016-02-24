@@ -3,9 +3,11 @@ module Pzl.Sites.Core.Utilities {
     export class Sequencer {
         functions: Array<any>;
         parameter: any;
+        ctx: any;
         index = 0;
-        constructor(__functions: Array<any>, __parameter: any) {
+        constructor(__functions: Array<any>, __parameter: any, __ctx: any) {
             this.parameter = __parameter;
+            this.ctx = __ctx;
             this.functions = this.deferredArray(__functions);
         }
         init(callback: Function) {
@@ -24,7 +26,7 @@ module Pzl.Sites.Core.Utilities {
         private deferredArray(__functions: Array<any>) {
             var functions = [];
             __functions.forEach(f => {
-                functions.push(new DeferredObject(f, this.parameter));
+                functions.push(new DeferredObject(f, this.parameter, this.ctx));
             });
             return functions;
         }
@@ -32,17 +34,19 @@ module Pzl.Sites.Core.Utilities {
     class DeferredObject {
         func: any;
         parameter: any;
-        constructor(func, parameter) {
+        ctx: any;
+        constructor(func, parameter, ctx) {
             this.func = func;
             this.parameter = parameter;
+            this.ctx = ctx;
         }
         execute(dependentPromise?) {
             if (!dependentPromise) {
-                return this.func.apply(null, [this.parameter]);
+                return this.func.apply(this.ctx, [this.parameter]);
             }
             var def = jQuery.Deferred();
             dependentPromise.done(() => {
-                this.func.apply(null, [this.parameter]).done(def.resolve);
+                this.func.apply(this.ctx, [this.parameter]).done(def.resolve);
             });
             return def.promise();
         }

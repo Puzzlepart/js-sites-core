@@ -85,7 +85,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                                 this.InsertDataRows,
                                 this.CreateFolders,
                                 this.AddRibbonActions
-                            ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }).init(() => {
+                            ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }, this).init(() => {
                                 Core.Log.Information(this.name, Resources.Code_execution_ended);
                                 def.resolve();
                             });

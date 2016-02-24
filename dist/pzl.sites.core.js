@@ -172,9 +172,10 @@ var Pzl;
             var Utilities;
             (function (Utilities) {
                 var Sequencer = (function () {
-                    function Sequencer(__functions, __parameter) {
+                    function Sequencer(__functions, __parameter, __ctx) {
                         this.index = 0;
                         this.parameter = __parameter;
+                        this.ctx = __ctx;
                         this.functions = this.deferredArray(__functions);
                     }
                     Sequencer.prototype.init = function (callback) {
@@ -195,7 +196,7 @@ var Pzl;
                         var _this = this;
                         var functions = [];
                         __functions.forEach(function (f) {
-                            functions.push(new DeferredObject(f, _this.parameter));
+                            functions.push(new DeferredObject(f, _this.parameter, _this.ctx));
                         });
                         return functions;
                     };
@@ -203,18 +204,19 @@ var Pzl;
                 }());
                 Utilities.Sequencer = Sequencer;
                 var DeferredObject = (function () {
-                    function DeferredObject(func, parameter) {
+                    function DeferredObject(func, parameter, ctx) {
                         this.func = func;
                         this.parameter = parameter;
+                        this.ctx = ctx;
                     }
                     DeferredObject.prototype.execute = function (dependentPromise) {
                         var _this = this;
                         if (!dependentPromise) {
-                            return this.func.apply(null, [this.parameter]);
+                            return this.func.apply(this.ctx, [this.parameter]);
                         }
                         var def = jQuery.Deferred();
                         dependentPromise.done(function () {
-                            _this.func.apply(null, [_this.parameter]).done(def.resolve);
+                            _this.func.apply(_this.ctx, [_this.parameter]).done(def.resolve);
                         });
                         return def.promise();
                     };
@@ -926,7 +928,7 @@ var Pzl;
                                     _this.InsertDataRows,
                                     _this.CreateFolders,
                                     _this.AddRibbonActions
-                                ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }).init(function () {
+                                ], { ClientContext: clientContext, ListInstances: listInstances, Objects: objects }, _this).init(function () {
                                     Core.Log.Information(_this.name, Core.Resources.Code_execution_ended);
                                     def.resolve();
                                 });

@@ -148,7 +148,7 @@ module Pzl.Sites.Core.ObjectHandlers {
             var def = jQuery.Deferred();
 
             params.ListInstances.forEach((l, index) => {
-                var obj = objects[index];
+                var obj = params.Objects[index];
                 if (!obj.Folders) return;
                 var folderServerRelativeUrl = `${_spPageContextInfo.webServerRelativeUrl}/${obj.Url}`;
                 var rootFolder = l.get_rootFolder();
@@ -278,8 +278,10 @@ module Pzl.Sites.Core.ObjectHandlers {
                 if (obj.Fields) {
                     obj.Fields.forEach(f => {
                         var fieldXml = this.GetFieldXml(f, params.ListInstances, l);
-                        var fieldType = this.GetFieldXmlType(fieldXml);
-                        if(fieldType != "Lookup" && fieldType != "LookupMulti" ){
+                        var fieldType = this.GetFieldXmlAttr(fieldXml, 'Type');
+                        var fieldId =  this.GetFieldXmlAttr(fieldXml, 'ID');
+                        if(fieldType != "Lookup" && fieldType != "LookupMulti" ) {
+                                Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field, fieldType, fieldId, l.get_title()));
                              l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes); 
                         }
                     });
@@ -302,8 +304,14 @@ module Pzl.Sites.Core.ObjectHandlers {
                 if (obj.Fields) {
                     obj.Fields.forEach(f => { 
                         var fieldXml = this.GetFieldXml(f, params.ListInstances, l);
-                        var fieldType = this.GetFieldXmlType(fieldXml);
-                        if(fieldType == "Lookup" || fieldType == "LookupMulti"){
+                        if(!fieldXml) {
+                            Core.Log.Information("Lists Lookup Fields", String.format(Resources.Lists_invalid_lookup_field, fieldId, l.get_title()));
+                            return;
+                        }
+                        var fieldType = this.GetFieldXmlAttr(fieldXml, 'Type');
+                        var fieldId =  this.GetFieldXmlAttr(fieldXml, 'ID');
+                        if(fieldType == "Lookup" || fieldType == "LookupMulti") {
+                            Core.Log.Information("Lists Lookup Fields", String.format(Resources.Lists_adding_field, fieldType, fieldId, l.get_title()));
                             l.get_fields().addFieldAsXml(fieldXml, true, SP.AddFieldOptions.addToAllContentTypes);
                         }
                     });
@@ -318,13 +326,12 @@ module Pzl.Sites.Core.ObjectHandlers {
 
             return def.promise();
         }
-        private GetFieldXmlType (fieldXml: string) { 
-             return $(jQuery.parseXML(fieldXml)).find("Field").attr("Type"); 
+        private GetFieldXmlAttr(fieldXml: string, attr: string) { 
+             return $(jQuery.parseXML(fieldXml)).find("Field").attr(attr); 
         }
         private GetFieldXml (field: Schema.IField, lists: Array<SP.List>, list: SP.List){
               var fieldXml = "";
               if (!field.SchemaXml) {
-                Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field, field.Type, field.ID, list.get_title()));
                 var properties = [];
                 for (var prop in field) {
                     var value = field[prop];
@@ -335,8 +342,7 @@ module Pzl.Sites.Core.ObjectHandlers {
                         if (targetList.length > 0) {
                             value = `{${targetList[0].get_id().toString()}}`;
                         } else {
-                            Core.Log.Information("Lists Fields", String.format(Resources.Lists_invalid_lookup_field, field.ID, list.get_title()));
-                            return;
+                            return null;
                         }
                     } 
                     if (prop == "Formula") continue;
@@ -345,12 +351,9 @@ module Pzl.Sites.Core.ObjectHandlers {
                 fieldXml = `<Field ${properties.join(" ")}>`;
                 if (field.Type == "Calculated") fieldXml += `<Formula>${field.Formula}</Formula>`;
                 fieldXml += "</Field>";
-                return fieldXml;
             
             } else {
-                Core.Log.Information("Lists Fields", String.format(Resources.Lists_adding_field_schema_xml, list.get_title())); 
-                fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(field.SchemaXml, lists);
-                return fieldXml;
+                fieldXml = this.tokenParser.ReplaceListTokensFromListCollection(field.SchemaXml, lists);                
             }
             return fieldXml;
         }

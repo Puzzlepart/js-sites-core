@@ -5,7 +5,7 @@ module Pzl.Sites.Core.ObjectHandlers {
      module Helpers {
         export function GetUrlWithoutTokens(url: string) {
             return url.replace("{sitecollection}", _spPageContextInfo.siteAbsoluteUrl)
-                        .replace("{themegallery}", `${_spPageContextInfo.siteAbsoluteUrl}/_catalogs/theme/15`);
+                       .replace("{themegallery}", `${_spPageContextInfo.siteServerRelativeUrl}/_catalogs/theme/15`);
         }
     }
     

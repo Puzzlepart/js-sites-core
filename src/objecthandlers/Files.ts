@@ -11,8 +11,8 @@ module Pzl.Sites.Core.ObjectHandlers {
     }
 
     export class Files extends Model.ObjectHandlerBase {
-        
-        
+
+
         constructor() {
             super("Files")
         }
@@ -136,9 +136,15 @@ module Pzl.Sites.Core.ObjectHandlers {
                         this.GetWebPartXml(webParts).then((webParts: Array<Schema.IWebPart>) => {
                             webParts.forEach(wp => {
                                 if (!wp.Contents.Xml) return;
+
+                                Core.Log.Information("Files Web Parts", String.format(Resources.Files_replace_tokens_webpart, wp.Title));
+                                var webPartDefinition = this.tokenParser.ReplaceUrlTokens(wp.Contents.Xml);
+                                webPartDefinition = this.tokenParser.ReplaceWebPartTokens(webPartDefinition, wp);
+
                                 Core.Log.Information("Files Web Parts", String.format(Resources.Files_adding_webpart, wp.Title, wp.Zone, dest));
-                                var oWebPartDefinition = limitedWebPartManager.importWebPart(this.tokenParser.ReplaceUrlTokens(wp.Contents.Xml));
+                                var oWebPartDefinition = limitedWebPartManager.importWebPart(webPartDefinition);
                                 var oWebPart = oWebPartDefinition.get_webPart();
+
                                 limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
                             });
                             clientContext.executeQueryAsync(def.resolve,

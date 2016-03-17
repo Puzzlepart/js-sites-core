@@ -53,6 +53,7 @@ module Pzl.Sites.Core.Resources {
     export var CustomAction_already_exists = "A custom action with Title '{0}' already exists";
     export var CustomAction_creating = "Creating custom action with Title '{0}'";
     export var Files_retrieving_xml_for_webpart = "Retrieving XML for webpart '{0}' from file";
+    export var Files_replace_tokens_webpart = "Replacing tokens of webpart '{0}' from definition";
     export var Files_removing_existing_webparts = "Removing existing webparts for file with URL '{0}'";
     export var Files_adding_webpart = "Adding web part '{0}' to zone '{1}' for file with URL '{2}'";
     export var Files_setting_properties = "Setting properties for file with URL {0}";

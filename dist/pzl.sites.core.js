@@ -60,6 +60,7 @@ var Pzl;
                 Resources.CustomAction_already_exists = "A custom action with Title '{0}' already exists";
                 Resources.CustomAction_creating = "Creating custom action with Title '{0}'";
                 Resources.Files_retrieving_xml_for_webpart = "Retrieving XML for webpart '{0}' from file";
+                Resources.Files_replace_tokens_webpart = "Replacing tokens of webpart '{0}' from definition";
                 Resources.Files_removing_existing_webparts = "Removing existing webparts for file with URL '{0}'";
                 Resources.Files_adding_webpart = "Adding web part '{0}' to zone '{1}' for file with URL '{2}'";
                 Resources.Files_setting_properties = "Setting properties for file with URL {0}";
@@ -76,6 +77,8 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="../model/model.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -133,11 +136,12 @@ var Pzl;
                         .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                 };
                 return Logger;
-            }());
+            })();
             Core.Logger = Logger;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -157,12 +161,13 @@ var Pzl;
                         return jQuery.ajax({ url: url, type: 'get', headers: this.headers });
                     };
                     return RestHelper;
-                }());
+                })();
                 Utilities.RestHelper = RestHelper;
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -201,7 +206,7 @@ var Pzl;
                         return functions;
                     };
                     return Sequencer;
-                }());
+                })();
                 Utilities.Sequencer = Sequencer;
                 var DeferredObject = (function () {
                     function DeferredObject(func, parameter, scope) {
@@ -221,11 +226,17 @@ var Pzl;
                         return def.promise();
                     };
                     return DeferredObject;
-                }());
+                })();
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="..\model\ObjectHandlerBase.ts" />
+/// <reference path="..\schema\schema.d.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+/// <reference path="..\utilities\RestHelper.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -277,13 +288,19 @@ var Pzl;
                             .replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)
                             .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
                     };
+                    TokenParser.prototype.ReplaceWebPartTokens = function (webPartXml, webpart) {
+                        return webPartXml.replace(/{webpart:title}/g, webpart.Title);
+                    };
                     return TokenParser;
-                }());
+                })();
                 Utilities.TokenParser = TokenParser;
             })(Utilities = Core.Utilities || (Core.Utilities = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -314,12 +331,13 @@ var Pzl;
                         return def.promise();
                     };
                     return ProvisioningStep;
-                }());
+                })();
                 Model.ProvisioningStep = ProvisioningStep;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\..\typings\tsd.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -359,6 +377,12 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\resources\pzl.sites.core.resources.ts" />
+/// <reference path="..\..\typings\tsd.d.ts" />
+/// <reference path="..\model\model.d.ts" />
+/// <reference path="..\helpers\helpers.d.ts" />
+/// <reference path="..\schema\schema.d.ts" />
+/// <reference path="..\pzl.sites.core.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;
@@ -374,12 +398,13 @@ var Pzl;
                     }
                     ObjectHandlerBase.prototype.ProvisionObjects = function (objects, parameters) { };
                     return ObjectHandlerBase;
-                }());
+                })();
                 Model.ObjectHandlerBase = ObjectHandlerBase;
             })(Model = Core.Model || (Core.Model = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -430,12 +455,13 @@ var Pzl;
                         return def.promise();
                     };
                     return ComposedLook;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.ComposedLook = ComposedLook;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -529,12 +555,13 @@ var Pzl;
                         return def.promise();
                     };
                     return CustomActions;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.CustomActions = CustomActions;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -579,12 +606,13 @@ var Pzl;
                         return def.promise();
                     };
                     return Features;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Features = Features;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -714,8 +742,11 @@ var Pzl;
                                     webParts.forEach(function (wp) {
                                         if (!wp.Contents.Xml)
                                             return;
+                                        Core.Log.Information("Files Web Parts", String.format(Core.Resources.Files_replace_tokens_webpart, wp.Title));
+                                        var webPartDefinition = _this.tokenParser.ReplaceUrlTokens(wp.Contents.Xml);
+                                        webPartDefinition = _this.tokenParser.ReplaceWebPartTokens(webPartDefinition, wp);
                                         Core.Log.Information("Files Web Parts", String.format(Core.Resources.Files_adding_webpart, wp.Title, wp.Zone, dest));
-                                        var oWebPartDefinition = limitedWebPartManager.importWebPart(_this.tokenParser.ReplaceUrlTokens(wp.Contents.Xml));
+                                        var oWebPartDefinition = limitedWebPartManager.importWebPart(webPartDefinition);
                                         var oWebPart = oWebPartDefinition.get_webPart();
                                         limitedWebPartManager.addWebPart(oWebPart, wp.Zone, wp.Order);
                                     });
@@ -837,12 +868,13 @@ var Pzl;
                         return array[array.length - 1];
                     };
                     return Files;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Files = Files;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1366,12 +1398,13 @@ var Pzl;
                         return def.promise();
                     };
                     return Lists;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Lists = Lists;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1506,12 +1539,13 @@ var Pzl;
                         return f[0] || null;
                     };
                     return Navigation;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Navigation = Navigation;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1562,12 +1596,13 @@ var Pzl;
                         return split.splice(0, split.length - 1);
                     };
                     return Pages;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Pages = Pages;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1632,12 +1667,13 @@ var Pzl;
                         return b64encoded;
                     };
                     return PropertyBagEntries;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.PropertyBagEntries = PropertyBagEntries;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1713,12 +1749,13 @@ var Pzl;
                         }
                     };
                     return Security;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.Security = Security;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
 "use strict";
 var Pzl;
 (function (Pzl) {
@@ -1784,12 +1821,14 @@ var Pzl;
                         return def.promise();
                     };
                     return WebSettings;
-                }(Core.Model.ObjectHandlerBase));
+                })(Core.Model.ObjectHandlerBase);
                 ObjectHandlers.WebSettings = WebSettings;
             })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\typings\tsd.d.ts" />
+/// <reference path="pzl.sites.core.d.ts" />
 var Pzl;
 (function (Pzl) {
     var Sites;

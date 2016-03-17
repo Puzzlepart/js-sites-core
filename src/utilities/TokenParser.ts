@@ -13,25 +13,25 @@ module Pzl.Sites.Core.Utilities {
         private getTokenKey(textString: string) {
             return textString.replace("{{", "").replace("}}", "").split(":")[0];
         }
-        
+
         public ReplaceListTokens(textString: string) {
             var def = jQuery.Deferred();
 
             var clientContext = SP.ClientContext.get_current();
             var lists = clientContext.get_web().get_lists();
-            
+
             clientContext.load(lists, 'Include(Title,Id)');
             clientContext.executeQueryAsync(() => {
                 var replacedString = this.ReplaceListTokensFromListCollection(textString, lists.get_data());
                 def.resolve(replacedString);
             });
-            
+
             return def.promise();
         }
         public ReplaceListTokensFromListCollection(textString: string, lists: Array<SP.List>) {
             var parsedString = textString;
             var listMatches = textString.match(/{{[listId:]+[\S]*}}/g);
-            
+
             if (listMatches) {
                 listMatches.forEach(element => {
                     var listName = this.getTokenValue(element.toString());
@@ -46,8 +46,11 @@ module Pzl.Sites.Core.Utilities {
         public ReplaceUrlTokens(url: string) {
             return url.replace(/{resources}/g, `${_spPageContextInfo.siteAbsoluteUrl}/resources`)
                       .replace(/{webpartgallery}/g, `${_spPageContextInfo.siteAbsoluteUrl}/_catalogs/wp`)
-                      .replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)                      
+                      .replace(/{site}/g, _spPageContextInfo.webServerRelativeUrl)
                       .replace(/{sitecollection}/g, _spPageContextInfo.siteAbsoluteUrl);
+        }
+        public ReplaceWebPartTokens(webPartXml:string, webpart: Schema.IWebPart) {
+            return webPartXml.replace(/{webpart:title}/g, webpart.Title);
         }
     }
 }

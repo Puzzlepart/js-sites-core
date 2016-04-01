@@ -84,4 +84,3 @@ module Pzl.Sites.Core {
         return def.promise();
     }
 }
-//@ sourceURL=pzl.sites.core.js

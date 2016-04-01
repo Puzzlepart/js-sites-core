@@ -65,5 +65,7 @@ module Pzl.Sites.Core.Resources {
     export var Files_modifying_list_view = "Modifying list view with Url '{0}' for list '{1}'";
     export var Features_activating_feature = "Activating feature with ID '{0}'";
     export var Features_deactivating_feature = "Deactivating feature with ID '{0}'";
-    export var ComposedLook_applying_theme = "Applying theme. Color file '{0}' and font file '{1}'."
+    export var ComposedLook_applying_theme = "Applying theme. Color file '{0}' and font file '{1}'.";
+    export var Providers_Queuing_Provider_JavaScript_function = "Queuing provider-referenced JavaScript function";
+    export var Providers_Loaded_Referenced_Script_Calling_Method = "Loaded script-file and executing provider-referenced JavaScript function";
 }

@@ -73,6 +73,8 @@ var Pzl;
                 Resources.Features_activating_feature = "Activating feature with ID '{0}'";
                 Resources.Features_deactivating_feature = "Deactivating feature with ID '{0}'";
                 Resources.ComposedLook_applying_theme = "Applying theme. Color file '{0}' and font file '{1}'.";
+                Resources.Providers_Queuing_Provider_JavaScript_function = "Queuing provider-referenced JavaScript function";
+                Resources.Providers_Loaded_Referenced_Script_Calling_Method = "Loaded script-file and executing provider-referenced JavaScript function";
             })(Resources = Core.Resources || (Core.Resources = {}));
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
@@ -1857,16 +1859,8 @@ var Pzl;
                                     o.Configuration.FuncParams.forEach(function (param) {
                                         funcParams.push(_this.tokenParser.ReplaceUrlTokens(param));
                                     });
-                                    promises.push(function (fileName, fileRef, funcName, funcParams) {
-                                        SP.SOD.registerSod(fileName, fileRef);
-                                        var fDef = jQuery.Deferred();
-                                        EnsureScriptFunc(fileName, null, function () {
-                                            jQuery.when(_this[funcName].apply(_this, funcParams)).then(function () {
-                                                fDef.resolve();
-                                            });
-                                        }, fileName);
-                                        return fDef.promise();
-                                    });
+                                    Core.Log.Information(_this.name, Core.Resources.Providers_Queuing_Provider_JavaScript_function);
+                                    promises.push(_this.ExecuteFunc(fileName, fileRef, funcName, funcParams));
                                 }
                             }
                         });
@@ -1874,6 +1868,18 @@ var Pzl;
                             def.resolve();
                         });
                         return def.promise();
+                    };
+                    Providers.prototype.ExecuteFunc = function (fileName, fileRef, funcName, funcParams) {
+                        var _this = this;
+                        SP.SOD.registerSod(fileName, fileRef);
+                        var fDef = jQuery.Deferred();
+                        EnsureScriptFunc(fileName, null, function () {
+                            Core.Log.Information(_this.name, Core.Resources.Providers_Loaded_Referenced_Script_Calling_Method);
+                            jQuery.when(eval(funcName).apply(_this, funcParams)).then(function () {
+                                fDef.resolve();
+                            });
+                        });
+                        return fDef.promise();
                     };
                     return Providers;
                 })(Core.Model.ObjectHandlerBase);

@@ -4,6 +4,7 @@
 /// <reference path="..\helpers\helpers.d.ts" />
 /// <reference path="..\schema\schema.d.ts" />
 /// <reference path="..\pzl.sites.core.d.ts" />
+
 module Pzl.Sites.Core.Model {
     export class ObjectHandlerBase implements IObjectHandler {
         name: string;

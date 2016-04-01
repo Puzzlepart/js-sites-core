@@ -1,6 +1,6 @@
 /// <reference path="schema.d.ts" />
 declare module Pzl.Sites.Core.Schema {
-    interface SiteSchema {     
+    interface SiteSchema {
         Lists: Array<IListInstance>;
         Files: Array<IFile>;
         Pages: Array<IPage>;
@@ -11,5 +11,6 @@ declare module Pzl.Sites.Core.Schema {
         Parameters: Object;
         WebSettings: IWebSettings;
         Features: Array<IFeature>;
+        Providers: Array<IProvider>;
     }
 }

@@ -8,3 +8,4 @@
 /// <reference path='PropertyBagEntries.ts' />
 /// <reference path='Security.ts' />
 /// <reference path='WebSettings.ts' />
+/// <reference path='Providers.ts' />

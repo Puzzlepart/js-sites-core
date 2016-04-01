@@ -11,8 +11,6 @@ module Pzl.Sites.Core.ObjectHandlers {
     }
 
     export class Files extends Model.ObjectHandlerBase {
-
-
         constructor() {
             super("Files")
         }

@@ -1827,6 +1827,61 @@ var Pzl;
         })(Core = Sites.Core || (Sites.Core = {}));
     })(Sites = Pzl.Sites || (Pzl.Sites = {}));
 })(Pzl || (Pzl = {}));
+/// <reference path="..\model\ObjectHandlerBase.ts" />
+"use strict";
+var Pzl;
+(function (Pzl) {
+    var Sites;
+    (function (Sites) {
+        var Core;
+        (function (Core) {
+            var ObjectHandlers;
+            (function (ObjectHandlers) {
+                var Providers = (function (_super) {
+                    __extends(Providers, _super);
+                    function Providers() {
+                        _super.call(this, "Providers");
+                    }
+                    Providers.prototype.ProvisionObjects = function (objects) {
+                        var _this = this;
+                        Core.Log.Information(this.name, Core.Resources.Code_execution_started);
+                        var def = jQuery.Deferred();
+                        var promises = [];
+                        objects.forEach(function (o) {
+                            if (o.Enabled) {
+                                if (o.HandlerType === "JavaScript" && o.Configuration) {
+                                    var fileRef = _this.tokenParser.ReplaceUrlTokens(o.Configuration.FileRef);
+                                    var fileName = fileRef.split('/').pop();
+                                    var funcName = o.Configuration.Func;
+                                    var funcParams = [];
+                                    o.Configuration.FuncParams.forEach(function (param) {
+                                        funcParams.push(_this.tokenParser.ReplaceUrlTokens(param));
+                                    });
+                                    promises.push(function (fileName, fileRef, funcName, funcParams) {
+                                        SP.SOD.registerSod(fileName, fileRef);
+                                        var fDef = jQuery.Deferred();
+                                        EnsureScriptFunc(fileName, null, function () {
+                                            jQuery.when(_this[funcName].apply(_this, funcParams)).then(function () {
+                                                fDef.resolve();
+                                            });
+                                        }, fileName);
+                                        return fDef.promise();
+                                    });
+                                }
+                            }
+                        });
+                        jQuery.when.apply(null, promises).then(function () {
+                            def.resolve();
+                        });
+                        return def.promise();
+                    };
+                    return Providers;
+                })(Core.Model.ObjectHandlerBase);
+                ObjectHandlers.Providers = Providers;
+            })(ObjectHandlers = Core.ObjectHandlers || (Core.ObjectHandlers = {}));
+        })(Core = Sites.Core || (Sites.Core = {}));
+    })(Sites = Pzl.Sites || (Pzl.Sites = {}));
+})(Pzl || (Pzl = {}));
 /// <reference path="..\typings\tsd.d.ts" />
 /// <reference path="pzl.sites.core.d.ts" />
 var Pzl;
